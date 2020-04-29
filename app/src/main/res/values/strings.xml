@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Lesson1</string>
+    <string name="app_name">Contact Book</string>
+    <string name="header_contacts">Контакты</string>
+    <string name="header_description">Описание контакта</string>
+    <string name="toolbar_header_person_list">Список контактов</string>
+    <string name="toolbar_header_person_details">Детали контакта</string>
 </resources>
