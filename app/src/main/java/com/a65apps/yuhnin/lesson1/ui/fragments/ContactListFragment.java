@@ -43,10 +43,8 @@ public class ContactListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
-        ((MainActivity) Objects.requireNonNull(getActivity())).setToolbarText(getString (R.string.toolbar_header_person_list));
-
+        ((MainActivity) requireActivity()).setToolbarText(getString(R.string.toolbar_header_person_list));
         personListAdapter = new PersonListAdapter(getActivity(), personList);
         listviewPersons = view.findViewById(R.id.listViewContacts);
         listviewPersons.setAdapter(personListAdapter);
@@ -61,8 +59,15 @@ public class ContactListFragment extends Fragment {
 
     @Override
     public void onResume() {
-        ((MainActivity) Objects.requireNonNull(getActivity())).showToolbarbackButton(false);
+        ((MainActivity) requireActivity()).showToolbarbackButton(false);
         super.onResume();
+    }
+
+    @Override
+    public void onDestroyView() {
+        listviewPersons = null;
+        personListAdapter = null;
+        super.onDestroyView();
     }
 
     /**

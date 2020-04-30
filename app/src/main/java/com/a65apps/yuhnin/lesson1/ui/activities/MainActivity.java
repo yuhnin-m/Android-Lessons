@@ -20,7 +20,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity  {
     private static final String LOG_TAG = "activity_application";
 
-    ContactListFragment contactListFragment;
     FragmentManager fragmentManager = getSupportFragmentManager();
     Toolbar toolbar;
 
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
     private void createPersonListFragment() {
-        contactListFragment = new ContactListFragment();
+        ContactListFragment contactListFragment = new ContactListFragment();
         fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment).commit();
     }
 

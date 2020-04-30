@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,10 +19,8 @@ import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ContactDetailsFragment extends Fragment {
-    static ContactDetailsFragment instance;
     static final String ARG_PARAM_PERSON_ID = "PERSON_ID";
     PersonModel person;
     List<ContactInfoModel> contactInfoList;
@@ -31,7 +28,7 @@ public class ContactDetailsFragment extends Fragment {
     ImageView ivAvatar;
     TextView tvFullname;
     ListView lvContacts;
-    EditText etDescription;
+    TextView tvDescription;
 
     public ContactDetailsFragment() {
         // Required empty public constructor
@@ -59,7 +56,7 @@ public class ContactDetailsFragment extends Fragment {
         ivAvatar = view.findViewById(R.id.iv_avatar);
         tvFullname = view.findViewById(R.id.tv_fullname);
         lvContacts = view.findViewById(R.id.lv_contacts);
-        etDescription = view.findViewById(R.id.et_person_description);
+        tvDescription = view.findViewById(R.id.tv_person_description);
         updateFields();
         return view;
     }
@@ -67,10 +64,20 @@ public class ContactDetailsFragment extends Fragment {
 
     @Override
     public void onResume() {
-        ((MainActivity) Objects.requireNonNull(getActivity())).showToolbarbackButton(true);
-        ((MainActivity) Objects.requireNonNull(getActivity())).setToolbarText(getString(R.string.toolbar_header_person_details));
+        ((MainActivity) requireActivity()).showToolbarbackButton(true);
+        ((MainActivity) requireActivity()).setToolbarText(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
+
+    @Override
+    public void onDestroyView() {
+        ivAvatar = null;
+        tvFullname = null;
+        lvContacts = null;
+        tvDescription = null;
+        super.onDestroyView();
+    }
+
 
 
     private PersonModel getPersonModel(long personId) {
@@ -84,7 +91,7 @@ public class ContactDetailsFragment extends Fragment {
     private void updateFields() {
         ivAvatar.setImageResource(person.getImageResource());
         tvFullname.setText(person.getFullName());
-        etDescription.setText(person.getDescription());
+        tvDescription.setText(person.getDescription());
 
         ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
         lvContacts.setAdapter(contactListAdapter);
