@@ -32,5 +32,5 @@
 ### Результат
 | Главный экран | Детали контакта |
 | ------ | ------ |
-| ![Детали](https://i.imgur.com/wzEXaTm.jpg) |![Главный экран](https://i.imgur.com/rhFKsrB.jpg)
+| ![Детали](https://i.imgur.com/AavdvqJ.jpg) |![Главный экран](https://i.imgur.com/rhFKsrB.jpg)
   
