@@ -1,7 +1,9 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -17,6 +19,8 @@ import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
 import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
+import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
+import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
 
 import java.util.List;
 
@@ -29,11 +33,26 @@ public class ContactDetailsFragment extends Fragment {
     TextView tvFullname;
     ListView lvContacts;
     TextView tvDescription;
+    @Nullable
+    private EventActionBarListener eventActionBarListener;
 
     public ContactDetailsFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(@Nullable Context context) {
+        if (context instanceof EventActionBarListener) {
+            eventActionBarListener = (EventActionBarListener) context;
+        }
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        eventActionBarListener = null;
+        super.onDetach();
+    }
 
 
     @Override
@@ -64,8 +83,8 @@ public class ContactDetailsFragment extends Fragment {
 
     @Override
     public void onResume() {
-        ((MainActivity) requireActivity()).showToolbarbackButton(true);
-        ((MainActivity) requireActivity()).setToolbarText(getString(R.string.toolbar_header_person_details));
+        eventActionBarListener.setVisibleToolBarBackButton(true);
+        requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
 

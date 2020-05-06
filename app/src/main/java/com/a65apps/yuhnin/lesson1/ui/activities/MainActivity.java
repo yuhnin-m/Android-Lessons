@@ -14,11 +14,14 @@ import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactDetailsFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactListFragment;
+import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
+import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
 
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity  {
-    private static final String LOG_TAG = "activity_application";
+public class MainActivity extends AppCompatActivity implements OnPersonClickedListener, EventActionBarListener {
+
+    private final String LOG_TAG = "activity_application";
 
     FragmentManager fragmentManager = getSupportFragmentManager();
     Toolbar toolbar;
@@ -50,7 +53,12 @@ public class MainActivity extends AppCompatActivity  {
         fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment).commit();
     }
 
-    public void onPersonClicked(long personId) {
+    public void setToolbarText(String text) {
+        getSupportActionBar().setTitle(text);
+    }
+
+    @Override
+    public void onItemClick(long personId) {
         Bundle bundle = new Bundle();
         bundle.putLong("PERSON_ID", personId);
         ContactDetailsFragment contactDetailsFragment = new ContactDetailsFragment();
@@ -59,14 +67,10 @@ public class MainActivity extends AppCompatActivity  {
                 .replace(R.id.fragment_container, contactDetailsFragment)
                 .addToBackStack(null)
                 .commit();
-
     }
 
-    public void showToolbarbackButton(boolean isVisible) {
+    @Override
+    public void setVisibleToolBarBackButton(boolean isVisible) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(isVisible);
-
-    }
-    public void setToolbarText(String text) {
-        getSupportActionBar().setTitle(text);
     }
 }

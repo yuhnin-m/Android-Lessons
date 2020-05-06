@@ -1,7 +1,9 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -18,6 +20,8 @@ import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
 import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
+import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
+import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,11 +29,41 @@ import java.util.Objects;
 /**
  * Фрагмент списка контактов
  */
+// parent activity will implement this method to respond to click events
+
+
+
 public class ContactListFragment extends Fragment {
 
     ListView listviewPersons;
     List<PersonModel> personList;
     PersonListAdapter personListAdapter;
+
+    @Nullable
+    private OnPersonClickedListener onPersonClickedListener;
+
+    @Nullable
+    private EventActionBarListener eventActionBarListener;
+
+    @Override
+    public void onAttach(@Nullable Context context) {
+        if (context instanceof OnPersonClickedListener) {
+            onPersonClickedListener = (OnPersonClickedListener) context;
+        }
+        if (context instanceof EventActionBarListener) {
+            eventActionBarListener = (EventActionBarListener) context;
+        }
+        super.onAttach(context);
+    }
+
+
+    @Override
+    public void onDetach() {
+        onPersonClickedListener = null;
+        eventActionBarListener = null;
+        super.onDetach();
+    }
+
 
     public ContactListFragment() {
         getPersons();
@@ -44,14 +78,14 @@ public class ContactListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
-        ((MainActivity) requireActivity()).setToolbarText(getString(R.string.toolbar_header_person_list));
+        requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
         personListAdapter = new PersonListAdapter(getActivity(), personList);
         listviewPersons = view.findViewById(R.id.listViewContacts);
         listviewPersons.setAdapter(personListAdapter);
         listviewPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).onPersonClicked(id);
+                onPersonClickedListener.onItemClick(id);
             }
         });
         return view;
@@ -59,7 +93,7 @@ public class ContactListFragment extends Fragment {
 
     @Override
     public void onResume() {
-        ((MainActivity) requireActivity()).showToolbarbackButton(false);
+        eventActionBarListener.setVisibleToolBarBackButton(false);
         super.onResume();
     }
 
