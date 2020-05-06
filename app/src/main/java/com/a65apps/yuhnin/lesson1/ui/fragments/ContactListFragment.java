@@ -85,7 +85,9 @@ public class ContactListFragment extends Fragment {
         listviewPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                onPersonClickedListener.onItemClick(id);
+                if (onPersonClickedListener != null) {
+                    onPersonClickedListener.onItemClick(id);
+                }
             }
         });
         return view;
@@ -93,7 +95,9 @@ public class ContactListFragment extends Fragment {
 
     @Override
     public void onResume() {
-        eventActionBarListener.setVisibleToolBarBackButton(false);
+        if (eventActionBarListener != null) {
+            eventActionBarListener.setVisibleToolBarBackButton(false);
+        }
         super.onResume();
     }
 

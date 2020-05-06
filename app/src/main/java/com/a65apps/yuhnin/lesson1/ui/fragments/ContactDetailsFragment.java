@@ -83,7 +83,9 @@ public class ContactDetailsFragment extends Fragment {
 
     @Override
     public void onResume() {
-        eventActionBarListener.setVisibleToolBarBackButton(true);
+        if (eventActionBarListener != null) {
+            eventActionBarListener.setVisibleToolBarBackButton(true);
+        }
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
