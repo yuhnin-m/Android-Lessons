@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
             DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
+            createPersonListFragment();
             Log.i(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
         }
 
@@ -82,11 +83,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onCreate strat");
-
-        // Bind to LocalService
-        Intent intent = new Intent(this, DataFetchService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
@@ -94,7 +90,10 @@ public class MainActivity extends AppCompatActivity
         fragmentManager = getSupportFragmentManager();
         if (findViewById(R.id.fragment_container) != null) {
             if(savedInstanceState == null) {
-                createPersonListFragment();
+                // Bind to LocalService
+                Intent intent = new Intent(this, DataFetchService.class);
+                bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+//                createPersonListFragment();
             }
         }
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
