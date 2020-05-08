@@ -89,12 +89,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         fragmentManager = getSupportFragmentManager();
         if (findViewById(R.id.fragment_container) != null) {
-            if(savedInstanceState == null) {
-                // Bind to LocalService
-                Intent intent = new Intent(this, DataFetchService.class);
-                bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-//                createPersonListFragment();
-            }
+            Intent intent = new Intent(this, DataFetchService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         }
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
