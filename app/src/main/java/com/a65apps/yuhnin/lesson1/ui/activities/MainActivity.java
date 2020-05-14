@@ -88,10 +88,8 @@ public class MainActivity extends AppCompatActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         fragmentManager = getSupportFragmentManager();
-        if (findViewById(R.id.fragment_container) != null) {
-            Intent intent = new Intent(this, DataFetchService.class);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        }
+        Intent intent = new Intent(this, DataFetchService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,13 +118,13 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container, contactDetailsFragment)
                 .addToBackStack(null)
                 .commit();
-        int num = mService.getRandomNumber();
-        Log.d(LOG_TAG, "Сгенерировано новое случайное число: " + num);
     }
 
     @Override
     public void setVisibleToolBarBackButton(boolean isVisible) {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(isVisible);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(isVisible);
+        }
     }
 
     @Override
