@@ -66,7 +66,9 @@ public class MainActivity extends AppCompatActivity
             DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
-            createPersonListFragment();
+            if (fragmentManager.getFragments().isEmpty()) {
+                createPersonListFragment();
+            }
             Log.i(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
         }
 
