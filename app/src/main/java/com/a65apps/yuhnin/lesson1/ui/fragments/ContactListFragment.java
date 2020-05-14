@@ -11,20 +11,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
-import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
+import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
+import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
+import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Фрагмент списка контактов
@@ -33,10 +33,11 @@ import java.util.Objects;
 
 
 
-public class ContactListFragment extends Fragment {
+public class ContactListFragment extends Fragment implements PersonListResultListener {
 
+    final String LOG_TAG = "contact_list_fragment";
     ListView listviewPersons;
-    List<PersonModel> personList;
+
     PersonListAdapter personListAdapter;
 
     @Nullable
@@ -45,13 +46,23 @@ public class ContactListFragment extends Fragment {
     @Nullable
     private EventActionBarListener eventActionBarListener;
 
+    @Nullable
+    EventDataFetchServiceListener eventDataFetchServiceListener;
+
     @Override
     public void onAttach(@Nullable Context context) {
+        Log.d(LOG_TAG, "onAttach");
         if (context instanceof OnPersonClickedListener) {
             onPersonClickedListener = (OnPersonClickedListener) context;
+            Log.d(LOG_TAG, "onAttach - OnPersonClickedListener binding");
         }
         if (context instanceof EventActionBarListener) {
             eventActionBarListener = (EventActionBarListener) context;
+            Log.d(LOG_TAG, "onAttach - EventActionBarListener binding");
+        }
+        if (context instanceof EventDataFetchServiceListener) {
+            eventDataFetchServiceListener = (EventDataFetchServiceListener) context;
+            Log.d(LOG_TAG, "onAttach - EventDataFetchServiceListener binding");
         }
         super.onAttach(context);
     }
@@ -59,28 +70,21 @@ public class ContactListFragment extends Fragment {
 
     @Override
     public void onDetach() {
+        Log.d(LOG_TAG, "onDetach");
         onPersonClickedListener = null;
         eventActionBarListener = null;
+        eventDataFetchServiceListener = null;
         super.onDetach();
     }
 
-
     public ContactListFragment() {
-        getPersons();
+
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
-        requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
+    private void createPersonsListView(List<PersonModel> personList) {
+        Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
         personListAdapter = new PersonListAdapter(getActivity(), personList);
-        listviewPersons = view.findViewById(R.id.listViewContacts);
+
         listviewPersons.setAdapter(personListAdapter);
         listviewPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -90,30 +94,50 @@ public class ContactListFragment extends Fragment {
                 }
             }
         });
-        return view;
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreate");
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreateView");
+        View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
+        listviewPersons = view.findViewById(R.id.listViewContacts);
+        requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
+
+        return view;
+    }
+
+
+    @Override
     public void onResume() {
+        Log.d(LOG_TAG, "onResume");
+        super.onResume();
         if (eventActionBarListener != null) {
             eventActionBarListener.setVisibleToolBarBackButton(false);
         }
-        super.onResume();
+        if (eventDataFetchServiceListener != null) {
+            Log.d(LOG_TAG, "onCreateView - запрашиваем getPersonList");
+            eventDataFetchServiceListener.getPersonList(this);
+        }
     }
 
     @Override
     public void onDestroyView() {
+        Log.d(LOG_TAG, "onDestroyView");
         listviewPersons = null;
         personListAdapter = null;
         super.onDestroyView();
     }
 
-    /**
-     * Метод загрузки данных в список контактов
-     */
-    private void getPersons() {
-        ContactRepository contactRepository = new ContactRepositoryFakeImp();
-        personList = contactRepository.getAllPersons();
+    @Override
+    public void onFetchPersonList(List<PersonModel> personList) {
+        Log.d(LOG_TAG, "ПОЛУЧЕНЫ ДАННЫЕ СПИСКА КОНТАКТОВ");
+        createPersonsListView(personList);
     }
-
 }
