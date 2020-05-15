@@ -1,16 +1,19 @@
 package com.a65apps.yuhnin.lesson1.repository;
 
+import android.util.Log;
+
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.ContactType;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class ContactRepositoryFakeImp  implements ContactRepository{
-
+    private final String LOG_TAG = "contact_repository_fake";
     private static ContactRepositoryFakeImp instance;
 
     public static synchronized ContactRepositoryFakeImp getInstance() {
@@ -26,25 +29,29 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
 
 
     public ContactRepositoryFakeImp() {
-        createPersons();
-        createContacts();
+        try {
+            createPersons();
+            createContacts();
+        }catch (ParseException ex) {
+            Log.e(LOG_TAG, "Ошибка формата даты рождения при создании списка контактов. " +
+                    ex.getMessage());
+        }
     }
 
-    private void createPersons() {
+    private void createPersons() throws ParseException{
         personModels.add(new PersonModel(
                 1,
                 "Юрий","Гагарин","Алексеевич",
-                "Восток-1", R.drawable.avatar1));
+                "Восток-1", R.drawable.avatar1, "09-03-1934"));
 
         personModels.add(new PersonModel(
                 2,
                 "Алексей","Леонов","Архипович",
-                "Восход-2", R.drawable.avatar2));
+                "Восход-2", R.drawable.avatar2, "30-05-1934"));
 
         personModels.add(new PersonModel(3,
                 "Герман","Титов","Степанович",
-                "Восток-2", R.drawable.avatar3));
-
+                "Восток-2", R.drawable.avatar3, "11-09-1935"));
     }
 
 

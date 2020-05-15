@@ -1,6 +1,9 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -19,11 +23,14 @@ import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
 import com.a65apps.yuhnin.lesson1.services.DataFetchService;
+import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -49,7 +56,8 @@ public class ContactDetailsFragment extends Fragment
     TextView tvFullname;
     ListView lvContacts;
     TextView tvDescription;
-
+    TextView tvBirthday;
+    Button btnRemindBirthday;
 
 
     public ContactDetailsFragment() {
@@ -91,6 +99,8 @@ public class ContactDetailsFragment extends Fragment
         tvFullname = view.findViewById(R.id.tv_fullname);
         lvContacts = view.findViewById(R.id.lv_contacts);
         tvDescription = view.findViewById(R.id.tv_person_description);
+        tvBirthday = view.findViewById(R.id.tv_birthday);
+        btnRemindBirthday = view.findViewById(R.id.btn_remind_birthday);
         // Запрашиваем данные из сервиса
         if (eventDataFetchServiceListener != null) {
             eventDataFetchServiceListener.getPersonById(personId, this);
@@ -119,11 +129,24 @@ public class ContactDetailsFragment extends Fragment
         super.onDestroyView();
     }
 
+    private void setRepeatingAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent  = PendingIntent.getBroadcast(context, 0, intent, 0);
+        long interval = 60 * 1000;
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+    }
+
+    private void setBirthdayReminder() {
+
+    }
 
     private void updateFields() {
         ivAvatar.setImageResource(person.getImageResource());
         tvFullname.setText(person.getFullName());
         tvDescription.setText(person.getDescription());
+        tvBirthday.setText(String.format(getString(R.string.text_birthday), person.getStringBirthday()));
+        btnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
     }
 
 

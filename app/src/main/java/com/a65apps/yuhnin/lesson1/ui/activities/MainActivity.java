@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+            String a = null;
             Log.i(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
 
         }
