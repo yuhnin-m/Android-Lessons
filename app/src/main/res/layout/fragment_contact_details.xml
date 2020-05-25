@@ -54,12 +54,14 @@
                     android:gravity="center|left"
                     android:text="День рождения" />
 
-                <Button
-                    android:id="@+id/btn_remind_birthday"
+                <ToggleButton
+                    android:id="@+id/togglebtn_remind_birthday"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="@string/button_text_remind_birthday_on" />
+                    android:textOff="@string/button_text_remind_birthday_off"
+                    android:textOn="@string/button_text_remind_birthday_on"
+                    />
             </LinearLayout>
 
         </LinearLayout>

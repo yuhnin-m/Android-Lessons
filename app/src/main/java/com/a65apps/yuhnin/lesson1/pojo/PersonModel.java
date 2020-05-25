@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PersonModel {
-    private long id;
+    private int id;
     private final String firstName;
     private final String secondName;
     private final String thirdName;
@@ -21,7 +21,7 @@ public class PersonModel {
 
     private int imageResource;
 
-    public PersonModel(long id, @NonNull String firstName, @NonNull String secondName,
+    public PersonModel(int id, @NonNull String firstName, @NonNull String secondName,
                        @NonNull String thirdName, @NonNull String description, int imageResource, String dateBirthday) throws ParseException {
         this.id = id;
         this.firstName = firstName;
@@ -32,11 +32,11 @@ public class PersonModel {
         this.dateBirthday = new SimpleDateFormat("dd-MM-yyyy").parse(dateBirthday);
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -48,23 +48,23 @@ public class PersonModel {
     }
 
     public String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     public String getSecondName() {
-        return secondName;
+        return this.secondName;
     }
 
     public String getThirdName() {
-        return thirdName;
+        return this.thirdName;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public Date getDateBirthday() {
-        return dateBirthday;
+        return this.dateBirthday;
     }
 
     public String getStringBirthday() {

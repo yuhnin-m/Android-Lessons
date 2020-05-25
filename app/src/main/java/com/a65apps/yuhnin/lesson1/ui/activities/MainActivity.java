@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -67,7 +70,12 @@ public class MainActivity extends AppCompatActivity
             mService = binder.getService();
             mBound = true;
             if (fragmentManager.getFragments().isEmpty()) {
-                createPersonListFragment();
+                int id = getIntent().getIntExtra("KEY_PERSON_ID", -1);
+                if (id > 0) {
+                    сreateDetailsFragment(id);
+                } else {
+                    createPersonListFragment();
+                }
             }
             Log.i(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
         }
@@ -90,6 +98,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        createNotificationChannel();
         fragmentManager = getSupportFragmentManager();
         Intent intent = new Intent(this, DataFetchService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -110,17 +119,27 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment).commit();
     }
 
+    private void сreateDetailsFragment(int personId) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("PERSON_ID", personId);
+        ContactDetailsFragment contactDetailsFragment = new ContactDetailsFragment();
+        contactDetailsFragment.setArguments(bundle);
+        if (fragmentManager.getFragments().isEmpty()) {
+            fragmentManager.beginTransaction()
+                    .add(R.id.fragment_container, contactDetailsFragment)
+                    .commit();
+        } else {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, contactDetailsFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+
+    }
 
     @Override
     public void onItemClick(long personId) {
-        Bundle bundle = new Bundle();
-        bundle.putLong("PERSON_ID", personId);
-        ContactDetailsFragment contactDetailsFragment = new ContactDetailsFragment();
-        contactDetailsFragment.setArguments(bundle);
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, contactDetailsFragment)
-                .addToBackStack(null)
-                .commit();
+        сreateDetailsFragment((int)personId);
     }
 
     @Override
@@ -152,5 +171,19 @@ public class MainActivity extends AppCompatActivity
         if (mService != null) {
             mService.fetchContactInfo(callback, id);
         }
+    }
+
+    public void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(
+                "channel",
+                getString(R.string.notification_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription(getString(R.string.notification_channel_desc));
+        notificationManager.createNotificationChannel(channel);
     }
 }
