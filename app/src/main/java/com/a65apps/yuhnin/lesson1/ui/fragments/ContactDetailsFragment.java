@@ -189,17 +189,19 @@ public class ContactDetailsFragment extends Fragment
                 alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(System.currentTimeMillis());
-                //calendar.setTime(person.getDateBirthday());
+                calendar.setTime(person.getDateBirthday());
+                calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+                // Временный блок - для проверки
+                /*
                 calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
                 calendar.set(Calendar.MONTH, Calendar.MAY);
-                calendar.set(Calendar.DAY_OF_MONTH, 25);
-                calendar.set(Calendar.HOUR, 16);
-                calendar.set(Calendar.MINUTE, 56);
+                calendar.set(Calendar.DAY_OF_MONTH, 26);
+                calendar.set(Calendar.HOUR, 13);
+                calendar.set(Calendar.MINUTE, 18);
                 calendar.set(Calendar.SECOND, 0);
-
+                */
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                         alarmIntent);
-
             } else {
                 if (alarmManager != null) {
                     Log.d(LOG_TAG, "Remove birthday reminder");
