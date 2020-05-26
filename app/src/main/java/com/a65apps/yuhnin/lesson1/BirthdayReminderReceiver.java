@@ -27,6 +27,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         Intent activityIntent = new Intent(context, MainActivity.class);
         activityIntent.putExtra("KEY_PERSON_ID", person_id);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Выводим уведомление
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channel")
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle(context.getString(R.string.text_birthday))
@@ -38,6 +39,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(intent.getIntExtra("KEY_ID", -1), builder.build());
 
+        // Добавляем новое напоминание о ДР через год
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         try {
@@ -47,7 +49,6 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         }
         calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
         calendar.add(Calendar.YEAR, 1);
-
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, person_id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);

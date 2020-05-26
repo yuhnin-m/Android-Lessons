@@ -191,7 +191,7 @@ public class ContactDetailsFragment extends Fragment
                 calendar.setTimeInMillis(System.currentTimeMillis());
                 calendar.setTime(person.getDateBirthday());
                 calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
-                // Временный блок - для проверки
+                // Временный блок - для проверки создания события
                 /*
                 calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
                 calendar.set(Calendar.MONTH, Calendar.MAY);
