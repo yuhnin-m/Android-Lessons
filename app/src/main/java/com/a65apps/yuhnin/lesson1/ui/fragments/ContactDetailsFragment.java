@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -155,13 +156,13 @@ public class ContactDetailsFragment extends Fragment
     }
 
     @Override
-    public void onFetchPersonModel(PersonModel personModels) {
+    public void onFetchPersonModel(final PersonModel personModels) {
         this.person = personModels;
-        toggleBtnRemindBirthday.setEnabled(person.getDateBirthday() != null);
-        if (alarmManager != null && toggleBtnRemindBirthday != null) {
+        if (toggleBtnRemindBirthday != null) {
+            toggleBtnRemindBirthday.setEnabled(personModels.getDateBirthday() != null);
             boolean reminderEnabled = checkBirthdayReminder();
+            //toggleBtnRemindBirthday.setChecked(reminderEnabled);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
-            toggleBtnRemindBirthday.setChecked(reminderEnabled);
         }
         updateFields();
     }
@@ -191,15 +192,6 @@ public class ContactDetailsFragment extends Fragment
                 calendar.setTimeInMillis(System.currentTimeMillis());
                 calendar.setTime(person.getDateBirthday());
                 calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
-                // Временный блок - для проверки создания события
-                /*
-                calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
-                calendar.set(Calendar.MONTH, Calendar.MAY);
-                calendar.set(Calendar.DAY_OF_MONTH, 26);
-                calendar.set(Calendar.HOUR, 13);
-                calendar.set(Calendar.MINUTE, 18);
-                calendar.set(Calendar.SECOND, 0);
-                */
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                         alarmIntent);
             } else {

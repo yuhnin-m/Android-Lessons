@@ -43,7 +43,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         try {
-            calendar.setTime(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).parse(intent.getStringExtra("birthDate")));
+            calendar.setTime(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).parse(intent.getStringExtra("KEY_BIRTHDAY")));
         } catch (ParseException e) {
             e.printStackTrace();
         }
