@@ -32,6 +32,8 @@ import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ContactDetailsFragment extends Fragment
@@ -161,7 +163,7 @@ public class ContactDetailsFragment extends Fragment
         if (toggleBtnRemindBirthday != null) {
             toggleBtnRemindBirthday.setEnabled(personModels.getDateBirthday() != null);
             boolean reminderEnabled = checkBirthdayReminder();
-            //toggleBtnRemindBirthday.setChecked(reminderEnabled);
+            toggleBtnRemindBirthday.setChecked(reminderEnabled);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
         }
         updateFields();
@@ -178,6 +180,24 @@ public class ContactDetailsFragment extends Fragment
         setBirthdayReminderEnabled(isChecked);
     }
 
+    private long createMillisToRemind(Date date) {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.YEAR, 1);
+        }
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        if ((calendar.get(Calendar.MONTH) == Calendar.FEBRUARY) &&
+                (calendar.get(Calendar.DAY_OF_MONTH) == 29)) {
+            if (!((GregorianCalendar) GregorianCalendar.getInstance()).isLeapYear(calendar.get(Calendar.YEAR))) {
+                calendar.set(Calendar.DAY_OF_MONTH, 28);
+            }
+        }
+        return calendar.getTimeInMillis();
+    }
 
     private void setBirthdayReminderEnabled(boolean enabled) {
         if (person.getDateBirthday() != null) {
@@ -188,12 +208,8 @@ public class ContactDetailsFragment extends Fragment
                 intent.putExtra("KEY_BIRTHDAY", person.getStringBirthday());
                 intent.putExtra("KEY_TEXT", String.format(getString(R.string.text_remind_birthday), person.getFullName()));
                 alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.setTime(person.getDateBirthday());
-                calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
-                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        alarmIntent);
+                long millisToRemind = createMillisToRemind(person.getDateBirthday());
+                alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
             } else {
                 if (alarmManager != null) {
                     Log.d(LOG_TAG, "Remove birthday reminder");

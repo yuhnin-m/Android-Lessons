@@ -15,6 +15,8 @@ import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class BirthdayReminderReceiver extends BroadcastReceiver {
@@ -40,17 +42,42 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         notificationManager.notify(intent.getIntExtra("KEY_ID", -1), builder.build());
 
         // Добавляем новое напоминание о ДР через год
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
+        long millisToRemind = 0;
         try {
-            calendar.setTime(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).parse(intent.getStringExtra("KEY_BIRTHDAY")));
+            millisToRemind = createMillisToRemind(intent.getStringExtra("KEY_BIRTHDAY"));
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "Невозможно распарсить дату рождения " + e.getMessage());
+            return;
         }
-        calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
-        calendar.add(Calendar.YEAR, 1);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, person_id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
+    }
+
+
+    private long createMillisToRemind(String date) throws ParseException {
+        Calendar calendar = GregorianCalendar.getInstance();
+        try {
+            calendar.setTime(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).parse(date));
+        } catch (ParseException e) {
+
+        }
+
+        calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.YEAR, 1);
+        }
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        if ((calendar.get(Calendar.MONTH) == Calendar.FEBRUARY) &&
+                (calendar.get(Calendar.DAY_OF_MONTH) == 29)) {
+            if (!((GregorianCalendar) GregorianCalendar.getInstance()).isLeapYear(calendar.get(Calendar.YEAR))) {
+                calendar.set(Calendar.DAY_OF_MONTH, 28);
+            }
+        }
+
+        return calendar.getTimeInMillis();
     }
 }
