@@ -57,12 +57,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
 
     private long createMillisToRemind(String date) throws ParseException {
         Calendar calendar = GregorianCalendar.getInstance();
-        try {
-            calendar.setTime(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).parse(date));
-        } catch (ParseException e) {
-
-        }
-
+        calendar.setTime(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).parse(date));
         calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
             calendar.add(Calendar.YEAR, 1);
