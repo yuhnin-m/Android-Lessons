@@ -110,13 +110,6 @@ public class ContactDetailsFragment extends Fragment
         toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
         toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
         alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
-
-        // Запрашиваем данные из сервиса
-        if (eventDataFetchServiceListener != null) {
-            eventDataFetchServiceListener.getPersonById(personId, this);
-            eventDataFetchServiceListener.getContactsByPerson(personId, this);
-        }
-
         return view;
     }
 
@@ -125,6 +118,10 @@ public class ContactDetailsFragment extends Fragment
     public void onResume() {
         if (eventActionBarListener != null) {
             eventActionBarListener.setVisibleToolBarBackButton(true);
+        }
+        if (eventDataFetchServiceListener != null) {
+            eventDataFetchServiceListener.getPersonById(personId, this);
+            eventDataFetchServiceListener.getContactsByPerson(personId, this);
         }
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
@@ -139,9 +136,22 @@ public class ContactDetailsFragment extends Fragment
         super.onDestroyView();
     }
 
+    public void serviceBinded() {
+        // Запрашиваем данные из сервиса
+        if (eventDataFetchServiceListener != null) {
+            eventDataFetchServiceListener.getPersonById(personId, this);
+            eventDataFetchServiceListener.getContactsByPerson(personId, this);
+        }
 
+    }
 
     private void updateFields() {
+        if (toggleBtnRemindBirthday != null) {
+            toggleBtnRemindBirthday.setEnabled(person.getDateBirthday() != null);
+            boolean reminderEnabled = checkBirthdayReminder();
+            toggleBtnRemindBirthday.setChecked(reminderEnabled);
+            Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
+        }
         ivAvatar.setImageResource(person.getImageResource());
         tvFullname.setText(person.getFullName());
         tvDescription.setText(person.getDescription());
@@ -151,22 +161,28 @@ public class ContactDetailsFragment extends Fragment
 
 
     @Override
-    public void onFetchContacts(List<ContactInfoModel> contactInfoList) {
+    public void onFetchContacts(final List<ContactInfoModel> contactInfoList) {
         this.contactInfoList = contactInfoList;
-        ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
-        lvContacts.setAdapter(contactListAdapter);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
+                lvContacts.setAdapter(contactListAdapter);
+            }
+        });
     }
 
     @Override
     public void onFetchPersonModel(final PersonModel personModels) {
         this.person = personModels;
-        if (toggleBtnRemindBirthday != null) {
-            toggleBtnRemindBirthday.setEnabled(personModels.getDateBirthday() != null);
-            boolean reminderEnabled = checkBirthdayReminder();
-            toggleBtnRemindBirthday.setChecked(reminderEnabled);
-            Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
-        }
-        updateFields();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
+                updateFields();
+            }
+        });
+
     }
 
     @Override

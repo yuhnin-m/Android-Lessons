@@ -81,19 +81,23 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
 
     }
 
-    private void createPersonsListView(List<PersonModel> personList) {
-        Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
-        personListAdapter = new PersonListAdapter(getActivity(), personList);
+    public void serviceBinded() {
+        if (eventDataFetchServiceListener != null) {
+            Log.d(LOG_TAG, "onCreateView - запрашиваем getPersonList");
+            eventDataFetchServiceListener.getPersonList(this);
+        }
+    }
 
-        listviewPersons.setAdapter(personListAdapter);
-        listviewPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                if (onPersonClickedListener != null) {
-                    onPersonClickedListener.onItemClick(id);
-                }
+    private void createPersonsListView(final List<PersonModel> personList) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
+                personListAdapter = new PersonListAdapter(getActivity(), personList);
+                listviewPersons.setAdapter(personListAdapter);
             }
         });
+
     }
 
     @Override
@@ -108,8 +112,15 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
         Log.d(LOG_TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
         listviewPersons = view.findViewById(R.id.listViewContacts);
+        listviewPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                if (onPersonClickedListener != null) {
+                    onPersonClickedListener.onItemClick(id);
+                }
+            }
+        });
         requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
-
         return view;
     }
 
