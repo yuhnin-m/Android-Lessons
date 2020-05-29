@@ -1,13 +1,19 @@
 package com.a65apps.yuhnin.lesson1.pojo;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PersonModel {
-    private long id;
+    private int id;
     private final String firstName;
     private final String secondName;
     private final String thirdName;
     private final String description;
+    private final Date dateBirthday;
 
     public int getImageResource() {
         return imageResource;
@@ -15,21 +21,22 @@ public class PersonModel {
 
     private int imageResource;
 
-    public PersonModel(long id, @NonNull String firstName, @NonNull String secondName,
-                       @NonNull String thirdName, @NonNull String description, int imageResource) {
+    public PersonModel(int id, @NonNull String firstName, @NonNull String secondName,
+                       @NonNull String thirdName, @NonNull String description, int imageResource, String dateBirthday) throws ParseException {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
         this.thirdName = thirdName;
         this.description = description;
         this.imageResource = imageResource;
+        this.dateBirthday = new SimpleDateFormat("dd-MM-yyyy").parse(dateBirthday);
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -41,18 +48,31 @@ public class PersonModel {
     }
 
     public String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     public String getSecondName() {
-        return secondName;
+        return this.secondName;
     }
 
     public String getThirdName() {
-        return thirdName;
+        return this.thirdName;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
+    }
+
+    public Date getDateBirthday() {
+        return this.dateBirthday;
+    }
+
+    public String getStringBirthday() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        return simpleDateFormat.format(dateBirthday);
+    }
+
+    public long getValueBirthday() {
+        return dateBirthday.getTime();
     }
 }

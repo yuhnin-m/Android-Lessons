@@ -4,4 +4,12 @@
     <string name="header_description">Описание контакта</string>
     <string name="toolbar_header_person_list">Список контактов</string>
     <string name="toolbar_header_person_details">Детали контакта</string>
+    <string name="button_text_remind_birthday_on">Напоминание ВКЛ</string>
+    <string name="button_text_remind_birthday_off">Напоминание ВЫКЛ</string>
+    <string name="text_birthday_date">День рождения: %s</string>
+    <string name="text_birthday">День рождения</string>
+    <string name="text_remind_birthday">Сегодня день рождения у %s</string>
+    <string name="text_remind">Напоминать о ДР</string>
+    <string name="notification_channel_name">appcontact_nc</string>
+    <string name="notification_channel_desc">App contact notification channel description</string>
 </resources>

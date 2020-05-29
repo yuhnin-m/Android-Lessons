@@ -1,40 +1,54 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
+import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
-import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ContactDetailsFragment extends Fragment
-        implements ContactsResultListener, PersonResultListener {
+        implements ContactsResultListener, PersonResultListener, CompoundButton.OnCheckedChangeListener {
     static final String ARG_PARAM_PERSON_ID = "PERSON_ID";
+    final String LOG_TAG = "details_fragment";
 
     @NonNull
     PersonModel person;
+    @Nullable
+    private AlarmManager alarmManager;
+    @Nullable
+    private PendingIntent alarmIntent;
 
-    long personId = 0;
+    int personId = 0;
 
     @Nullable
     List<ContactInfoModel> contactInfoList;
@@ -49,7 +63,8 @@ public class ContactDetailsFragment extends Fragment
     TextView tvFullname;
     ListView lvContacts;
     TextView tvDescription;
-
+    TextView tvBirthday;
+    ToggleButton toggleBtnRemindBirthday;
 
 
     public ContactDetailsFragment() {
@@ -79,7 +94,7 @@ public class ContactDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            this.personId = getArguments().getLong(ARG_PARAM_PERSON_ID);
+            this.personId = getArguments().getInt(ARG_PARAM_PERSON_ID);
         }
     }
 
@@ -91,6 +106,11 @@ public class ContactDetailsFragment extends Fragment
         tvFullname = view.findViewById(R.id.tv_fullname);
         lvContacts = view.findViewById(R.id.lv_contacts);
         tvDescription = view.findViewById(R.id.tv_person_description);
+        tvBirthday = view.findViewById(R.id.tv_birthday);
+        toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
+        toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
+        alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+
         // Запрашиваем данные из сервиса
         if (eventDataFetchServiceListener != null) {
             eventDataFetchServiceListener.getPersonById(personId, this);
@@ -120,10 +140,13 @@ public class ContactDetailsFragment extends Fragment
     }
 
 
+
     private void updateFields() {
         ivAvatar.setImageResource(person.getImageResource());
         tvFullname.setText(person.getFullName());
         tvDescription.setText(person.getDescription());
+        tvBirthday.setText(String.format(getString(R.string.text_birthday_date), person.getStringBirthday()));
+        toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
     }
 
 
@@ -135,8 +158,72 @@ public class ContactDetailsFragment extends Fragment
     }
 
     @Override
-    public void onFetchPersonModel(PersonModel personModels) {
+    public void onFetchPersonModel(final PersonModel personModels) {
         this.person = personModels;
+        if (toggleBtnRemindBirthday != null) {
+            toggleBtnRemindBirthday.setEnabled(personModels.getDateBirthday() != null);
+            boolean reminderEnabled = checkBirthdayReminder();
+            toggleBtnRemindBirthday.setChecked(reminderEnabled);
+            Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
+        }
         updateFields();
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) {
+            Log.d(LOG_TAG, "Toggle checked");
+        } else {
+            Log.d(LOG_TAG, "Toggle uncheked");
+        }
+
+        setBirthdayReminderEnabled(isChecked);
+    }
+
+    private long createMillisToRemind(Date date) {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.YEAR, 1);
+        }
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        if ((calendar.get(Calendar.MONTH) == Calendar.FEBRUARY) &&
+                (calendar.get(Calendar.DAY_OF_MONTH) == 29)) {
+            if (!((GregorianCalendar) GregorianCalendar.getInstance()).isLeapYear(calendar.get(Calendar.YEAR))) {
+                calendar.set(Calendar.DAY_OF_MONTH, 28);
+            }
+        }
+        return calendar.getTimeInMillis();
+    }
+
+    private void setBirthdayReminderEnabled(boolean enabled) {
+        if (person.getDateBirthday() != null) {
+            Intent intent = new Intent(getContext(), BirthdayReminderReceiver.class);
+            if (enabled) {
+                Log.d(LOG_TAG, "Create birthday reminder");
+                intent.putExtra("KEY_ID", person.getId());
+                intent.putExtra("KEY_BIRTHDAY", person.getStringBirthday());
+                intent.putExtra("KEY_TEXT", String.format(getString(R.string.text_remind_birthday), person.getFullName()));
+                alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                long millisToRemind = createMillisToRemind(person.getDateBirthday());
+                alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
+            } else {
+                if (alarmManager != null) {
+                    Log.d(LOG_TAG, "Remove birthday reminder");
+                    alarmIntent = PendingIntent.getBroadcast(getActivity(), (int) person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    alarmManager.cancel(alarmIntent);
+                    alarmIntent.cancel();
+                }
+            }
+        }
+    }
+
+    private boolean checkBirthdayReminder() {
+        return (PendingIntent.getBroadcast(getActivity(), (int)personId,
+                new Intent(getActivity(), BirthdayReminderReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
     }
 }
