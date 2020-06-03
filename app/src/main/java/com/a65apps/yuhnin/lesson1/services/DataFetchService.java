@@ -2,6 +2,7 @@ package com.a65apps.yuhnin.lesson1.services;
 
 import android.app.Person;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -10,6 +11,7 @@ import android.widget.ListView;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
+import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
@@ -50,7 +52,7 @@ public class DataFetchService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<PersonModel> personModels = ContactRepositoryFakeImp.getInstance().getAllPersons();
+                List<PersonModel> personModels = ContactRepositoryFromSystem.getInstance(getApplicationContext()).getAllPersons();
                 PersonListResultListener local = ref.get();
                 if (local != null) {
                     local.onFetchPersonList(personModels);
