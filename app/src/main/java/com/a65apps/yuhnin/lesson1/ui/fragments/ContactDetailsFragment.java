@@ -155,7 +155,8 @@ public class ContactDetailsFragment extends Fragment
         ivAvatar.setImageURI(person.getImageUri());
         tvFullname.setText(person.getFullName());
         tvDescription.setText(person.getDescription());
-        tvBirthday.setText(String.format(getString(R.string.text_birthday_date), person.getStringBirthday()));
+        String birthday = person.getStringBirthday().isEmpty() ? getString(R.string.text_birthday_notset) : person.getStringBirthday();
+                tvBirthday.setText(String.format(getString(R.string.text_birthday_date), birthday));
         toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
     }
 

@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity
             } else {
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, contactDetailsFragment, TAG_FRAGMENT_DETAILS)
+                        .addToBackStack(null)
                         .commit();
             }
         }

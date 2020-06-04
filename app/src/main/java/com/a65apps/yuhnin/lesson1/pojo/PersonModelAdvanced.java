@@ -22,15 +22,18 @@ public class PersonModelAdvanced {
 
 
     public PersonModelAdvanced(int id, @NonNull String displayName, @NonNull String description,
-                               Uri photoUri, String dateBirthday) throws ParseException {
+                               Uri photoUri, String dateBirthday) {
         this.id = id;
         this.displayName = displayName;
         this.description = description;
         this.photoUri = photoUri;
-        if (dateBirthday != null && !dateBirthday.isEmpty())
-            this.dateBirthday = new SimpleDateFormat("dd-MM-yyyy").parse(dateBirthday);
-        else
-            this.dateBirthday = null;
+        Date tempDateBirthDay = null;
+        try {
+            tempDateBirthDay = new SimpleDateFormat("dd-MM-yyyy").parse(dateBirthday);
+        } catch (Exception e) {
+            tempDateBirthDay = null;
+        }
+        this.dateBirthday = tempDateBirthDay;
     }
 
     public int getId() {

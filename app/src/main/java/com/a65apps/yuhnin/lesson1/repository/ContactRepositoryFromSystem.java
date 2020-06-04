@@ -48,8 +48,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                         String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                         String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                         String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
-                        Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName);
-                        personList.add(new PersonModelCompact(Integer.valueOf(id), displaName, Uri.parse(strPhotoUri)));
+                        Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName + " фото="+strPhotoUri);
+                        personList.add(new PersonModelCompact(Integer.valueOf(id), displaName, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
                         //Log.d(LOG_TAG, "Контакт добавлен");
                     } catch (Exception e) {
                         Log.d(LOG_TAG, "Произошла ошибка получения контакта: " + e.getMessage());
@@ -108,8 +108,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                 String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
                 String dateBirthDay = getDateBirthday(id, contentResolver);
                 String description = getCompanyName(id, contentResolver);
-
-                personModelAdvanced = new PersonModelAdvanced(Integer.valueOf(id), displaName, description, Uri.parse(strPhotoUri), dateBirthDay);
+                personModelAdvanced = new PersonModelAdvanced(Integer.valueOf(id), displaName, description, strPhotoUri == null ? null : Uri.parse(strPhotoUri), dateBirthDay);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "Ошибка получения информации о контакте" + e.getMessage());
@@ -201,6 +200,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
     /**
      * Метод возвращающий название организации контакта с определенным ID
+     * FIXME: Не работает, выдает все подряд
      * @param personId Идентификатор контакта
      * @param contentResolver Экземпляр ContentResolver
      * @return Имя компании и сопутствующие данные

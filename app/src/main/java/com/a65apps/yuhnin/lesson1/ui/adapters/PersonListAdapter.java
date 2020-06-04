@@ -56,7 +56,7 @@ public class PersonListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.txtName.setText(personList.get(position).getDisplayName());
-        //viewHolder.txtPhones.setText("Подробности: " + personList.get(position).getDescription());
+        viewHolder.txtPhones.setText("Подробности: " + personList.get(position).getId());
         viewHolder.avatar.setImageURI(personList.get(position).getImageUri());
         viewHolder.id = personList.get(position).getId();
 
