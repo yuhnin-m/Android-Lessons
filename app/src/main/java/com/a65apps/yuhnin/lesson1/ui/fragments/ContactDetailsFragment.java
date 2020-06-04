@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,8 @@ import android.widget.ToggleButton;
 import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
@@ -42,7 +42,7 @@ public class ContactDetailsFragment extends Fragment
     final String LOG_TAG = "details_fragment";
 
     @NonNull
-    PersonModel person;
+    PersonModelAdvanced person;
     @Nullable
     private AlarmManager alarmManager;
     @Nullable
@@ -152,7 +152,7 @@ public class ContactDetailsFragment extends Fragment
             toggleBtnRemindBirthday.setChecked(reminderEnabled);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
         }
-        ivAvatar.setImageResource(person.getImageResource());
+        ivAvatar.setImageURI(person.getImageUri());
         tvFullname.setText(person.getFullName());
         tvDescription.setText(person.getDescription());
         tvBirthday.setText(String.format(getString(R.string.text_birthday_date), person.getStringBirthday()));
@@ -166,20 +166,28 @@ public class ContactDetailsFragment extends Fragment
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
-                lvContacts.setAdapter(contactListAdapter);
+                if (contactInfoList != null) {
+                    ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
+                    lvContacts.setAdapter(contactListAdapter);
+                } else {
+                    Log.e(LOG_TAG, "onFetchContacts - Сервис вернул contactInfoList=null");
+                }
             }
         });
     }
 
     @Override
-    public void onFetchPersonModel(final PersonModel personModels) {
-        this.person = personModels;
+    public void onFetchPersonModel(final PersonModelAdvanced personModelAdvanced) {
+        this.person = personModelAdvanced;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
-                updateFields();
+                if (personModelAdvanced != null) {
+                    Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
+                    updateFields();
+                } else {
+                    Log.e(LOG_TAG, "onFetchPersonModel - Сервис вернул personModels=null");
+                }
             }
         });
 

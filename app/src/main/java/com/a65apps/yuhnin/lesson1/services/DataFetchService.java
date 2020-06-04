@@ -1,16 +1,13 @@
 package com.a65apps.yuhnin.lesson1.services;
 
-import android.app.Person;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.widget.ListView;
 
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
@@ -52,10 +49,10 @@ public class DataFetchService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<PersonModel> personModels = ContactRepositoryFromSystem.getInstance(getApplicationContext()).getAllPersons();
+                List<PersonModelCompact> personModelCompacts = ContactRepositoryFromSystem.getInstance(getApplicationContext()).getAllPersons();
                 PersonListResultListener local = ref.get();
                 if (local != null) {
-                    local.onFetchPersonList(personModels);
+                    local.onFetchPersonList(personModelCompacts);
                 }
             }
         }).start();
@@ -66,10 +63,10 @@ public class DataFetchService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                PersonModel personModel = ContactRepositoryFakeImp.getInstance().getPersonById(personId);
+                PersonModelAdvanced personModelAdvanced = ContactRepositoryFromSystem.getInstance(getApplicationContext()).getPersonById(personId);
                 PersonResultListener local = ref.get();
                 if (local != null) {
-                    local.onFetchPersonModel(personModel);
+                    local.onFetchPersonModel(personModelAdvanced);
                 }
             }
         }).start();
@@ -80,8 +77,8 @@ public class DataFetchService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<ContactInfoModel> contactInfoModels = ContactRepositoryFakeImp
-                        .getInstance().getContactByPerson(personId);
+                List<ContactInfoModel> contactInfoModels = ContactRepositoryFromSystem
+                        .getInstance(getApplicationContext()).getContactByPerson(personId);
                 ContactsResultListener local = ref.get();
                 if (local != null) {
                     local.onFetchContacts(contactInfoModels);

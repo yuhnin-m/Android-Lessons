@@ -14,10 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.a65apps.yuhnin.lesson1.R;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
-import com.a65apps.yuhnin.lesson1.services.DataFetchService;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
@@ -88,13 +85,15 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
         }
     }
 
-    private void createPersonsListView(final List<PersonModel> personList) {
+    private void createPersonsListView(final List<PersonModelCompact> personList) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
-                personListAdapter = new PersonListAdapter(getActivity(), personList);
-                listviewPersons.setAdapter(personListAdapter);
+                if (personList != null) {
+                    Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
+                    personListAdapter = new PersonListAdapter(getActivity(), personList);
+                    listviewPersons.setAdapter(personListAdapter);
+                }
             }
         });
 
@@ -147,7 +146,7 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
     }
 
     @Override
-    public void onFetchPersonList(List<PersonModel> personList) {
+    public void onFetchPersonList(List<PersonModelCompact> personList) {
         Log.d(LOG_TAG, "ПОЛУЧЕНЫ ДАННЫЕ СПИСКА КОНТАКТОВ");
         createPersonsListView(personList);
     }

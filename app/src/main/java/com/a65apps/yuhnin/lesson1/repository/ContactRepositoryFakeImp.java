@@ -1,11 +1,15 @@
 package com.a65apps.yuhnin.lesson1.repository;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.ContactType;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,16 +20,24 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     private final String LOG_TAG = "contact_repository_fake";
     private static ContactRepositoryFakeImp instance;
 
-    public static synchronized ContactRepositoryFakeImp getInstance() {
+    private Context context;
+
+    public static synchronized ContactRepositoryFakeImp getInstance(Context context) {
         if (instance == null) {
             instance = new ContactRepositoryFakeImp();
         }
+        instance.setContext(context);
         return instance;
     }
 
 
-    private List<PersonModel> personModels = new ArrayList<PersonModel>();
+    private List<PersonModelAdvanced> personModelAdvanceds = new ArrayList<PersonModelAdvanced>();
+    private List<PersonModelCompact> personModelCompacts = new ArrayList<PersonModelCompact>();
     private List<ContactInfoModel> contactInfoModels = new ArrayList<ContactInfoModel>();
+
+    private void setContext(Context context) {
+        this.context = context;
+    }
 
 
     public ContactRepositoryFakeImp() {
@@ -39,19 +51,22 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     private void createPersons() throws ParseException{
-        personModels.add(new PersonModel(
+        personModelAdvanceds.add(new PersonModelAdvanced(
                 1,
-                "Юрий","Гагарин","Алексеевич",
-                "Восток-1", R.drawable.avatar1, "09-03-1934"));
+                "Гагарин Юрий Алексеевич",
+                "Восток-1", resourceToUri(R.drawable.avatar1), "09-03-1934"));
 
-        personModels.add(new PersonModel(
+        personModelAdvanceds.add(new PersonModelAdvanced(
                 2,
-                "Алексей","Леонов","Архипович",
-                "Восход-2", R.drawable.avatar2, "30-05-1934"));
+                "Леонов Алексей Архипович",
+                "Восход-2", resourceToUri(R.drawable.avatar2), "30-05-1934"));
 
-        personModels.add(new PersonModel(3,
-                "Герман","Титов","Степанович",
-                "Восток-2", R.drawable.avatar3, "11-09-1935"));
+        personModelAdvanceds.add(new PersonModelAdvanced(3,"Титов Герман Степанович",
+                "Восток-2", resourceToUri(R.drawable.avatar3), "11-09-1935"));
+
+        personModelCompacts.add(new PersonModelCompact(1,"Гагарин Юрий Алексеевич", resourceToUri(R.drawable.avatar1)));
+        personModelCompacts.add(new PersonModelCompact(2, "Леонов Алексей Архипович", resourceToUri(R.drawable.avatar2)));
+        personModelCompacts.add(new PersonModelCompact(3,"Титов Герман Степанович", resourceToUri(R.drawable.avatar3)));
     }
 
 
@@ -83,20 +98,10 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     @Override
-    public List<PersonModel> getAllPersons() {
-        return personModels;
+    public List<PersonModelCompact> getAllPersons() {
+        return personModelCompacts;
     }
 
-    @Override
-    public List<ContactInfoModel> getContactByPerson(PersonModel personModel) {
-        List<ContactInfoModel> foundContacts = new ArrayList<ContactInfoModel>();
-        for (ContactInfoModel contact : contactInfoModels) {
-            if (contact.getPersonId() == personModel.getId()) {
-                foundContacts.add(contact);
-            }
-        }
-        return foundContacts;
-    }
 
     @Override
     public List<ContactInfoModel> getContactByPerson(long id) {
@@ -110,14 +115,22 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     @Override
-    public PersonModel getPersonById(long id) {
-        for (PersonModel personModel : personModels) {
-            if (personModel.getId() == id) {
-                return personModel;
+    public PersonModelAdvanced getPersonById(long id) {
+        for (PersonModelAdvanced personModelAdvanced : personModelAdvanceds) {
+            if (personModelAdvanced.getId() == id) {
+                return personModelAdvanced;
             }
         }
         return null;
     }
 
-
+    public Uri resourceToUri(int resID) {
+        if (context != null) {
+            return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+                    this.context.getResources().getResourcePackageName(resID) + '/' +
+                    this.context.getResources().getResourceTypeName(resID) + '/' +
+                    this.context.getResources().getResourceEntryName(resID) );
+        } else
+            return null;
+    }
 }

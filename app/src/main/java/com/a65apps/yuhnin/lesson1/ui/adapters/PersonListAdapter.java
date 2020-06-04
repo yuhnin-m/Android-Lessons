@@ -11,16 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.a65apps.yuhnin.lesson1.R;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
 import java.util.List;
 
 public class PersonListAdapter extends BaseAdapter {
 
     Context context;
-    List<PersonModel> personList;
+    List<PersonModelCompact> personList;
 
-    public PersonListAdapter(Context context, List<PersonModel> personList){
+    public PersonListAdapter(Context context, List<PersonModelCompact> personList){
         this.context = context;
         this.personList = personList;
     }
@@ -55,9 +55,9 @@ public class PersonListAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.txtName.setText(personList.get(position).getFullName());
-        viewHolder.txtPhones.setText("Подробности: " + personList.get(position).getDescription());
-        viewHolder.avatar.setImageResource(personList.get(position).getImageResource());
+        viewHolder.txtName.setText(personList.get(position).getDisplayName());
+        //viewHolder.txtPhones.setText("Подробности: " + personList.get(position).getDescription());
+        viewHolder.avatar.setImageURI(personList.get(position).getImageUri());
         viewHolder.id = personList.get(position).getId();
 
         return convertView;

@@ -11,9 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
+import com.a65apps.yuhnin.lesson1.pojo.ContactType;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,17 +36,24 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
     @Nullable
     @Override
-    public List<PersonModel> getAllPersons() {
-        ArrayList<PersonModel> personModels = new ArrayList<>();
+    public List<PersonModelCompact> getAllPersons() {
+        ArrayList<PersonModelCompact> personList = new ArrayList<>();
         ContentResolver contentResolver = context.getContentResolver();
         Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
         try {
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                    String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    Log.d(LOG_TAG, "Найден пользователь: id=" + id + "; ФИО: " + name);
+                    try {
+                        String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                        String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                        Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName);
+                        personList.add(new PersonModelCompact(Integer.valueOf(id), displaName, Uri.parse(strPhotoUri)));
+                        //Log.d(LOG_TAG, "Контакт добавлен");
+                    } catch (Exception e) {
+                        Log.d(LOG_TAG, "Произошла ошибка получения контакта: " + e.getMessage());
+                    }
                 }
             }
         } finally {
@@ -52,36 +61,74 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                 cursor.close();
             }
         }
-        return null;
+        return personList;
     }
 
-    @Nullable
-    @Override
-    public List<ContactInfoModel> getContactByPerson(@NonNull PersonModel personModel) {
-        return null;
-    }
 
     @NonNull
     @Override
     public List<ContactInfoModel> getContactByPerson(long id) {
-        return null;
+        String personId = String.valueOf(id);
+        List<ContactInfoModel> contactInfoModels = new ArrayList<ContactInfoModel>();
+        try {
+            List<ContactInfoModel> phoneNumbers = getPhoneList(personId, context.getContentResolver());
+            if (phoneNumbers != null) {
+                contactInfoModels.addAll(phoneNumbers);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Произошла ошибка чтения списка телефонов контакта id=" + id +
+                    ". Текст ошибки: " + e.getMessage());
+        }
+
+        try {
+            List<ContactInfoModel> emails = getEmailList(personId, context.getContentResolver());
+            if (emails != null) {
+                contactInfoModels.addAll(emails);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Произошла ошибка чтения списка адресов эл.почты контакта " + id +
+                    ". Текст ошибки: " + e.getMessage());
+        }
+
+        return contactInfoModels;
     }
 
 
     @Override
-    public PersonModel getPersonById(long id) {
-        return null;
+    public PersonModelAdvanced getPersonById(long personId) {
+        PersonModelAdvanced personModelAdvanced = null;
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,null,
+                ContactsContract.Contacts._ID + " = " + personId,null ,null);
+        try{
+            if (cursor != null) {
+                cursor.moveToNext();
+                String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                String dateBirthDay = getDateBirthday(id, contentResolver);
+                String description = getCompanyName(id, contentResolver);
+
+                personModelAdvanced = new PersonModelAdvanced(Integer.valueOf(id), displaName, description, Uri.parse(strPhotoUri), dateBirthDay);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Ошибка получения информации о контакте" + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return personModelAdvanced;
     }
-
-
-
 
     /**
      * Метод возвращающий дату рождения для определенного контакта с заданным ID
+     * FIXME: Не работает абсолютно. На Xiaomi выдает все что угодно, кроме даты рождения
      * @param id Идентификатор контакта
+     * @param contentResolver Экземпляр ContentResolver
      * @return строка - дата рождения
      */
-    private String readBirthday(String id) {
+    private String getDateBirthday(String id, ContentResolver contentResolver) {
         Uri uri = ContactsContract.Data.CONTENT_URI;
         String birthDay = null;
         String[] projection = new String[] {
@@ -93,12 +140,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                 ContactsContract.CommonDataKinds.Event.TYPE + "=" +
                         ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY + " AND " +
                         ContactsContract.CommonDataKinds.Event.CONTACT_ID + " = " + id;
-        String[] selectionArgs = new String[] {
-                ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE
-        };
-        String strDateBirthday = null;
-        ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursorBirthday = contentResolver.query(uri, projection, where, selectionArgs, null,null);
+
+        Cursor cursorBirthday = contentResolver.query(uri, projection, where, null, null,null);
         try {
             if (cursorBirthday != null){
                 while (cursorBirthday.moveToNext()){
@@ -106,7 +149,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                     Log.d(LOG_TAG, "Найден день рождения контакта " + id + ": " + birthDay);
                 }
             }
-        }finally {
+        }
+        finally {
             if (cursorBirthday != null){
                 cursorBirthday.close();
             }
@@ -114,31 +158,37 @@ public class ContactRepositoryFromSystem implements ContactRepository {
         return birthDay;
     }
 
+
     /**
      * Метод возвращающий номера телефонов для определенного контакта с заданным ID
-     * @param id Идентификатор контакта
+     * @param personId Идентификатор контакта
+     * @param contentResolver Экземпляр ContentResolver
      * @return Список номеров телефона
      */
     @Nullable
-    private List<String> readPhones(String id) {
-        Log.d(LOG_TAG, "Читаем номера телефонов по id=" + id);
-        List<String> phoneList = new ArrayList<String>();
-        ContentResolver contentResolver = context.getContentResolver();
+    private List<ContactInfoModel> getPhoneList(String personId, ContentResolver contentResolver) {
+        Log.d(LOG_TAG, "Читаем номера телефонов по id=" + personId);
+        List<ContactInfoModel> phoneList = new ArrayList<ContactInfoModel>();
         Cursor cursorPhone = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + personId,
                 null, null);
         try {
             if (cursorPhone != null) {
                 while (cursorPhone.moveToNext()) {
-                    String phone_number = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                    if (phone_number != null && !phone_number.isEmpty()) {
-                        Log.d(LOG_TAG, "Найден номер телефона: " + phone_number);
-                        phoneList.add(phone_number);
+                    String phoneNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    String phoneId = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
+                    if (phoneId != null && phoneNumber != null && !phoneNumber.isEmpty()) {
+                        Log.d(LOG_TAG, "Найден номер телефона: " + phoneNumber);
+                        phoneList.add(new ContactInfoModel(
+                                Long.parseLong(phoneId),
+                                Integer.parseInt(personId),
+                                ContactType.PHONE_NUMBER,
+                                phoneNumber));
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения номеров телефона контакта " + id +
+            Log.e(LOG_TAG, "Произошла ошибка чтения номеров телефона контакта " + personId +
                     ". Текст ошибки: " + e.getMessage());
         }
         finally {
@@ -149,32 +199,72 @@ public class ContactRepositoryFromSystem implements ContactRepository {
         return phoneList;
     }
 
+    /**
+     * Метод возвращающий название организации контакта с определенным ID
+     * @param personId Идентификатор контакта
+     * @param contentResolver Экземпляр ContentResolver
+     * @return Имя компании и сопутствующие данные
+     */
+    @Nullable
+    private String getCompanyName(String personId, ContentResolver contentResolver) {
+        Log.d(LOG_TAG, "Читаем место работы контакта id=" + personId);
+        String personJobDescription = "";
+        Cursor cursorPhone = contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + personId,
+                null, null);
+        try {
+            if (cursorPhone != null) {
+                while (cursorPhone.moveToNext()) {
+                    if (personJobDescription.isEmpty())
+                        personJobDescription = cursorPhone.getString(cursorPhone.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Organization.COMPANY));
+                    else
+                        personJobDescription += " " + cursorPhone.getString(cursorPhone.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Organization.COMPANY));
+                }
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Произошла ошибка чтения места работы контакта " + personId +
+                    ". Текст ошибки: " + e.getMessage());
+        }
+        finally {
+            if (cursorPhone != null){
+                cursorPhone.close();
+            }
+        }
+        return personJobDescription;
+    }
 
     /**
      * Метод возвращающий адреса электронной почты для определенного контакта с заданным ID
-     * @param id идентификатор контакта
-     * @param contentResolver экземпляр ContentResolver
+     * @param personId идентификатор контакта
+     * @param contentResolver Экземпляр ContentResolver
      * @return список адресов электронной почты
      */
-    private List<String> readEmails(String id, ContentResolver contentResolver) {
-        List<String> emailList = new ArrayList<String>();
+    private List<ContactInfoModel> getEmailList(String personId, ContentResolver contentResolver) {
+        List<ContactInfoModel> emailList = new ArrayList<ContactInfoModel>();
         Cursor cursorEmail = contentResolver.query(
                 ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                 null,
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + id,
+                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + personId,
                 null, null);
         try {
             if (cursorEmail != null) {
                 while (cursorEmail.moveToNext()) {
-                    String email = cursorEmail.getString(cursorEmail.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                    if (email != null && !email.isEmpty()) {
-                        Log.d(LOG_TAG, "Найдена электронная почта: " + email);
-                        emailList.add(email);
+                    String emailAddress = cursorEmail.getString(cursorEmail.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                    String emailId = cursorEmail.getString(cursorEmail.getColumnIndex(ContactsContract.CommonDataKinds.Email._ID));
+                    if (emailId != null && emailAddress != null && !emailAddress.isEmpty()) {
+                        Log.d(LOG_TAG, "Найдена электронная почта: " + emailAddress);
+                        emailList.add(new ContactInfoModel(
+                                Long.valueOf(emailId),
+                                Integer.valueOf(personId),
+                                ContactType.EMAIL,
+                                emailAddress));
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения email'ов контакта " + id +
+            Log.e(LOG_TAG, "Произошла ошибка чтения email'ов контакта " + personId +
                     ". Текст ошибки: " + e.getMessage());
         } finally {
             if (cursorEmail != null){
