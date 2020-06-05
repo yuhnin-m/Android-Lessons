@@ -37,7 +37,8 @@ public class PersonListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        return this.personList.get(i).getId();
+        // FIXME: не уверен, что так делать правильно. Но мне больше негде взять численный идентификтор
+        return this.personList.get(i).getId().hashCode();
     }
 
     @NonNull
@@ -67,6 +68,6 @@ public class PersonListAdapter extends BaseAdapter {
         TextView txtName;
         TextView txtPhones;
         ImageView avatar;
-        long id;
+        String id;
     }
 }

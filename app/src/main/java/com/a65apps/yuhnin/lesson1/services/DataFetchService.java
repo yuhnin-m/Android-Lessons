@@ -58,7 +58,7 @@ public class DataFetchService extends Service {
         }).start();
     }
 
-    public void fetchPersonById(PersonResultListener callback, final long personId) {
+    public void fetchPersonById(PersonResultListener callback, final String personId) {
         final WeakReference<PersonResultListener> ref = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
@@ -72,7 +72,7 @@ public class DataFetchService extends Service {
         }).start();
     }
 
-    public void fetchContactInfo(ContactsResultListener callback, final long personId) {
+    public void fetchContactInfo(ContactsResultListener callback, final String personId) {
         final WeakReference<ContactsResultListener> ref = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override

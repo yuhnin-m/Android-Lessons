@@ -49,7 +49,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                         String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                         String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
                         Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName + " фото="+strPhotoUri);
-                        personList.add(new PersonModelCompact(Integer.valueOf(id), displaName, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
+                        personList.add(new PersonModelCompact(id, displaName, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
                         //Log.d(LOG_TAG, "Контакт добавлен");
                     } catch (Exception e) {
                         Log.d(LOG_TAG, "Произошла ошибка получения контакта: " + e.getMessage());
@@ -67,8 +67,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
     @NonNull
     @Override
-    public List<ContactInfoModel> getContactByPerson(long id) {
-        String personId = String.valueOf(id);
+    public List<ContactInfoModel> getContactByPerson(String personId) {
         List<ContactInfoModel> contactInfoModels = new ArrayList<ContactInfoModel>();
         try {
             List<ContactInfoModel> phoneNumbers = getPhoneList(personId, context.getContentResolver());
@@ -76,7 +75,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                 contactInfoModels.addAll(phoneNumbers);
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения списка телефонов контакта id=" + id +
+            Log.e(LOG_TAG, "Произошла ошибка чтения списка телефонов контакта id=" + personId +
                     ". Текст ошибки: " + e.getMessage());
         }
 
@@ -86,7 +85,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                 contactInfoModels.addAll(emails);
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения списка адресов эл.почты контакта " + id +
+            Log.e(LOG_TAG, "Произошла ошибка чтения списка адресов эл.почты контакта " + personId +
                     ". Текст ошибки: " + e.getMessage());
         }
 
@@ -95,7 +94,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
 
     @Override
-    public PersonModelAdvanced getPersonById(long personId) {
+    public PersonModelAdvanced getPersonById(String personId) {
         PersonModelAdvanced personModelAdvanced = null;
         ContentResolver contentResolver = context.getContentResolver();
         Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,null,
@@ -108,7 +107,12 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                 String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
                 String dateBirthDay = getDateBirthday(id, contentResolver);
                 String description = getCompanyName(id, contentResolver);
-                personModelAdvanced = new PersonModelAdvanced(Integer.valueOf(id), displaName, description, strPhotoUri == null ? null : Uri.parse(strPhotoUri), dateBirthDay);
+                personModelAdvanced = new PersonModelAdvanced(
+                        personId,
+                        displaName,
+                        description,
+                        strPhotoUri == null ? null : Uri.parse(strPhotoUri),
+                        dateBirthDay);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "Ошибка получения информации о контакте" + e.getMessage());
@@ -209,17 +213,17 @@ public class ContactRepositoryFromSystem implements ContactRepository {
     private String getCompanyName(String personId, ContentResolver contentResolver) {
         Log.d(LOG_TAG, "Читаем место работы контакта id=" + personId);
         String personJobDescription = "";
-        Cursor cursorPhone = contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
+        Cursor cursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
                 ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + personId,
                 null, null);
         try {
-            if (cursorPhone != null) {
-                while (cursorPhone.moveToNext()) {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
                     if (personJobDescription.isEmpty())
-                        personJobDescription = cursorPhone.getString(cursorPhone.getColumnIndex(
+                        personJobDescription = cursor.getString(cursor.getColumnIndex(
                                 ContactsContract.CommonDataKinds.Organization.COMPANY));
                     else
-                        personJobDescription += " " + cursorPhone.getString(cursorPhone.getColumnIndex(
+                        personJobDescription += " " + cursor.getString(cursor.getColumnIndex(
                                 ContactsContract.CommonDataKinds.Organization.COMPANY));
                 }
             }
@@ -228,8 +232,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                     ". Текст ошибки: " + e.getMessage());
         }
         finally {
-            if (cursorPhone != null){
-                cursorPhone.close();
+            if (cursor != null){
+                cursor.close();
             }
         }
         return personJobDescription;

@@ -117,8 +117,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
         if (fragmentManager.getFragments().isEmpty()) {
-            int id = getIntent().getIntExtra("KEY_PERSON_ID", -1);
-            if (id > 0) {
+            String id = getIntent().getStringExtra("KEY_PERSON_ID");
+            if (id != null && !id.isEmpty()) {
                 сreateDetailsFragment(id);
             } else {
                 createPersonListFragment();
@@ -139,9 +139,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void сreateDetailsFragment(int personId) {
+    private void сreateDetailsFragment(String personId) {
         Bundle bundle = new Bundle();
-        bundle.putInt("PERSON_ID", personId);
+        bundle.putString("PERSON_ID", personId);
         ContactDetailsFragment contactDetailsFragment = (ContactDetailsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
         if (contactDetailsFragment == null) {
             // Фрагмент еще не создан
@@ -161,8 +161,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemClick(long personId) {
-        сreateDetailsFragment((int)personId);
+    public void onItemClick(String personId) {
+        сreateDetailsFragment(personId);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void getPersonById(long id, PersonResultListener callback) {
+    public void getPersonById(String id, PersonResultListener callback) {
         Log.d(LOG_TAG, "Запрос из фрагмента: getPersonById id=" + id);
         if (mService != null) {
             mService.fetchPersonById(callback, id);
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void getContactsByPerson(long id, ContactsResultListener callback) {
+    public void getContactsByPerson(String id, ContactsResultListener callback) {
         Log.d(LOG_TAG, "Запрос из фрагмента: getContactsByPerson id=" + id);
         if (mService != null) {
             mService.fetchContactInfo(callback, id);

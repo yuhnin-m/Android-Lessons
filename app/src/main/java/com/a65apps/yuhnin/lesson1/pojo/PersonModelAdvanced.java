@@ -2,26 +2,17 @@ package com.a65apps.yuhnin.lesson1.pojo;
 
 import android.net.Uri;
 import androidx.annotation.NonNull;
-
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PersonModelAdvanced {
-    private int id;
+    private final String id;
     private final String displayName;
     private final String description;
     private final Date dateBirthday;
-    private Uri photoUri;
+    private final Uri photoUri;
 
-    public Uri getImageUri() {
-        return this.photoUri;
-    }
-
-
-
-    public PersonModelAdvanced(int id, @NonNull String displayName, @NonNull String description,
+    public PersonModelAdvanced(@NonNull String id, @NonNull String displayName, @NonNull String description,
                                Uri photoUri, String dateBirthday) {
         this.id = id;
         this.displayName = displayName;
@@ -36,18 +27,13 @@ public class PersonModelAdvanced {
         this.dateBirthday = tempDateBirthDay;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getFullName() {
         return this.displayName;
     }
-
 
     public String getDescription() {
         return this.description;
@@ -69,4 +55,9 @@ public class PersonModelAdvanced {
     public long getValueBirthday() {
         return dateBirthday == null ? -1 : dateBirthday.getTime();
     }
+
+    public Uri getImageUri() {
+        return this.photoUri;
+    }
+
 }

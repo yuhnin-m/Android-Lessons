@@ -89,7 +89,7 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (personList != null) {
+                if (personList != null && listviewPersons != null) {
                     Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
                     personListAdapter = new PersonListAdapter(getActivity(), personList);
                     listviewPersons.setAdapter(personListAdapter);

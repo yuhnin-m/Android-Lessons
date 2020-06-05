@@ -14,8 +14,8 @@ public interface ContactRepository {
     List<PersonModelCompact> getAllPersons();
 
     @NonNull
-    List<ContactInfoModel> getContactByPerson(long id);
+    List<ContactInfoModel> getContactByPerson(String id);
 
     @Nullable
-    PersonModelAdvanced getPersonById(long id);
+    PersonModelAdvanced getPersonById(String id);
 }

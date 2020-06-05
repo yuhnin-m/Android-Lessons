@@ -48,7 +48,7 @@ public class ContactDetailsFragment extends Fragment
     @Nullable
     private PendingIntent alarmIntent;
 
-    int personId = 0;
+    private String personId = "";
 
     @Nullable
     List<ContactInfoModel> contactInfoList;
@@ -94,7 +94,7 @@ public class ContactDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            this.personId = getArguments().getInt(ARG_PARAM_PERSON_ID);
+            this.personId = getArguments().getString(ARG_PARAM_PERSON_ID);
         }
     }
 
@@ -146,18 +146,30 @@ public class ContactDetailsFragment extends Fragment
     }
 
     private void updateFields() {
+        if (person == null) {
+            Log.e(LOG_TAG, "Невозможно отобразить данные контакта person=null");
+            return;
+        }
         if (toggleBtnRemindBirthday != null) {
             toggleBtnRemindBirthday.setEnabled(person.getDateBirthday() != null);
             boolean reminderEnabled = checkBirthdayReminder();
             toggleBtnRemindBirthday.setChecked(reminderEnabled);
+            toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
         }
-        ivAvatar.setImageURI(person.getImageUri());
-        tvFullname.setText(person.getFullName());
-        tvDescription.setText(person.getDescription());
-        String birthday = person.getStringBirthday().isEmpty() ? getString(R.string.text_birthday_notset) : person.getStringBirthday();
-                tvBirthday.setText(String.format(getString(R.string.text_birthday_date), birthday));
-        toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
+        if (ivAvatar != null) {
+            ivAvatar.setImageURI(person.getImageUri());
+        }
+        if (tvFullname != null) {
+            tvFullname.setText(person.getFullName());
+        }
+        if (tvDescription != null) {
+            tvDescription.setText(person.getDescription());
+        }
+        if (tvBirthday != null) {
+            String birthday = person.getStringBirthday().isEmpty() ? getString(R.string.text_birthday_notset) : person.getStringBirthday();
+            tvBirthday.setText(String.format(getString(R.string.text_birthday_date), birthday));
+        }
     }
 
 
@@ -167,7 +179,7 @@ public class ContactDetailsFragment extends Fragment
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (contactInfoList != null) {
+                if (lvContacts != null && contactInfoList != null) {
                     ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
                     lvContacts.setAdapter(contactListAdapter);
                 } else {
@@ -232,13 +244,13 @@ public class ContactDetailsFragment extends Fragment
                 intent.putExtra("KEY_ID", person.getId());
                 intent.putExtra("KEY_BIRTHDAY", person.getStringBirthday());
                 intent.putExtra("KEY_TEXT", String.format(getString(R.string.text_remind_birthday), person.getFullName()));
-                alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmIntent = PendingIntent.getBroadcast(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 long millisToRemind = createMillisToRemind(person.getDateBirthday());
                 alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
             } else {
                 if (alarmManager != null) {
                     Log.d(LOG_TAG, "Remove birthday reminder");
-                    alarmIntent = PendingIntent.getBroadcast(getActivity(), (int) person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    alarmIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     alarmManager.cancel(alarmIntent);
                     alarmIntent.cancel();
                 }
@@ -247,7 +259,7 @@ public class ContactDetailsFragment extends Fragment
     }
 
     private boolean checkBirthdayReminder() {
-        return (PendingIntent.getBroadcast(getActivity(), (int)personId,
+        return (PendingIntent.getBroadcast(getActivity(), 0,
                 new Intent(getActivity(), BirthdayReminderReceiver.class),
                 PendingIntent.FLAG_NO_CREATE) != null);
     }
