@@ -151,6 +151,15 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
     }
 
     @Override
+    public void onDestroy() {
+        if (serviceBound) {
+            getActivity().unbindService(mConnection);
+            serviceBound = false;
+        }
+        super.onDestroy();
+    }
+
+    @Override
     public void onFetchPersonList(List<PersonModelCompact> personList) {
         Log.d(LOG_TAG, "ПОЛУЧЕНЫ ДАННЫЕ СПИСКА КОНТАКТОВ");
         createPersonsListView(personList);

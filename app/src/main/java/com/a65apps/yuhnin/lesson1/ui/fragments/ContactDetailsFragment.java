@@ -131,15 +131,20 @@ public class ContactDetailsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
-        if (serviceBound) {
-            getActivity().unbindService(mConnection);
-            serviceBound = false;
-        }
         ivAvatar = null;
         tvFullname = null;
         lvContacts = null;
         tvDescription = null;
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (serviceBound) {
+            getActivity().unbindService(mConnection);
+            serviceBound = false;
+        }
+        super.onDestroy();
     }
 
     public void requestContactsByPerson() {

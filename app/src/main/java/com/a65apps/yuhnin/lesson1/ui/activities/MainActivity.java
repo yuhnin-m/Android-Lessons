@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactDetailsFragment;
@@ -31,8 +32,6 @@ import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
 
 public class MainActivity extends AppCompatActivity
         implements OnPersonClickedListener, EventActionBarListener {
-
-    public static final int CODE_PERMISSION_READ_CONTACTS = 1;
 
     final String LOG_TAG = "activity_application";
     final String TAG_FRAGMENT_DETAILS = "TAG_FRAGMENT_DETAILS";
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity
 
 
     /**
-     * Метод создания создания и отображения фрагмента со списком контактов
+     * Метод создания и отображения фрагмента со списком контактов
      */
     private void createPersonListFragment() {
         Log.d(LOG_TAG, "Создаем фрагмент списка контактов");
@@ -137,7 +136,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Метод создания создания и отображения фрагмента вежливого запроса разрешений
+     * Метод создания и отображения фрагмента вежливого запроса разрешений
      */
     private void сreatePermissionRequestFragment() {
         RequestPermissonFragment requestPermissonFragment = (RequestPermissonFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERM_REQ);
@@ -196,7 +195,7 @@ public class MainActivity extends AppCompatActivity
                             ActivityCompat.requestPermissions(
                                     MainActivity.this,
                                     new String[]{Manifest.permission.READ_CONTACTS},
-                                    CODE_PERMISSION_READ_CONTACTS);
+                                    Constants.CODE_PERMISSION_READ_CONTACTS);
                         }
                     })
                     .setNegativeButton(getString(R.string.permission_request_btn_negative), new DialogInterface.OnClickListener() {
@@ -207,14 +206,14 @@ public class MainActivity extends AppCompatActivity
                         }
                     }).create().show();
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, CODE_PERMISSION_READ_CONTACTS);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, Constants.CODE_PERMISSION_READ_CONTACTS);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch(requestCode) {
-            case CODE_PERMISSION_READ_CONTACTS:
+            case Constants.CODE_PERMISSION_READ_CONTACTS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT);
                     String id = getIntent().getStringExtra("KEY_PERSON_ID");

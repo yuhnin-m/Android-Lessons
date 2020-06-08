@@ -11,19 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
-import com.a65apps.yuhnin.lesson1.ui.activities.MainActivity;
 
 public class RequestPermissonFragment extends Fragment {
     Button btnRequestPermission;
 
     public RequestPermissonFragment() {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -38,7 +32,7 @@ public class RequestPermissonFragment extends Fragment {
                     ActivityCompat.requestPermissions(
                             getActivity(),
                             new String[]{Manifest.permission.READ_CONTACTS},
-                            MainActivity.CODE_PERMISSION_READ_CONTACTS);
+                            Constants.CODE_PERMISSION_READ_CONTACTS);
                 }
             });
         }

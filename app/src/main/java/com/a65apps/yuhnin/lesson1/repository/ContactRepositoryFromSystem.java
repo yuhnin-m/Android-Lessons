@@ -15,7 +15,6 @@ import com.a65apps.yuhnin.lesson1.pojo.ContactType;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
