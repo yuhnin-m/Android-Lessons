@@ -141,10 +141,6 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
     @Override
     public void onDestroyView() {
         Log.d(LOG_TAG, "onDestroyView");
-        if (serviceBound) {
-            getActivity().unbindService(mConnection);
-            serviceBound = false;
-        }
         listviewPersons = null;
         personListAdapter = null;
         super.onDestroyView();
