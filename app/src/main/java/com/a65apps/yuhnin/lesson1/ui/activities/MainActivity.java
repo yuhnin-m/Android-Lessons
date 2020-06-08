@@ -6,22 +6,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -31,15 +26,11 @@ import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactDetailsFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactListFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.RequestPermissonFragment;
-import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
 
 public class MainActivity extends AppCompatActivity
-        implements OnPersonClickedListener, EventActionBarListener, EventDataFetchServiceListener {
+        implements OnPersonClickedListener, EventActionBarListener {
 
     public static final int CODE_PERMISSION_READ_CONTACTS = 1;
 
@@ -47,10 +38,13 @@ public class MainActivity extends AppCompatActivity
     final String TAG_FRAGMENT_DETAILS = "TAG_FRAGMENT_DETAILS";
     final String TAG_FRAGMENT_PERM_REQ = "TAG_FRAGMENT_PERM_REQ";
     final String TAG_FRAGMENT_LIST = "TAG_FRAGMENT_LIST";
+    boolean mBound = false;
 
     FragmentManager fragmentManager = getSupportFragmentManager();
+
+    @Nullable
     Toolbar toolbar;
-    boolean mBound = false;
+
     @Nullable
     DataFetchService mService;
 
@@ -64,42 +58,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         Log.d(LOG_TAG, "onDestroy start");
-        // Unbind from the service
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
         super.onDestroy();
         Log.d(LOG_TAG, "onDestroy end");
     }
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            Fragment fragment = fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
-            if (fragment != null) {
-                ((ContactDetailsFragment)fragment).serviceBinded();
-            }
-            fragment = fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
-            if (fragment != null) {
-                ((ContactListFragment)fragment).serviceBinded();
-            }
-            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-            String a = null;
-            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
-        }
-    };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,8 +73,6 @@ public class MainActivity extends AppCompatActivity
         fragmentManager = getSupportFragmentManager();
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-            Intent intent = new Intent(this, DataFetchService.class);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             if (fragmentManager.getFragments().isEmpty()) {
                 String id = getIntent().getStringExtra("KEY_PERSON_ID");
                 if (id != null && !id.isEmpty()) {
@@ -208,30 +167,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void getPersonList(PersonListResultListener callback) {
-        Log.d(LOG_TAG, "Запрос из фрагмента: getPersonList");
-        if (mService != null) {
-            mService.fetchPersons(callback);
-        }
-    }
-
-    @Override
-    public void getPersonById(String id, PersonResultListener callback) {
-        Log.d(LOG_TAG, "Запрос из фрагмента: getPersonById id=" + id);
-        if (mService != null) {
-            mService.fetchPersonById(callback, id);
-        }
-    }
-
-    @Override
-    public void getContactsByPerson(String id, ContactsResultListener callback) {
-        Log.d(LOG_TAG, "Запрос из фрагмента: getContactsByPerson id=" + id);
-        if (mService != null) {
-            mService.fetchContactInfo(callback, id);
-        }
-    }
-
     public void createNotificationChannel() {
         if (Build.VERSION.SDK_INT < 26) {
             return;
@@ -282,8 +217,6 @@ public class MainActivity extends AppCompatActivity
             case CODE_PERMISSION_READ_CONTACTS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT);
-                    Intent intent = new Intent(this, DataFetchService.class);
-                    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
                     String id = getIntent().getStringExtra("KEY_PERSON_ID");
                     if (id != null && !id.isEmpty()) {
                         сreateDetailsFragment(id);

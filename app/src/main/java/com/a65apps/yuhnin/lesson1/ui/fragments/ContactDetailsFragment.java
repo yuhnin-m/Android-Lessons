@@ -2,14 +2,17 @@ package com.a65apps.yuhnin.lesson1.ui.fragments;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +27,10 @@ import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
+import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
 
 import java.util.Calendar;
@@ -40,24 +42,27 @@ public class ContactDetailsFragment extends Fragment
         implements ContactsResultListener, PersonResultListener, CompoundButton.OnCheckedChangeListener {
     static final String ARG_PARAM_PERSON_ID = "PERSON_ID";
     final String LOG_TAG = "details_fragment";
+    boolean serviceBound = false;
 
     @NonNull
     PersonModelAdvanced person;
+
     @Nullable
     private AlarmManager alarmManager;
+
     @Nullable
     private PendingIntent alarmIntent;
 
     private String personId = "";
 
     @Nullable
+    DataFetchService mService;
+
+    @Nullable
     List<ContactInfoModel> contactInfoList;
 
     @Nullable
     private EventActionBarListener eventActionBarListener;
-
-    @Nullable
-    private EventDataFetchServiceListener eventDataFetchServiceListener;
 
     ImageView ivAvatar;
     TextView tvFullname;
@@ -76,16 +81,12 @@ public class ContactDetailsFragment extends Fragment
         if (context instanceof EventActionBarListener) {
             eventActionBarListener = (EventActionBarListener) context;
         }
-        if (context instanceof EventDataFetchServiceListener) {
-            eventDataFetchServiceListener = (EventDataFetchServiceListener) context;
-        }
         super.onAttach(context);
     }
 
     @Override
     public void onDetach() {
         eventActionBarListener = null;
-        eventDataFetchServiceListener = null;
         super.onDetach();
     }
 
@@ -96,6 +97,10 @@ public class ContactDetailsFragment extends Fragment
         if (getArguments() != null) {
             this.personId = getArguments().getString(ARG_PARAM_PERSON_ID);
         }
+        // Биндинг сервиса
+        Intent intent = new Intent(getActivity(), DataFetchService.class);
+        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     @Override
@@ -119,16 +124,17 @@ public class ContactDetailsFragment extends Fragment
         if (eventActionBarListener != null) {
             eventActionBarListener.setVisibleToolBarBackButton(true);
         }
-        if (eventDataFetchServiceListener != null) {
-            eventDataFetchServiceListener.getPersonById(personId, this);
-            eventDataFetchServiceListener.getContactsByPerson(personId, this);
-        }
+        requestContactsByPerson();
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
 
     @Override
     public void onDestroyView() {
+        if (serviceBound) {
+            getActivity().unbindService(mConnection);
+            serviceBound = false;
+        }
         ivAvatar = null;
         tvFullname = null;
         lvContacts = null;
@@ -136,13 +142,12 @@ public class ContactDetailsFragment extends Fragment
         super.onDestroyView();
     }
 
-    public void serviceBinded() {
-        // Запрашиваем данные из сервиса
-        if (eventDataFetchServiceListener != null) {
-            eventDataFetchServiceListener.getPersonById(personId, this);
-            eventDataFetchServiceListener.getContactsByPerson(personId, this);
+    public void requestContactsByPerson() {
+        if (mService != null) {
+            mService.fetchPersonById(this, personId);
+            mService.fetchContactInfo(this, personId);
+            Log.d(LOG_TAG, "Запрашиваем детали контакта и его контактную информацию");
         }
-
     }
 
     private void updateFields() {
@@ -265,4 +270,20 @@ public class ContactDetailsFragment extends Fragment
                 new Intent(getActivity(), BirthdayReminderReceiver.class),
                 PendingIntent.FLAG_NO_CREATE) != null);
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
+            mService = binder.getService();
+            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
+            requestContactsByPerson();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
+        }
+    };
 }
