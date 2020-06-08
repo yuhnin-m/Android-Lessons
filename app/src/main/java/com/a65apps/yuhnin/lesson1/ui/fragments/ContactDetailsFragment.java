@@ -2,15 +2,17 @@ package com.a65apps.yuhnin.lesson1.ui.fragments;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +26,11 @@ import android.widget.ToggleButton;
 import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
+import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
 
 import java.util.Calendar;
@@ -40,24 +42,27 @@ public class ContactDetailsFragment extends Fragment
         implements ContactsResultListener, PersonResultListener, CompoundButton.OnCheckedChangeListener {
     static final String ARG_PARAM_PERSON_ID = "PERSON_ID";
     final String LOG_TAG = "details_fragment";
+    boolean serviceBound = false;
 
     @NonNull
-    PersonModel person;
+    PersonModelAdvanced person;
+
     @Nullable
     private AlarmManager alarmManager;
+
     @Nullable
     private PendingIntent alarmIntent;
 
-    int personId = 0;
+    private String personId = "";
+
+    @Nullable
+    DataFetchService mService;
 
     @Nullable
     List<ContactInfoModel> contactInfoList;
 
     @Nullable
     private EventActionBarListener eventActionBarListener;
-
-    @Nullable
-    private EventDataFetchServiceListener eventDataFetchServiceListener;
 
     ImageView ivAvatar;
     TextView tvFullname;
@@ -76,16 +81,12 @@ public class ContactDetailsFragment extends Fragment
         if (context instanceof EventActionBarListener) {
             eventActionBarListener = (EventActionBarListener) context;
         }
-        if (context instanceof EventDataFetchServiceListener) {
-            eventDataFetchServiceListener = (EventDataFetchServiceListener) context;
-        }
         super.onAttach(context);
     }
 
     @Override
     public void onDetach() {
         eventActionBarListener = null;
-        eventDataFetchServiceListener = null;
         super.onDetach();
     }
 
@@ -94,8 +95,12 @@ public class ContactDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            this.personId = getArguments().getInt(ARG_PARAM_PERSON_ID);
+            this.personId = getArguments().getString(ARG_PARAM_PERSON_ID);
         }
+        // Биндинг сервиса
+        Intent intent = new Intent(getActivity(), DataFetchService.class);
+        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     @Override
@@ -110,13 +115,6 @@ public class ContactDetailsFragment extends Fragment
         toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
         toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
         alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
-
-        // Запрашиваем данные из сервиса
-        if (eventDataFetchServiceListener != null) {
-            eventDataFetchServiceListener.getPersonById(personId, this);
-            eventDataFetchServiceListener.getContactsByPerson(personId, this);
-        }
-
         return view;
     }
 
@@ -126,6 +124,7 @@ public class ContactDetailsFragment extends Fragment
         if (eventActionBarListener != null) {
             eventActionBarListener.setVisibleToolBarBackButton(true);
         }
+        requestContactsByPerson();
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
@@ -139,34 +138,82 @@ public class ContactDetailsFragment extends Fragment
         super.onDestroyView();
     }
 
+    @Override
+    public void onDestroy() {
+        if (serviceBound) {
+            getActivity().unbindService(mConnection);
+            serviceBound = false;
+        }
+        super.onDestroy();
+    }
 
+    public void requestContactsByPerson() {
+        if (mService != null) {
+            mService.fetchPersonById(this, personId);
+            mService.fetchContactInfo(this, personId);
+            Log.d(LOG_TAG, "Запрашиваем детали контакта и его контактную информацию");
+        }
+    }
 
     private void updateFields() {
-        ivAvatar.setImageResource(person.getImageResource());
-        tvFullname.setText(person.getFullName());
-        tvDescription.setText(person.getDescription());
-        tvBirthday.setText(String.format(getString(R.string.text_birthday_date), person.getStringBirthday()));
-        toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
-    }
-
-
-    @Override
-    public void onFetchContacts(List<ContactInfoModel> contactInfoList) {
-        this.contactInfoList = contactInfoList;
-        ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
-        lvContacts.setAdapter(contactListAdapter);
-    }
-
-    @Override
-    public void onFetchPersonModel(final PersonModel personModels) {
-        this.person = personModels;
+        if (person == null) {
+            Log.e(LOG_TAG, "Невозможно отобразить данные контакта person=null");
+            return;
+        }
         if (toggleBtnRemindBirthday != null) {
-            toggleBtnRemindBirthday.setEnabled(personModels.getDateBirthday() != null);
+            toggleBtnRemindBirthday.setEnabled(person.getDateBirthday() != null);
             boolean reminderEnabled = checkBirthdayReminder();
             toggleBtnRemindBirthday.setChecked(reminderEnabled);
+            toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
         }
-        updateFields();
+        if (ivAvatar != null) {
+            ivAvatar.setImageURI(person.getImageUri());
+        }
+        if (tvFullname != null) {
+            tvFullname.setText(person.getFullName());
+        }
+        if (tvDescription != null) {
+            tvDescription.setText(person.getDescription());
+        }
+        if (tvBirthday != null) {
+            String birthday = person.getStringBirthday().isEmpty() ? getString(R.string.text_birthday_notset) : person.getStringBirthday();
+            tvBirthday.setText(String.format(getString(R.string.text_birthday_date), birthday));
+        }
+    }
+
+
+    @Override
+    public void onFetchContacts(final List<ContactInfoModel> contactInfoList) {
+        this.contactInfoList = contactInfoList;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (lvContacts != null && contactInfoList != null) {
+                    ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
+                    lvContacts.setAdapter(contactListAdapter);
+                } else {
+                    Log.e(LOG_TAG, "onFetchContacts - Сервис вернул contactInfoList=null");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onFetchPersonModel(final PersonModelAdvanced personModelAdvanced) {
+        this.person = personModelAdvanced;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (personModelAdvanced != null) {
+                    Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
+                    updateFields();
+                } else {
+                    Log.e(LOG_TAG, "onFetchPersonModel - Сервис вернул personModels=null");
+                }
+            }
+        });
+
     }
 
     @Override
@@ -207,13 +254,15 @@ public class ContactDetailsFragment extends Fragment
                 intent.putExtra("KEY_ID", person.getId());
                 intent.putExtra("KEY_BIRTHDAY", person.getStringBirthday());
                 intent.putExtra("KEY_TEXT", String.format(getString(R.string.text_remind_birthday), person.getFullName()));
-                alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId().hashCode(),
+                        intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 long millisToRemind = createMillisToRemind(person.getDateBirthday());
                 alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
             } else {
                 if (alarmManager != null) {
                     Log.d(LOG_TAG, "Remove birthday reminder");
-                    alarmIntent = PendingIntent.getBroadcast(getActivity(), (int) person.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    alarmIntent = PendingIntent.getBroadcast(getActivity(), person.getId().hashCode(),
+                            intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     alarmManager.cancel(alarmIntent);
                     alarmIntent.cancel();
                 }
@@ -222,8 +271,24 @@ public class ContactDetailsFragment extends Fragment
     }
 
     private boolean checkBirthdayReminder() {
-        return (PendingIntent.getBroadcast(getActivity(), (int)personId,
+        return (PendingIntent.getBroadcast(getActivity(), person.getId().hashCode(),
                 new Intent(getActivity(), BirthdayReminderReceiver.class),
                 PendingIntent.FLAG_NO_CREATE) != null);
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
+            mService = binder.getService();
+            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
+            requestContactsByPerson();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
+        }
+    };
 }

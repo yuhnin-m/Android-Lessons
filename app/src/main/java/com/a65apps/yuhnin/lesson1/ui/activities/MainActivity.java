@@ -1,175 +1,168 @@
 package com.a65apps.yuhnin.lesson1.ui.activities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactDetailsFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactListFragment;
-import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
+import com.a65apps.yuhnin.lesson1.ui.fragments.RequestPermissonFragment;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.EventDataFetchServiceListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
 
 public class MainActivity extends AppCompatActivity
-        implements OnPersonClickedListener, EventActionBarListener, EventDataFetchServiceListener {
-        private final String LOG_TAG = "activity_application";
+        implements OnPersonClickedListener, EventActionBarListener {
+
+    final String LOG_TAG = "activity_application";
+    final String TAG_FRAGMENT_DETAILS = "TAG_FRAGMENT_DETAILS";
+    final String TAG_FRAGMENT_PERM_REQ = "TAG_FRAGMENT_PERM_REQ";
+    final String TAG_FRAGMENT_LIST = "TAG_FRAGMENT_LIST";
+    boolean mBound = false;
+
     FragmentManager fragmentManager = getSupportFragmentManager();
+
+    @Nullable
     Toolbar toolbar;
 
-    boolean mBound = false;
     @Nullable
     DataFetchService mService;
-
-
 
     @Override
     protected void onStart() {
         Log.d(LOG_TAG, "onStart start");
         super.onStart();
         Log.d(LOG_TAG, "onStart end");
-
-
     }
 
     @Override
     protected void onDestroy() {
         Log.d(LOG_TAG, "onDestroy start");
-        // Unbind from the service
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
         super.onDestroy();
         Log.d(LOG_TAG, "onDestroy end");
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if (fragmentManager.getFragments().isEmpty()) {
-                int id = getIntent().getIntExtra("KEY_PERSON_ID", -1);
-                if (id > 0) {
-                    сreateDetailsFragment(id);
-                } else {
-                    createPersonListFragment();
-                }
-            }
-            Log.i(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-            String a = null;
-            Log.i(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
-
-        }
-    };
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(LOG_TAG, "onCreate strat");
+        Log.d(LOG_TAG, "onCreate strat");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         createNotificationChannel();
         fragmentManager = getSupportFragmentManager();
-        Intent intent = new Intent(this, DataFetchService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            if (fragmentManager.getFragments().isEmpty()) {
+                String id = getIntent().getStringExtra("KEY_PERSON_ID");
+                if (id != null && !id.isEmpty()) {
+                    сreateDetailsFragment(id);
+                } else {
+                    createPersonListFragment();
+                }
+            }
+        } else {
+            requestReadContactsPermission();
+        }
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
-
-        Log.i(LOG_TAG, "onCreate end");
+        Log.d(LOG_TAG, "onCreate end");
     }
 
 
+    /**
+     * Метод создания и отображения фрагмента со списком контактов
+     */
     private void createPersonListFragment() {
-        Log.i(LOG_TAG, "Создаем фрагмент списка контактов");
-        ContactListFragment contactListFragment = new ContactListFragment();
-        fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment).commit();
+        Log.d(LOG_TAG, "Создаем фрагмент списка контактов");
+        ContactListFragment contactListFragment = (ContactListFragment)fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
+        if (contactListFragment == null) {
+            contactListFragment = new ContactListFragment();
+            if (fragmentManager.getFragments().isEmpty()) {
+                fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment, TAG_FRAGMENT_LIST).commit();
+            } else {
+                fragmentManager.beginTransaction().replace(R.id.fragment_container, contactListFragment, TAG_FRAGMENT_LIST).commit();
+
+            }
+        }
     }
 
-    private void сreateDetailsFragment(int personId) {
+    /**
+     * Метод создания и отображения фрагмента деталей о контакте
+     * @param personId идентификатор контакта
+     */
+    private void сreateDetailsFragment(String personId) {
         Bundle bundle = new Bundle();
-        bundle.putInt("PERSON_ID", personId);
-        ContactDetailsFragment contactDetailsFragment = new ContactDetailsFragment();
-        contactDetailsFragment.setArguments(bundle);
+        bundle.putString("PERSON_ID", personId);
+        ContactDetailsFragment contactDetailsFragment = (ContactDetailsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
+        if (contactDetailsFragment == null) {
+            // Фрагмент еще не создан
+            contactDetailsFragment = new ContactDetailsFragment();
+            contactDetailsFragment.setArguments(bundle);
+            if (fragmentManager.getFragments().isEmpty()) {
+                fragmentManager.beginTransaction()
+                        .add(R.id.fragment_container, contactDetailsFragment, TAG_FRAGMENT_DETAILS)
+                        .commit();
+            } else {
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, contactDetailsFragment, TAG_FRAGMENT_DETAILS)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }
+    }
+
+    /**
+     * Метод создания и отображения фрагмента вежливого запроса разрешений
+     */
+    private void сreatePermissionRequestFragment() {
+        RequestPermissonFragment requestPermissonFragment = (RequestPermissonFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERM_REQ);
+        if (requestPermissonFragment == null) {
+            requestPermissonFragment = new RequestPermissonFragment();
+        }
         if (fragmentManager.getFragments().isEmpty()) {
             fragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, contactDetailsFragment)
+                    .add(R.id.fragment_container, requestPermissonFragment, TAG_FRAGMENT_PERM_REQ)
                     .commit();
         } else {
             fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, contactDetailsFragment)
-                    .addToBackStack(null)
+                    .replace(R.id.fragment_container, requestPermissonFragment, TAG_FRAGMENT_PERM_REQ)
                     .commit();
         }
-
     }
 
     @Override
-    public void onItemClick(long personId) {
-        сreateDetailsFragment((int)personId);
+    public void onItemClick(String personId) {
+        сreateDetailsFragment(personId);
     }
 
     @Override
     public void setVisibleToolBarBackButton(boolean isVisible) {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(isVisible);
-        }
-    }
-
-    @Override
-    public void getPersonList(PersonListResultListener callback) {
-        Log.d(LOG_TAG, "Запрос из фрагмента: getPersonList");
-        if (mService != null) {
-            mService.fetchPersons(callback);
-        }
-    }
-
-    @Override
-    public void getPersonById(long id, PersonResultListener callback) {
-        Log.d(LOG_TAG, "Запрос из фрагмента: getPersonById id=" + id);
-        if (mService != null) {
-            mService.fetchPersonById(callback, id);
-        }
-    }
-
-    @Override
-    public void getContactsByPerson(long id, ContactsResultListener callback) {
-        Log.d(LOG_TAG, "Запрос из фрагмента: getContactsByPerson id=" + id);
-        if (mService != null) {
-            mService.fetchContactInfo(callback, id);
         }
     }
 
@@ -185,5 +178,59 @@ public class MainActivity extends AppCompatActivity
                 NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription(getString(R.string.notification_channel_desc));
         notificationManager.createNotificationChannel(channel);
+    }
+
+
+    /**
+     * Метод запрашивающий разрешение на чтение контактов
+     */
+    private void requestReadContactsPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.permission_request_title))
+                    .setMessage(getString(R.string.permission_request_message))
+                    .setPositiveButton(getString(R.string.permission_request_btn_positive), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(
+                                    MainActivity.this,
+                                    new String[]{Manifest.permission.READ_CONTACTS},
+                                    Constants.CODE_PERMISSION_READ_CONTACTS);
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.permission_request_btn_negative), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            сreatePermissionRequestFragment();
+                        }
+                    }).create().show();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, Constants.CODE_PERMISSION_READ_CONTACTS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode) {
+            case Constants.CODE_PERMISSION_READ_CONTACTS:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT);
+                    String id = getIntent().getStringExtra("KEY_PERSON_ID");
+                    if (id != null && !id.isEmpty()) {
+                        сreateDetailsFragment(id);
+                    } else {
+                        createPersonListFragment();
+                    }
+                    return;
+                } else {
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
+                    сreatePermissionRequestFragment();
+                }
+                break;
+            default: {
+                Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
+            }
+        }
     }
 }

@@ -20,14 +20,15 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class BirthdayReminderReceiver extends BroadcastReceiver {
+    private final int NOTIFY_ID = 101;
     final String LOG_TAG = "alarm_reciever";
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, "BirthdayReminderReceiver - НАПОМИНАНИЕ ПОЛУЧЕНО");
         String text = intent.getStringExtra("KEY_TEXT");
-        int person_id = intent.getIntExtra("KEY_ID", -1);
+        String personId = intent.getStringExtra("KEY_ID");
         Intent activityIntent = new Intent(context, MainActivity.class);
-        activityIntent.putExtra("KEY_PERSON_ID", person_id);
+        activityIntent.putExtra("KEY_PERSON_ID", personId);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         // Выводим уведомление
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channel")
@@ -37,9 +38,8 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
-
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(intent.getIntExtra("KEY_ID", -1), builder.build());
+        notificationManager.notify(NOTIFY_ID, builder.build());
 
         // Добавляем новое напоминание о ДР через год
         long millisToRemind = 0;
@@ -50,7 +50,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
             return;
         }
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, person_id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, personId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
     }
 

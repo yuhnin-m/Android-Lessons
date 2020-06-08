@@ -1,15 +1,14 @@
 package com.a65apps.yuhnin.lesson1.services;
 
-import android.app.Person;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.widget.ListView;
 
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
-import com.a65apps.yuhnin.lesson1.pojo.PersonModel;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFakeImp;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
+import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
@@ -50,36 +49,36 @@ public class DataFetchService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<PersonModel> personModels = ContactRepositoryFakeImp.getInstance().getAllPersons();
+                List<PersonModelCompact> personModelCompacts = ContactRepositoryFromSystem.getInstance(getApplicationContext()).getAllPersons();
                 PersonListResultListener local = ref.get();
                 if (local != null) {
-                    local.onFetchPersonList(personModels);
+                    local.onFetchPersonList(personModelCompacts);
                 }
             }
         }).start();
     }
 
-    public void fetchPersonById(PersonResultListener callback, final long personId) {
+    public void fetchPersonById(PersonResultListener callback, final String personId) {
         final WeakReference<PersonResultListener> ref = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                PersonModel personModel = ContactRepositoryFakeImp.getInstance().getPersonById(personId);
+                PersonModelAdvanced personModelAdvanced = ContactRepositoryFromSystem.getInstance(getApplicationContext()).getPersonById(personId);
                 PersonResultListener local = ref.get();
                 if (local != null) {
-                    local.onFetchPersonModel(personModel);
+                    local.onFetchPersonModel(personModelAdvanced);
                 }
             }
         }).start();
     }
 
-    public void fetchContactInfo(ContactsResultListener callback, final long personId) {
+    public void fetchContactInfo(ContactsResultListener callback, final String personId) {
         final WeakReference<ContactsResultListener> ref = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<ContactInfoModel> contactInfoModels = ContactRepositoryFakeImp
-                        .getInstance().getContactByPerson(personId);
+                List<ContactInfoModel> contactInfoModels = ContactRepositoryFromSystem
+                        .getInstance(getApplicationContext()).getContactByPerson(personId);
                 ContactsResultListener local = ref.get();
                 if (local != null) {
                     local.onFetchContacts(contactInfoModels);
