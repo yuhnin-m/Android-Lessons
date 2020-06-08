@@ -244,13 +244,15 @@ public class ContactDetailsFragment extends Fragment
                 intent.putExtra("KEY_ID", person.getId());
                 intent.putExtra("KEY_BIRTHDAY", person.getStringBirthday());
                 intent.putExtra("KEY_TEXT", String.format(getString(R.string.text_remind_birthday), person.getFullName()));
-                alarmIntent = PendingIntent.getBroadcast(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId().hashCode(),
+                        intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 long millisToRemind = createMillisToRemind(person.getDateBirthday());
                 alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
             } else {
                 if (alarmManager != null) {
                     Log.d(LOG_TAG, "Remove birthday reminder");
-                    alarmIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    alarmIntent = PendingIntent.getBroadcast(getActivity(), person.getId().hashCode(),
+                            intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     alarmManager.cancel(alarmIntent);
                     alarmIntent.cancel();
                 }
@@ -259,7 +261,7 @@ public class ContactDetailsFragment extends Fragment
     }
 
     private boolean checkBirthdayReminder() {
-        return (PendingIntent.getBroadcast(getActivity(), 0,
+        return (PendingIntent.getBroadcast(getActivity(), person.getId().hashCode(),
                 new Intent(getActivity(), BirthdayReminderReceiver.class),
                 PendingIntent.FLAG_NO_CREATE) != null);
     }

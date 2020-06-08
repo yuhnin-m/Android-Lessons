@@ -2,7 +2,7 @@ package com.a65apps.yuhnin.lesson1.pojo;
 
 public class ContactInfoModel {
     private final long id;
-    private final long personId;
+    private final String personId;
     private final ContactType contactType;
     private final String value;
 
@@ -13,7 +13,7 @@ public class ContactInfoModel {
      * @param contactType Тип контактой информации
      * @param value Значение контактной информации
      */
-    public ContactInfoModel(long id, long personId, ContactType contactType, String value) {
+    public ContactInfoModel(long id, String personId, ContactType contactType, String value) {
         this.id = id;
         this.personId = personId;
         this.contactType = contactType;
@@ -24,7 +24,7 @@ public class ContactInfoModel {
         return id;
     }
 
-    public long getPersonId() {
+    public String getPersonId() {
         return personId;
     }
 

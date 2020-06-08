@@ -184,7 +184,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                         Log.d(LOG_TAG, "Найден номер телефона: " + phoneNumber);
                         phoneList.add(new ContactInfoModel(
                                 Long.parseLong(phoneId),
-                                Integer.parseInt(personId),
+                                personId,
                                 ContactType.PHONE_NUMBER,
                                 phoneNumber));
                     }
@@ -261,7 +261,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                         Log.d(LOG_TAG, "Найдена электронная почта: " + emailAddress);
                         emailList.add(new ContactInfoModel(
                                 Long.valueOf(emailId),
-                                Integer.valueOf(personId),
+                                personId,
                                 ContactType.EMAIL,
                                 emailAddress));
                     }

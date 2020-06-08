@@ -50,7 +50,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
             return;
         }
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, personId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
     }
 

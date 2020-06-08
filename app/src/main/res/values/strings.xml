@@ -14,11 +14,11 @@
     <string name="notification_channel_name">appcontact_nc</string>
     <string name="notification_channel_desc">App contact notification channel description</string>
     <string name="permission_request_title">Приложению необходимо предоставить разрешения</string>
+    <string name="permission_request_btn">Запросить разрешения</string>
     <string name="permission_request_message">Это приложение требует предоставить ему необходимые разрешения</string>
     <string name="permission_request_btn_positive">Согласен</string>
     <string name="permission_request_btn_negative">Не согласен</string>
     <string name="permission_granted">Необходимые разрешения получены</string>
     <string name="permission_not_received">Разрешения не получены</string>
-
 
 </resources>

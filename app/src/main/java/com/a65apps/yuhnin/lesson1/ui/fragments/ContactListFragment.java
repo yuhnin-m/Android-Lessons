@@ -115,7 +115,8 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 if (onPersonClickedListener != null) {
-                    onPersonClickedListener.onItemClick(id);
+                    String personId = ((PersonModelCompact)listviewPersons.getAdapter().getItem(position)).getId();
+                    onPersonClickedListener.onItemClick(personId);
                 }
             }
         });

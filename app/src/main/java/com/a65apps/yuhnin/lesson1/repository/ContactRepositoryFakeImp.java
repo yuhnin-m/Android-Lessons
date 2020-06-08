@@ -52,48 +52,48 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
 
     private void createPersons() throws ParseException{
         personModelAdvanceds.add(new PersonModelAdvanced(
-                1,
+                "1",
                 "Гагарин Юрий Алексеевич",
                 "Восток-1", resourceToUri(R.drawable.avatar1), "09-03-1934"));
 
         personModelAdvanceds.add(new PersonModelAdvanced(
-                2,
+                "2",
                 "Леонов Алексей Архипович",
                 "Восход-2", resourceToUri(R.drawable.avatar2), "30-05-1934"));
 
-        personModelAdvanceds.add(new PersonModelAdvanced(3,"Титов Герман Степанович",
+        personModelAdvanceds.add(new PersonModelAdvanced("3","Титов Герман Степанович",
                 "Восток-2", resourceToUri(R.drawable.avatar3), "11-09-1935"));
 
-        personModelCompacts.add(new PersonModelCompact(1,"Гагарин Юрий Алексеевич", resourceToUri(R.drawable.avatar1)));
-        personModelCompacts.add(new PersonModelCompact(2, "Леонов Алексей Архипович", resourceToUri(R.drawable.avatar2)));
-        personModelCompacts.add(new PersonModelCompact(3,"Титов Герман Степанович", resourceToUri(R.drawable.avatar3)));
+        personModelCompacts.add(new PersonModelCompact("1","Гагарин Юрий Алексеевич", resourceToUri(R.drawable.avatar1)));
+        personModelCompacts.add(new PersonModelCompact("2", "Леонов Алексей Архипович", resourceToUri(R.drawable.avatar2)));
+        personModelCompacts.add(new PersonModelCompact("3","Титов Герман Степанович", resourceToUri(R.drawable.avatar3)));
     }
 
 
     private void createContacts() {
-        contactInfoModels.add(new ContactInfoModel(1, 1,
+        contactInfoModels.add(new ContactInfoModel(1, "1",
                 ContactType.PHONE_NUMBER, "+71111111111"));
-        contactInfoModels.add(new ContactInfoModel(2, 1,
+        contactInfoModels.add(new ContactInfoModel(2, "1",
                 ContactType.EMAIL, "gagarin@cosmonauts.su"));
-        contactInfoModels.add(new ContactInfoModel(3, 1,
+        contactInfoModels.add(new ContactInfoModel(3, "1",
                 ContactType.PHONE_NUMBER, "+71111111112"));
-        contactInfoModels.add(new ContactInfoModel(4, 1,
+        contactInfoModels.add(new ContactInfoModel(4, "1",
                 ContactType.EMAIL, "y.gagarin@vvs.su"));
 
-        contactInfoModels.add(new ContactInfoModel(5, 2,
+        contactInfoModels.add(new ContactInfoModel(5, "2",
                 ContactType.PHONE_NUMBER, "+72222222222"));
-        contactInfoModels.add(new ContactInfoModel(6, 2,
+        contactInfoModels.add(new ContactInfoModel(6, "2",
                 ContactType.EMAIL, "leonov@cosmonauts.su"));
-        contactInfoModels.add(new ContactInfoModel(7, 2,
+        contactInfoModels.add(new ContactInfoModel(7, "2",
                 ContactType.PHONE_NUMBER, "+72222222223"));
-        contactInfoModels.add(new ContactInfoModel(8, 2,
+        contactInfoModels.add(new ContactInfoModel(8, "2",
                 ContactType.EMAIL, "laa@vvs.su"));
 
-        contactInfoModels.add(new ContactInfoModel(9, 3,
+        contactInfoModels.add(new ContactInfoModel(9, "3",
                 ContactType.PHONE_NUMBER, "+73333333333"));
-        contactInfoModels.add(new ContactInfoModel(10, 3,
+        contactInfoModels.add(new ContactInfoModel(10, "3",
                 ContactType.EMAIL, "leonov@cosmonauts.su"));
-        contactInfoModels.add(new ContactInfoModel(11, 3,
+        contactInfoModels.add(new ContactInfoModel(11, "3",
                 ContactType.PHONE_NUMBER, "+73333333334"));
     }
 
@@ -104,10 +104,10 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
 
 
     @Override
-    public List<ContactInfoModel> getContactByPerson(long id) {
+    public List<ContactInfoModel> getContactByPerson(String id) {
         List<ContactInfoModel> foundContacts = new ArrayList<ContactInfoModel>();
         for (ContactInfoModel contact : contactInfoModels) {
-            if (contact.getPersonId() == id) {
+            if (contact.getPersonId().equals(id)) {
                 foundContacts.add(contact);
             }
         }
@@ -115,9 +115,9 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     @Override
-    public PersonModelAdvanced getPersonById(long id) {
+    public PersonModelAdvanced getPersonById(String id) {
         for (PersonModelAdvanced personModelAdvanced : personModelAdvanceds) {
-            if (personModelAdvanced.getId() == id) {
+            if (personModelAdvanced.getId().equals(id)) {
                 return personModelAdvanced;
             }
         }
