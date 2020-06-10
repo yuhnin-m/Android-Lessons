@@ -10,6 +10,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
+import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.ContactType;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
@@ -35,7 +37,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
     @Nullable
     @Override
-    public List<PersonModelCompact> getAllPersons() {
+    public List<PersonModelCompact> getAllPersons (PersonListCallback callback) {
         ArrayList<PersonModelCompact> personList = new ArrayList<>();
         ContentResolver contentResolver = context.getContentResolver();
         Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
@@ -66,7 +68,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
     @NonNull
     @Override
-    public List<ContactInfoModel> getContactByPerson(String personId) {
+    public List<ContactInfoModel> getContactByPerson(PersonDetailsCallback callback, String personId) {
         List<ContactInfoModel> contactInfoModels = new ArrayList<ContactInfoModel>();
         try {
             List<ContactInfoModel> phoneNumbers = getPhoneList(personId, context.getContentResolver());
@@ -92,8 +94,9 @@ public class ContactRepositoryFromSystem implements ContactRepository {
     }
 
 
+    @Nullable
     @Override
-    public PersonModelAdvanced getPersonById(String personId) {
+    public PersonModelAdvanced getPersonById(PersonDetailsCallback callback, String personId) {
         PersonModelAdvanced personModelAdvanced = null;
         ContentResolver contentResolver = context.getContentResolver();
         Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,null,
@@ -276,5 +279,4 @@ public class ContactRepositoryFromSystem implements ContactRepository {
         }
         return emailList;
     }
-
 }
