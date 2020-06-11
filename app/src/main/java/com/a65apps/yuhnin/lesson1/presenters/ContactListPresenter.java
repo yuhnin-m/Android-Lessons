@@ -1,5 +1,7 @@
 package com.a65apps.yuhnin.lesson1.presenters;
 
+import androidx.annotation.NonNull;
+
 import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @InjectViewState
 public class ContactListPresenter extends MvpPresenter<ContactListView> implements PersonListCallback {
+    @NonNull
     ContactRepository contactRepository;
 
     public ContactListPresenter(ContactRepository contactRepository) {
@@ -18,8 +21,7 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> implemen
     }
 
     public void requestContactList() {
-        if (contactRepository != null)
-            contactRepository.getAllPersons(this);
+        contactRepository.getAllPersons(this);
     }
 
     @Override

@@ -40,8 +40,7 @@ import java.util.List;
 public class ContactDetailsFragment extends MvpAppCompatFragment
         implements ContactDetailsView, CompoundButton.OnCheckedChangeListener {
     final String LOG_TAG = "details_fragment";
-    // FIXME. Вопрос: все эти поля нужно присваивать null в onDestroy? Как быть с contactListPresenter?
-    // -----------------------------
+
     ImageView ivAvatar;
     TextView tvFullname;
     ListView lvContacts;
@@ -71,9 +70,8 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
 
     @ProvidePresenter
     ContactDetailsPresenter providerContactDetailsPresenter(){
-        return contactDetailsPresenter = new ContactDetailsPresenter(ContactRepositoryFromSystem.getInstance(getContext()));
+        return contactDetailsPresenter = new ContactDetailsPresenter(ContactRepositoryFromSystem.getInstance(getActivity().getApplicationContext()));
     }
-    // ------------------------------
 
     public ContactDetailsFragment() {
         // Required empty public constructor

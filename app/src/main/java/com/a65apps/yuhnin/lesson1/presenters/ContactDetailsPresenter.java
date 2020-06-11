@@ -1,5 +1,7 @@
 package com.a65apps.yuhnin.lesson1.presenters;
 
+import androidx.annotation.NonNull;
+
 import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
@@ -12,6 +14,7 @@ import java.util.List;
 
 @InjectViewState
 public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> implements PersonDetailsCallback {
+    @NonNull
     ContactRepository contactRepository;
 
     public ContactDetailsPresenter(ContactRepository contactRepository) {
@@ -19,15 +22,11 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> im
     }
 
     public void requestContactsByPerson(String personId) {
-        if (contactRepository != null) {
-            contactRepository.getContactByPerson(this, personId);
-        }
+        contactRepository.getContactByPerson(this, personId);
     }
 
     public void requestPersonDetails(String personId) {
-        if (contactRepository != null)
-            contactRepository.getPersonById(this, personId);
-
+        contactRepository.getPersonById(this, personId);
     }
     @Override
     public void onDestroy() {

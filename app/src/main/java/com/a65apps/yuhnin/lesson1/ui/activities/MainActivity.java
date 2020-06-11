@@ -2,6 +2,7 @@ package com.a65apps.yuhnin.lesson1.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -27,9 +28,8 @@ import com.a65apps.yuhnin.lesson1.ui.fragments.ContactListFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.RequestPermissonFragment;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
-import com.arellomobile.mvp.MvpAppCompatActivity;
 
-public class MainActivity extends MvpAppCompatActivity
+public class MainActivity extends AppCompatActivity
         implements OnPersonClickedListener, EventActionBarListener {
 
     final String LOG_TAG = "activity_application";

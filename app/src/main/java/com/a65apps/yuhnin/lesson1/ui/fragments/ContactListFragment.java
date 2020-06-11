@@ -49,7 +49,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
 
     @ProvidePresenter
     ContactListPresenter providerContactListPresenter(){
-        return contactListPresenter = new ContactListPresenter(ContactRepositoryFromSystem.getInstance(getContext()));
+        return contactListPresenter = new ContactListPresenter(ContactRepositoryFromSystem.getInstance(getActivity().getApplicationContext()));
     }
 
     @Override
