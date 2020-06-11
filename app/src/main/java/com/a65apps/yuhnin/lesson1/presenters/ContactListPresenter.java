@@ -3,7 +3,7 @@ package com.a65apps.yuhnin.lesson1.presenters;
 import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
-import com.a65apps.yuhnin.lesson1.ui.views.ContactListView;
+import com.a65apps.yuhnin.lesson1.views.ContactListView;
 import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.List;
@@ -15,8 +15,9 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> implemen
         this.contactRepository = contactRepository;
     }
 
-    void getContactList() {
-        contactRepository.getAllPersons(this);
+    public void requestContactList() {
+        if (contactRepository != null)
+            contactRepository.getAllPersons(this);
     }
 
     @Override

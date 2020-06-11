@@ -37,7 +37,6 @@ public class PersonListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        // FIXME: не уверен, что так делать правильно. Но мне больше негде взять численный идентификтор
         return this.personList.get(i).getId().hashCode();
     }
 

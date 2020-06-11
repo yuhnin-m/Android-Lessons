@@ -1,15 +1,10 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
-import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,25 +14,24 @@ import android.widget.ListView;
 
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
-import com.a65apps.yuhnin.lesson1.services.DataFetchService;
+import com.a65apps.yuhnin.lesson1.presenters.ContactListPresenter;
+import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.PersonListResultListener;
+import com.a65apps.yuhnin.lesson1.views.ContactListView;
+import com.arellomobile.mvp.MvpAppCompatFragment;
+import com.arellomobile.mvp.presenter.InjectPresenter;
+import com.arellomobile.mvp.presenter.ProvidePresenter;
 
 import java.util.List;
 
 /**
  * Фрагмент списка контактов
  */
-// parent activity will implement this method to respond to click events
-
-
-
-public class ContactListFragment extends Fragment implements PersonListResultListener {
+public class ContactListFragment extends MvpAppCompatFragment implements ContactListView {
 
     final String LOG_TAG = "contact_list_fragment";
-    boolean serviceBound = false;
 
     ListView listviewPersons;
 
@@ -45,13 +39,18 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
     PersonListAdapter personListAdapter;
 
     @Nullable
-    DataFetchService mService;
-
-    @Nullable
     private OnPersonClickedListener onPersonClickedListener;
 
     @Nullable
     private EventActionBarListener eventActionBarListener;
+
+    @InjectPresenter
+    ContactListPresenter contactListPresenter;
+
+    @ProvidePresenter
+    ContactListPresenter providerContactListPresenter(){
+        return contactListPresenter = new ContactListPresenter(ContactRepositoryFromSystem.getInstance(getContext()));
+    }
 
     @Override
     public void onAttach(@Nullable Context context) {
@@ -79,34 +78,10 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
 
     }
 
-    public void requestPersonList() {
-        if (mService != null) {
-            mService.fetchPersons(this);
-            Log.d(LOG_TAG, "Запрашиваем getPersonList");
-        }
-    }
-
-    private void createPersonsListView(final List<PersonModelCompact> personList) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (personList != null && listviewPersons != null) {
-                    Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
-                    personListAdapter = new PersonListAdapter(getActivity(), personList);
-                    listviewPersons.setAdapter(personListAdapter);
-                }
-            }
-        });
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(LOG_TAG, "onCreate");
-        // Биндинг сервиса
-        Intent intent = new Intent(getActivity(), DataFetchService.class);
-        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -125,6 +100,7 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
             }
         });
         requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
+        contactListPresenter.requestContactList();
         return view;
     }
 
@@ -147,35 +123,17 @@ public class ContactListFragment extends Fragment implements PersonListResultLis
     }
 
     @Override
-    public void onDestroy() {
-        if (serviceBound) {
-            getActivity().unbindService(mConnection);
-            serviceBound = false;
-        }
-        super.onDestroy();
+    public void getContactList(final List<PersonModelCompact> personList) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (personList != null && listviewPersons != null) {
+                    Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
+                    personListAdapter = new PersonListAdapter(getActivity(), personList);
+                    listviewPersons.setAdapter(personListAdapter);
+                }
+            }
+        });
     }
 
-    @Override
-    public void onFetchPersonList(List<PersonModelCompact> personList) {
-        Log.d(LOG_TAG, "ПОЛУЧЕНЫ ДАННЫЕ СПИСКА КОНТАКТОВ");
-        createPersonsListView(personList);
-    }
-
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
-            mService = binder.getService();
-            serviceBound = true;
-            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
-            requestPersonList();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
-        }
-    };
 }

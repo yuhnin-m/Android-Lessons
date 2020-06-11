@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
@@ -17,6 +16,7 @@ import com.a65apps.yuhnin.lesson1.pojo.ContactType;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,95 +35,117 @@ public class ContactRepositoryFromSystem implements ContactRepository {
         return instance;
     }
 
-    @Nullable
     @Override
-    public List<PersonModelCompact> getAllPersons (PersonListCallback callback) {
-        ArrayList<PersonModelCompact> personList = new ArrayList<>();
-        ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
-                null, null, null, null);
-        try {
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
+    public void getAllPersons (PersonListCallback callback) {
+        final WeakReference<PersonListCallback> weakReference = new WeakReference<>(callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                PersonListCallback local = weakReference.get();
+                if (local != null) {
+                    ArrayList<PersonModelCompact> personList = new ArrayList<>();
+                    ContentResolver contentResolver = context.getContentResolver();
+                    Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                            null, null, null, null);
                     try {
-                        String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                        String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                        String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
-                        Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName + " фото="+strPhotoUri);
-                        personList.add(new PersonModelCompact(id, displaName, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
-                        //Log.d(LOG_TAG, "Контакт добавлен");
-                    } catch (Exception e) {
-                        Log.d(LOG_TAG, "Произошла ошибка получения контакта: " + e.getMessage());
+                        if (cursor != null) {
+                            while (cursor.moveToNext()) {
+                                try {
+                                    String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                                    String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                                    String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                                    Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName + " фото="+strPhotoUri);
+                                    personList.add(new PersonModelCompact(id, displaName, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
+                                    //Log.d(LOG_TAG, "Контакт добавлен");
+                                } catch (Exception e) {
+                                    Log.d(LOG_TAG, "Произошла ошибка получения контакта: " + e.getMessage());
+                                }
+                            }
+                        }
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
                     }
+                    local.getPersonList(personList);
                 }
             }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return personList;
+        }).start();
     }
 
 
-    @NonNull
     @Override
-    public List<ContactInfoModel> getContactByPerson(PersonDetailsCallback callback, String personId) {
-        List<ContactInfoModel> contactInfoModels = new ArrayList<ContactInfoModel>();
-        try {
-            List<ContactInfoModel> phoneNumbers = getPhoneList(personId, context.getContentResolver());
-            if (phoneNumbers != null) {
-                contactInfoModels.addAll(phoneNumbers);
+    public void getContactByPerson(PersonDetailsCallback callback, final String personId) {
+        final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<ContactInfoModel> contactInfoModels = new ArrayList<ContactInfoModel>();
+                try {
+                    List<ContactInfoModel> phoneNumbers = getPhoneList(personId, context.getContentResolver());
+                    if (phoneNumbers != null) {
+                        contactInfoModels.addAll(phoneNumbers);
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Произошла ошибка чтения списка телефонов контакта id=" + personId +
+                            ". Текст ошибки: " + e.getMessage());
+                }
+                try {
+                    List<ContactInfoModel> emails = getEmailList(personId, context.getContentResolver());
+                    if (emails != null) {
+                        contactInfoModels.addAll(emails);
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Произошла ошибка чтения списка адресов эл.почты контакта " + personId +
+                            ". Текст ошибки: " + e.getMessage());
+                }
+                PersonDetailsCallback local = weakReference.get();
+                if (local != null) {
+                    local.onFetchPersonContacts(contactInfoModels);
+                }
             }
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения списка телефонов контакта id=" + personId +
-                    ". Текст ошибки: " + e.getMessage());
-        }
-
-        try {
-            List<ContactInfoModel> emails = getEmailList(personId, context.getContentResolver());
-            if (emails != null) {
-                contactInfoModels.addAll(emails);
-            }
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения списка адресов эл.почты контакта " + personId +
-                    ". Текст ошибки: " + e.getMessage());
-        }
-
-        return contactInfoModels;
+        }).start();
     }
 
 
-    @Nullable
     @Override
-    public PersonModelAdvanced getPersonById(PersonDetailsCallback callback, String personId) {
-        PersonModelAdvanced personModelAdvanced = null;
-        ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,null,
-                ContactsContract.Contacts._ID + " = " + personId,null ,null);
-        try{
-            if (cursor != null) {
-                cursor.moveToNext();
-                String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
-                String dateBirthDay = getDateBirthday(id, contentResolver);
-                String description = getCompanyName(id, contentResolver);
-                personModelAdvanced = new PersonModelAdvanced(
-                        personId,
-                        displaName,
-                        description,
-                        strPhotoUri == null ? null : Uri.parse(strPhotoUri),
-                        dateBirthDay);
+    public void getPersonById(PersonDetailsCallback callback, final String personId) {
+        final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                PersonModelAdvanced personModelAdvanced = null;
+                ContentResolver contentResolver = context.getContentResolver();
+                Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,null,
+                        ContactsContract.Contacts._ID + " = " + personId,null ,null);
+                try{
+                    if (cursor != null) {
+                        cursor.moveToNext();
+                        String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+                        String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                        String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                        String dateBirthDay = getDateBirthday(id, contentResolver);
+                        String description = getCompanyName(id, contentResolver);
+                        personModelAdvanced = new PersonModelAdvanced(
+                                personId,
+                                displaName,
+                                description,
+                                strPhotoUri == null ? null : Uri.parse(strPhotoUri),
+                                dateBirthDay);
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Ошибка получения информации о контакте" + e.getMessage());
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                }
+                PersonDetailsCallback local = weakReference.get();
+                if (local != null) {
+                    local.onFetchPersonDetails(personModelAdvanced);
+                }
             }
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Ошибка получения информации о контакте" + e.getMessage());
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return personModelAdvanced;
+        }).start();
     }
 
     /**

@@ -6,6 +6,6 @@ import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import java.util.List;
 
 public interface PersonDetailsCallback {
-    void getPersonDetails(PersonModelAdvanced personModel);
-    void getPersonContacts(List<ContactInfoModel> contactList);
+    void onFetchPersonDetails(PersonModelAdvanced personModel);
+    void onFetchPersonContacts(List<ContactInfoModel> contactList);
 }

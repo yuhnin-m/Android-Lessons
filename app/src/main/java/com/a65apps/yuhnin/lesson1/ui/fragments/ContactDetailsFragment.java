@@ -2,17 +2,12 @@ package com.a65apps.yuhnin.lesson1.ui.fragments;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,25 +19,35 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
+import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
-import com.a65apps.yuhnin.lesson1.services.DataFetchService;
+import com.a65apps.yuhnin.lesson1.presenters.ContactDetailsPresenter;
+import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
-import com.a65apps.yuhnin.lesson1.ui.listeners.ContactsResultListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
-import com.a65apps.yuhnin.lesson1.ui.listeners.PersonResultListener;
+import com.a65apps.yuhnin.lesson1.views.ContactDetailsView;
+import com.arellomobile.mvp.MvpAppCompatFragment;
+import com.arellomobile.mvp.presenter.InjectPresenter;
+import com.arellomobile.mvp.presenter.ProvidePresenter;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-public class ContactDetailsFragment extends Fragment
-        implements ContactsResultListener, PersonResultListener, CompoundButton.OnCheckedChangeListener {
-    static final String ARG_PARAM_PERSON_ID = "PERSON_ID";
+public class ContactDetailsFragment extends MvpAppCompatFragment
+        implements ContactDetailsView, CompoundButton.OnCheckedChangeListener {
     final String LOG_TAG = "details_fragment";
-    boolean serviceBound = false;
+    // FIXME. Вопрос: все эти поля нужно присваивать null в onDestroy? Как быть с contactListPresenter?
+    // -----------------------------
+    ImageView ivAvatar;
+    TextView tvFullname;
+    ListView lvContacts;
+    TextView tvDescription;
+    TextView tvBirthday;
+    ToggleButton toggleBtnRemindBirthday;
 
     @NonNull
     PersonModelAdvanced person;
@@ -56,21 +61,19 @@ public class ContactDetailsFragment extends Fragment
     private String personId = "";
 
     @Nullable
-    DataFetchService mService;
-
-    @Nullable
     List<ContactInfoModel> contactInfoList;
 
     @Nullable
     private EventActionBarListener eventActionBarListener;
 
-    ImageView ivAvatar;
-    TextView tvFullname;
-    ListView lvContacts;
-    TextView tvDescription;
-    TextView tvBirthday;
-    ToggleButton toggleBtnRemindBirthday;
+    @InjectPresenter
+    ContactDetailsPresenter contactDetailsPresenter;
 
+    @ProvidePresenter
+    ContactDetailsPresenter providerContactDetailsPresenter(){
+        return contactDetailsPresenter = new ContactDetailsPresenter(ContactRepositoryFromSystem.getInstance(getContext()));
+    }
+    // ------------------------------
 
     public ContactDetailsFragment() {
         // Required empty public constructor
@@ -95,12 +98,8 @@ public class ContactDetailsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            this.personId = getArguments().getString(ARG_PARAM_PERSON_ID);
+            this.personId = getArguments().getString(Constants.KEY_PERSON_ID);
         }
-        // Биндинг сервиса
-        Intent intent = new Intent(getActivity(), DataFetchService.class);
-        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
     }
 
     @Override
@@ -124,7 +123,8 @@ public class ContactDetailsFragment extends Fragment
         if (eventActionBarListener != null) {
             eventActionBarListener.setVisibleToolBarBackButton(true);
         }
-        requestContactsByPerson();
+        contactDetailsPresenter.requestContactsByPerson(personId);
+        contactDetailsPresenter.requestPersonDetails(personId);
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
@@ -136,23 +136,6 @@ public class ContactDetailsFragment extends Fragment
         lvContacts = null;
         tvDescription = null;
         super.onDestroyView();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (serviceBound) {
-            getActivity().unbindService(mConnection);
-            serviceBound = false;
-        }
-        super.onDestroy();
-    }
-
-    public void requestContactsByPerson() {
-        if (mService != null) {
-            mService.fetchPersonById(this, personId);
-            mService.fetchContactInfo(this, personId);
-            Log.d(LOG_TAG, "Запрашиваем детали контакта и его контактную информацию");
-        }
     }
 
     private void updateFields() {
@@ -184,46 +167,12 @@ public class ContactDetailsFragment extends Fragment
 
 
     @Override
-    public void onFetchContacts(final List<ContactInfoModel> contactInfoList) {
-        this.contactInfoList = contactInfoList;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (lvContacts != null && contactInfoList != null) {
-                    ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
-                    lvContacts.setAdapter(contactListAdapter);
-                } else {
-                    Log.e(LOG_TAG, "onFetchContacts - Сервис вернул contactInfoList=null");
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onFetchPersonModel(final PersonModelAdvanced personModelAdvanced) {
-        this.person = personModelAdvanced;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (personModelAdvanced != null) {
-                    Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
-                    updateFields();
-                } else {
-                    Log.e(LOG_TAG, "onFetchPersonModel - Сервис вернул personModels=null");
-                }
-            }
-        });
-
-    }
-
-    @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             Log.d(LOG_TAG, "Toggle checked");
         } else {
             Log.d(LOG_TAG, "Toggle uncheked");
         }
-
         setBirthdayReminderEnabled(isChecked);
     }
 
@@ -276,19 +225,35 @@ public class ContactDetailsFragment extends Fragment
                 PendingIntent.FLAG_NO_CREATE) != null);
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            DataFetchService.LocalBinder binder = (DataFetchService.LocalBinder) service;
-            mService = binder.getService();
-            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceConnected");
-            requestContactsByPerson();
-        }
+    @Override
+    public void getContactDetails(PersonModelAdvanced personModel) {
+        this.person = personModel;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (person != null) {
+                    Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
+                    updateFields();
+                } else {
+                    Log.e(LOG_TAG, "onFetchPersonModel - репозиторий вернул personModels=null");
+                }
+            }
+        });
+    }
 
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            Log.d(LOG_TAG, "Сработал ServiceConnection - onServiceDisconnected");
-        }
-    };
+    @Override
+    public void getContactsInfo(List<ContactInfoModel> listOfContacts) {
+        this.contactInfoList = listOfContacts;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (lvContacts != null && contactInfoList != null) {
+                    ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
+                    lvContacts.setAdapter(contactListAdapter);
+                } else {
+                    Log.e(LOG_TAG, "onFetchContacts - репозиторий вернул contactInfoList=null");
+                }
+            }
+        });
+    }
 }

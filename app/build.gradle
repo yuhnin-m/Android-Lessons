@@ -31,7 +31,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'com.arello-mobile:moxy:1.5.5'
-    implementation 'tech.schoolhelper:moxy-x-androidx:1.7.0'
-    annotationProcessor 'com.arello-mobile:moxy-compiler:1.5.5'
+
+    implementation "com.arello-mobile:moxy:1.4.5"
+    annotationProcessor "com.arello-mobile:moxy-compiler:1.4.5"
+    implementation ('tech.schoolhelper:moxy-x-androidx:1.7.0'){
+        exclude group: 'tech.schoolhelper', module:'moxy-x'
+    }
 }

@@ -1,4 +1,4 @@
-package com.a65apps.yuhnin.lesson1.ui.views;
+package com.a65apps.yuhnin.lesson1.views;
 
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
