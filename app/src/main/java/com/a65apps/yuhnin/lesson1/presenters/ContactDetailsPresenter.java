@@ -5,10 +5,12 @@ import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
 import com.a65apps.yuhnin.lesson1.views.ContactDetailsView;
+import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.List;
 
+@InjectViewState
 public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> implements PersonDetailsCallback {
     ContactRepository contactRepository;
 
