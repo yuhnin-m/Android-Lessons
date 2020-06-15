@@ -124,16 +124,11 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
 
     @Override
     public void getContactList(final List<PersonModelCompact> personList) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (personList != null && listviewPersons != null) {
-                    Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
-                    personListAdapter = new PersonListAdapter(getActivity(), personList);
-                    listviewPersons.setAdapter(personListAdapter);
-                }
-            }
-        });
+        if (personList != null && listviewPersons != null) {
+            Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
+            personListAdapter = new PersonListAdapter(getActivity(), personList);
+            listviewPersons.setAdapter(personListAdapter);
+        }
     }
 
 }

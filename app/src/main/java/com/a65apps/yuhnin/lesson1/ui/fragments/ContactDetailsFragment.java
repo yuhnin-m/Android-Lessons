@@ -226,32 +226,22 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     @Override
     public void getContactDetails(PersonModelAdvanced personModel) {
         this.person = personModel;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (person != null) {
-                    Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
-                    updateFields();
-                } else {
-                    Log.e(LOG_TAG, "onFetchPersonModel - репозиторий вернул personModels=null");
-                }
-            }
-        });
+        if (person != null) {
+            Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
+            updateFields();
+        } else {
+            Log.e(LOG_TAG, "onFetchPersonModel - репозиторий вернул personModels=null");
+        }
     }
 
     @Override
     public void getContactsInfo(List<ContactInfoModel> listOfContacts) {
         this.contactInfoList = listOfContacts;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (lvContacts != null && contactInfoList != null) {
-                    ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
-                    lvContacts.setAdapter(contactListAdapter);
-                } else {
-                    Log.e(LOG_TAG, "onFetchContacts - репозиторий вернул contactInfoList=null");
-                }
-            }
-        });
+        if (lvContacts != null && contactInfoList != null) {
+            ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
+            lvContacts.setAdapter(contactListAdapter);
+        } else {
+            Log.e(LOG_TAG, "onFetchContacts - репозиторий вернул contactInfoList=null");
+        }
     }
 }

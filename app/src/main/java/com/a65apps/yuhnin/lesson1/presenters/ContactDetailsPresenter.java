@@ -1,5 +1,8 @@
 package com.a65apps.yuhnin.lesson1.presenters;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.NonNull;
 
 import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
@@ -16,9 +19,12 @@ import java.util.List;
 public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> implements PersonDetailsCallback {
     @NonNull
     ContactRepository contactRepository;
+    @NonNull
+    Handler handler;
 
     public ContactDetailsPresenter(ContactRepository contactRepository) {
         this.contactRepository = contactRepository;
+        this.handler = new Handler(Looper.getMainLooper());
     }
 
     public void requestContactsByPerson(String personId) {
@@ -28,20 +34,25 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> im
     public void requestPersonDetails(String personId) {
         contactRepository.getPersonById(this, personId);
     }
+
     @Override
-    public void onDestroy() {
-        this.contactRepository = null;
-        super.onDestroy();
+    public void onFetchPersonDetails(final PersonModelAdvanced personModel) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                getViewState().getContactDetails(personModel);
+            }
+        });
     }
 
     @Override
-    public void onFetchPersonDetails(PersonModelAdvanced personModel) {
-        getViewState().getContactDetails(personModel);
-    }
-
-    @Override
-    public void onFetchPersonContacts(List<ContactInfoModel> contactList) {
-        getViewState().getContactsInfo(contactList);
+    public void onFetchPersonContacts(final List<ContactInfoModel> contactList) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                getViewState().getContactsInfo(contactList);
+            }
+        });
     }
 
 }
