@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
-import com.a65apps.yuhnin.lesson1.services.DataFetchService;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactDetailsFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.ContactListFragment;
 import com.a65apps.yuhnin.lesson1.ui.fragments.RequestPermissonFragment;
@@ -37,15 +36,11 @@ public class MainActivity extends AppCompatActivity
     final String TAG_FRAGMENT_DETAILS = "TAG_FRAGMENT_DETAILS";
     final String TAG_FRAGMENT_PERM_REQ = "TAG_FRAGMENT_PERM_REQ";
     final String TAG_FRAGMENT_LIST = "TAG_FRAGMENT_LIST";
-    boolean mBound = false;
 
     FragmentManager fragmentManager = getSupportFragmentManager();
 
     @Nullable
     Toolbar toolbar;
-
-    @Nullable
-    DataFetchService mService;
 
     @Override
     protected void onStart() {
@@ -63,7 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(LOG_TAG, "onCreate strat");
+        Log.d(LOG_TAG, "onCreate start");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
@@ -73,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             if (fragmentManager.getFragments().isEmpty()) {
-                String id = getIntent().getStringExtra("KEY_PERSON_ID");
+                String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
                 if (id != null && !id.isEmpty()) {
                     сreateDetailsFragment(id);
                 } else {
@@ -116,7 +111,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void сreateDetailsFragment(String personId) {
         Bundle bundle = new Bundle();
-        bundle.putString("PERSON_ID", personId);
+        bundle.putString(Constants.KEY_PERSON_ID, personId);
         ContactDetailsFragment contactDetailsFragment = (ContactDetailsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
         if (contactDetailsFragment == null) {
             // Фрагмент еще не создан
@@ -216,7 +211,7 @@ public class MainActivity extends AppCompatActivity
             case Constants.CODE_PERMISSION_READ_CONTACTS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT);
-                    String id = getIntent().getStringExtra("KEY_PERSON_ID");
+                    String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
                     if (id != null && !id.isEmpty()) {
                         сreateDetailsFragment(id);
                     } else {

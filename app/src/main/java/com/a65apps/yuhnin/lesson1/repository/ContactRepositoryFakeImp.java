@@ -3,15 +3,16 @@ package com.a65apps.yuhnin.lesson1.repository;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.a65apps.yuhnin.lesson1.R;
+import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
+import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.ContactType;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
-import java.text.ParseException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,16 +42,11 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
 
 
     public ContactRepositoryFakeImp() {
-        try {
-            createPersons();
-            createContacts();
-        }catch (ParseException ex) {
-            Log.e(LOG_TAG, "Ошибка формата даты рождения при создании списка контактов. " +
-                    ex.getMessage());
-        }
+        createPersons();
+        createContacts();
     }
 
-    private void createPersons() throws ParseException{
+    private void createPersons() {
         personModelAdvanceds.add(new PersonModelAdvanced(
                 "1",
                 "Гагарин Юрий Алексеевич",
@@ -98,30 +94,57 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     @Override
-    public List<PersonModelCompact> getAllPersons() {
-        return personModelCompacts;
+    public void getAllPersons(PersonListCallback callback) {
+        final WeakReference<PersonListCallback> weakReference = new WeakReference(callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                PersonListCallback local = weakReference.get();
+                if (local != null) {
+                    local.getPersonList(personModelCompacts);
+                }
+            }
+        }).start();
     }
 
 
     @Override
-    public List<ContactInfoModel> getContactByPerson(String id) {
-        List<ContactInfoModel> foundContacts = new ArrayList<ContactInfoModel>();
-        for (ContactInfoModel contact : contactInfoModels) {
-            if (contact.getPersonId().equals(id)) {
-                foundContacts.add(contact);
+    public void getContactByPerson(PersonDetailsCallback callback, final String personId) {
+        final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<ContactInfoModel> foundContacts = new ArrayList<ContactInfoModel>();
+                for (ContactInfoModel contact : contactInfoModels) {
+                    if (contact.getPersonId().equals(personId)) {
+                        foundContacts.add(contact);
+                    }
+                }
+                PersonDetailsCallback local = weakReference.get();
+                if (local != null) {
+                    local.onFetchPersonContacts(contactInfoModels);
+                }
             }
-        }
-        return foundContacts;
+        }).start();
     }
 
     @Override
-    public PersonModelAdvanced getPersonById(String id) {
-        for (PersonModelAdvanced personModelAdvanced : personModelAdvanceds) {
-            if (personModelAdvanced.getId().equals(id)) {
-                return personModelAdvanced;
+    public void getPersonById(PersonDetailsCallback callback, final String personId) {
+        final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (PersonModelAdvanced personModelAdvanced : personModelAdvanceds) {
+                    if (personModelAdvanced.getId().equals(personId)) {
+                        PersonDetailsCallback local = weakReference.get();
+                        if (local != null) {
+                            local.onFetchPersonDetails(personModelAdvanced);
+                        }
+                    }
+                }
+
             }
-        }
-        return null;
+        }).start();
     }
 
     public Uri resourceToUri(int resID) {
