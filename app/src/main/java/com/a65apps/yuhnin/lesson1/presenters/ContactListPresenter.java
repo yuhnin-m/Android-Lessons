@@ -17,11 +17,11 @@ import java.util.List;
 @InjectViewState
 public class ContactListPresenter extends MvpPresenter<ContactListView> implements PersonListCallback {
     @NonNull
-    ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
     @NonNull
-    Handler handler;
+    private final Handler handler;
 
-    public ContactListPresenter(ContactRepository contactRepository) {
+    public ContactListPresenter(@NonNull ContactRepository contactRepository) {
         this.contactRepository = contactRepository;
         handler = new Handler(Looper.getMainLooper());
     }
