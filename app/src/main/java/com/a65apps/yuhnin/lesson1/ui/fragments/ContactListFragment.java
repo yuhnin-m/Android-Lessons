@@ -4,13 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
@@ -32,8 +32,8 @@ import java.util.List;
 public class ContactListFragment extends MvpAppCompatFragment implements ContactListView {
 
     final String LOG_TAG = "contact_list_fragment";
-
-    ListView listviewPersons;
+    @Nullable
+    RecyclerView recyclerViewPersonList;
 
     @Nullable
     PersonListAdapter personListAdapter;
@@ -89,16 +89,10 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
-        listviewPersons = view.findViewById(R.id.listViewContacts);
-        listviewPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                if (onPersonClickedListener != null) {
-                    String personId = ((PersonModelCompact)listviewPersons.getAdapter().getItem(position)).getId();
-                    onPersonClickedListener.onItemClick(personId);
-                }
-            }
-        });
+        recyclerViewPersonList = view.findViewById(R.id.rv_person_list);
+        personListAdapter = new PersonListAdapter(onPersonClickedListener);
+        recyclerViewPersonList.setAdapter(personListAdapter);
+        recyclerViewPersonList.setLayoutManager(new LinearLayoutManager(getActivity()));
         requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
         contactListPresenter.requestContactList();
         return view;
@@ -117,17 +111,18 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     @Override
     public void onDestroyView() {
         Log.d(LOG_TAG, "onDestroyView");
-        listviewPersons = null;
+        recyclerViewPersonList = null;
         personListAdapter = null;
         super.onDestroyView();
     }
 
     @Override
     public void getContactList(final List<PersonModelCompact> personList) {
-        if (personList != null && listviewPersons != null) {
+        if (personList != null && recyclerViewPersonList != null) {
             Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
-            personListAdapter = new PersonListAdapter(getActivity(), personList);
-            listviewPersons.setAdapter(personListAdapter);
+            personListAdapter.setItems(personList);
+
+
         }
     }
 

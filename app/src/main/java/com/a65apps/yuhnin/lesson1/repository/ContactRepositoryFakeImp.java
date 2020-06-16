@@ -60,9 +60,9 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
         personModelAdvanceds.add(new PersonModelAdvanced("3","Титов Герман Степанович",
                 "Восток-2", resourceToUri(R.drawable.avatar3), "11-09-1935"));
 
-        personModelCompacts.add(new PersonModelCompact("1","Гагарин Юрий Алексеевич", resourceToUri(R.drawable.avatar1)));
-        personModelCompacts.add(new PersonModelCompact("2", "Леонов Алексей Архипович", resourceToUri(R.drawable.avatar2)));
-        personModelCompacts.add(new PersonModelCompact("3","Титов Герман Степанович", resourceToUri(R.drawable.avatar3)));
+        personModelCompacts.add(new PersonModelCompact("1","Гагарин Юрий Алексеевич", "Позывной: Кедр", resourceToUri(R.drawable.avatar1)));
+        personModelCompacts.add(new PersonModelCompact("2", "Леонов Алексей Архипович", "Позывной: Алмаз-2, Союз-1", resourceToUri(R.drawable.avatar2)));
+        personModelCompacts.add(new PersonModelCompact("3","Титов Герман Степанович", "Позывной Орёл", resourceToUri(R.drawable.avatar3)));
     }
 
 
