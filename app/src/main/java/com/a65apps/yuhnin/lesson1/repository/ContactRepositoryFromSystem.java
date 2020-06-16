@@ -38,16 +38,25 @@ public class ContactRepositoryFromSystem implements ContactRepository {
         return instance;
     }
 
+
     @Override
-    public void getAllPersons (@NonNull PersonListCallback callback) {
+    public void getAllPersons (@NonNull PersonListCallback callback, final @Nullable String searchString) {
+        //ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE \'%" + query + "%\'"
         final WeakReference<PersonListCallback> weakReference = new WeakReference<>(callback);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 ArrayList<PersonModelCompact> personList = new ArrayList<>();
                 ContentResolver contentResolver = context.getContentResolver();
-                Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
-                        null, null, null, null);
+                Cursor cursor;
+                if (searchString == null || searchString.isEmpty()) {
+                    cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                            null, null, null, null);
+                } else {
+                    cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                            null,ContactsContract.Contacts.DISPLAY_NAME + " LIKE \'%" + searchString + "%\'",
+                            null,null);
+                }
                 try {
                     if (cursor != null) {
                         while (cursor.moveToNext()) {

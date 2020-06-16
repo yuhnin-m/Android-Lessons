@@ -1,5 +1,6 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -10,8 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
@@ -94,8 +99,31 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         recyclerViewPersonList.setAdapter(personListAdapter);
         recyclerViewPersonList.setLayoutManager(new LinearLayoutManager(getActivity()));
         requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
-        contactListPresenter.requestContactList();
+        contactListPresenter.requestContactList(null);
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu, menu);
+        MenuItem searchMenuItem = menu.findItem(R.id.appSearchBar);
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setQueryHint(getResources().getString(R.string.action_search));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                contactListPresenter.requestContactList(query.isEmpty() ? "" : query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                contactListPresenter.requestContactList(newText.isEmpty() ? "" : newText);
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
 
@@ -123,9 +151,13 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
             personListAdapter.setItems(personList);
         }
     }
-    private int convertDpToPixels(int dp) {
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        return (int) (dp * displayMetrics.density);
-    }
 
+    /**
+     * Метод необходимый для перевода из dp в пиксели
+     * @param dp величина density-independent pixel
+     * @return величина в пикселях
+     */
+    private int convertDpToPixels(int dp) {
+        return (int) (dp * getContext().getResources().getDisplayMetrics().density);
+    }
 }

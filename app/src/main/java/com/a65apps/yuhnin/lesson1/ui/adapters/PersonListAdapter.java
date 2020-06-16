@@ -7,26 +7,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.PersonViewHolder> {
-
-    @NonNull
-    List<PersonModelCompact> personList;
+public class PersonListAdapter extends ListAdapter<PersonModelCompact, PersonListAdapter.PersonViewHolder> {
 
     @NonNull
     OnPersonClickedListener personClickedListener;
 
     public PersonListAdapter(OnPersonClickedListener personClickedListener) {
+        super(DIFF_CALLBACK);
         this.personClickedListener = personClickedListener;
-        personList = new ArrayList<>();
     }
 
     @NonNull
@@ -39,28 +37,26 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Pe
 
     @Override
     public void onBindViewHolder(@NonNull PersonViewHolder holder, int position) {
-        holder.bind(personList.get(position));
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return personList.get(i).getId().hashCode();
-    }
-
-    @Override
-    public int getItemCount() {
-        return personList.size();
+        holder.bind(getItem(position));
     }
 
     public void setItems(@NonNull List<PersonModelCompact> personList) {
-        this.personList.addAll(personList);
-        notifyDataSetChanged();
+        submitList(personList);
     }
 
-    public void clearItems() {
-        personList.clear();
-        notifyDataSetChanged();
-    }
+    public static final DiffUtil.ItemCallback<PersonModelCompact> DIFF_CALLBACK = new DiffUtil.ItemCallback<PersonModelCompact>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull PersonModelCompact oldItem, @NonNull PersonModelCompact newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull PersonModelCompact oldItem, @NonNull PersonModelCompact newItem) {
+            return oldItem.getDisplayName().equals(newItem.getDisplayName()) &&
+                    oldItem.getDescription().equals(newItem.getDescription()) &&
+                    oldItem.getImageUri().equals(newItem.getImageUri());
+        }
+    };
 
     /**
      * Предоставляет прямую ссылку на каждый View-компонент
@@ -102,7 +98,7 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Pe
             if (clickedListener != null) {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    clickedListener.onItemClick(personList.get(position).getId());
+                    clickedListener.onItemClick(getItem(position).getId());
                 }
             }
         }

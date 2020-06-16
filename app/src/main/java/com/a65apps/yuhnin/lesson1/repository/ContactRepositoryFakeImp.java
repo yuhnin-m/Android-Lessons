@@ -4,6 +4,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
 import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
@@ -62,7 +65,7 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
 
         personModelCompacts.add(new PersonModelCompact("1","Гагарин Юрий Алексеевич", "Позывной: Кедр", resourceToUri(R.drawable.avatar1)));
         personModelCompacts.add(new PersonModelCompact("2", "Леонов Алексей Архипович", "Позывной: Алмаз-2, Союз-1", resourceToUri(R.drawable.avatar2)));
-        personModelCompacts.add(new PersonModelCompact("3","Титов Герман Степанович", "Позывной Орёл", resourceToUri(R.drawable.avatar3)));
+        personModelCompacts.add(new PersonModelCompact("3","Титов Герман Степанович", "Позывной: Орёл", resourceToUri(R.drawable.avatar3)));
     }
 
 
@@ -94,7 +97,7 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     @Override
-    public void getAllPersons(PersonListCallback callback) {
+    public void getAllPersons(@NonNull PersonListCallback callback, final @Nullable String searchString) {
         final WeakReference<PersonListCallback> weakReference = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
@@ -109,7 +112,7 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
 
 
     @Override
-    public void getContactByPerson(PersonDetailsCallback callback, final String personId) {
+    public void getContactByPerson(@NonNull PersonDetailsCallback callback, @NonNull final String personId) {
         final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
@@ -129,7 +132,7 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
     }
 
     @Override
-    public void getPersonById(PersonDetailsCallback callback, final String personId) {
+    public void getPersonById(@NonNull PersonDetailsCallback callback, @NonNull final String personId) {
         final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
