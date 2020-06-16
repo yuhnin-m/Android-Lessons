@@ -7,15 +7,18 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.presenters.ContactListPresenter;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
+import com.a65apps.yuhnin.lesson1.ui.PersonDecoration;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.ui.listeners.OnPersonClickedListener;
@@ -74,10 +77,6 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         super.onDetach();
     }
 
-    public ContactListFragment() {
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +89,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         Log.d(LOG_TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
         recyclerViewPersonList = view.findViewById(R.id.rv_person_list);
+        recyclerViewPersonList.addItemDecoration(new PersonDecoration(convertDpToPixels(Constants.PERSON_LIST_DECORATION_PADDING_DP)));
         personListAdapter = new PersonListAdapter(onPersonClickedListener);
         recyclerViewPersonList.setAdapter(personListAdapter);
         recyclerViewPersonList.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -118,12 +118,14 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
 
     @Override
     public void getContactList(final List<PersonModelCompact> personList) {
-        if (personList != null && recyclerViewPersonList != null) {
+        if (personList != null && personListAdapter != null) {
             Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
             personListAdapter.setItems(personList);
-
-
         }
+    }
+    private int convertDpToPixels(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return (int) (dp * displayMetrics.density);
     }
 
 }
