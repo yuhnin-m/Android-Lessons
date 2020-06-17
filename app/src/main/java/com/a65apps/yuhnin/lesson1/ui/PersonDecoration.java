@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class PersonDecoration extends RecyclerView.ItemDecoration {
     private int offsetPx;
 
-    public PersonDecoration(int offset) {
-        this.offsetPx = offset;
+    public PersonDecoration(int offsetPx) {
+        this.offsetPx = offsetPx;
     }
 
     @Override
