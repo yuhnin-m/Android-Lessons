@@ -40,6 +40,7 @@ import java.util.List;
 public class ContactListFragment extends MvpAppCompatFragment implements ContactListView {
 
     final String LOG_TAG = "contact_list_fragment";
+    String searchQuery;
     @Nullable
     RecyclerView recyclerViewPersonList;
 
@@ -83,12 +84,6 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d(LOG_TAG, "onCreate");
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
@@ -99,7 +94,10 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         recyclerViewPersonList.setAdapter(personListAdapter);
         recyclerViewPersonList.setLayoutManager(new LinearLayoutManager(getActivity()));
         requireActivity().setTitle(getString(R.string.toolbar_header_person_list));
-        contactListPresenter.requestContactList(null);
+        if (savedInstanceState != null) {
+            searchQuery = savedInstanceState.getString(Constants.KEY_SEARCH_QUERY_TEXT, "");
+        }
+        contactListPresenter.requestContactList(searchQuery);
         setHasOptionsMenu(true);
         return view;
     }
@@ -110,9 +108,11 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         MenuItem searchMenuItem = menu.findItem(R.id.appSearchBar);
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
         searchView.setQueryHint(getResources().getString(R.string.action_search));
+        searchView.setQuery(searchQuery, false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                searchQuery = query;
                 contactListPresenter.requestContactList(query.isEmpty() ? "" : query);
                 return true;
             }
@@ -120,6 +120,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
             @Override
             public boolean onQueryTextChange(String newText) {
                 contactListPresenter.requestContactList(newText.isEmpty() ? "" : newText);
+                searchQuery = newText;
                 return false;
             }
         });
@@ -141,7 +142,14 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         Log.d(LOG_TAG, "onDestroyView");
         recyclerViewPersonList = null;
         personListAdapter = null;
+        searchQuery = null;
         super.onDestroyView();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(Constants.KEY_SEARCH_QUERY_TEXT, searchQuery);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
