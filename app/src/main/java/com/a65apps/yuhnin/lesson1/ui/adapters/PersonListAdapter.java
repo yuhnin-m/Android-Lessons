@@ -32,7 +32,7 @@ public class PersonListAdapter extends ListAdapter<PersonModelCompact, PersonLis
     public PersonViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.layout_person_list_item, parent, false);
-        return new PersonViewHolder(view, personClickedListener);
+        return new PersonViewHolder(view, personClickedListener, this);
     }
 
     @Override
@@ -58,11 +58,8 @@ public class PersonListAdapter extends ListAdapter<PersonModelCompact, PersonLis
         }
     };
 
-    /**
-     * Предоставляет прямую ссылку на каждый View-компонент
-     * Используется для кэширования View-компонентов и последующего быстрого доступа к ним
-     **/
-    class PersonViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+    public static class PersonViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Nullable
         TextView txtName;
         @Nullable
@@ -71,13 +68,16 @@ public class PersonListAdapter extends ListAdapter<PersonModelCompact, PersonLis
         ImageView ivAvatar;
         @Nullable
         OnPersonClickedListener clickedListener;
+        @NonNull
+        final PersonListAdapter personListAdapter;
 
-        public PersonViewHolder(@NonNull View itemView, final OnPersonClickedListener clickedListener) {
+        public PersonViewHolder(@NonNull View itemView, final OnPersonClickedListener clickedListener, @NonNull PersonListAdapter personListAdapter) {
             super(itemView);
             txtName = itemView.findViewById(R.id.tvName);
             txtDescription = itemView.findViewById(R.id.tvSubtext);
             ivAvatar =  itemView.findViewById(R.id.imageAvatar);
             this.clickedListener = clickedListener;
+            this.personListAdapter = personListAdapter;
             itemView.setOnClickListener(this);
         }
 
@@ -98,7 +98,7 @@ public class PersonListAdapter extends ListAdapter<PersonModelCompact, PersonLis
             if (clickedListener != null) {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    clickedListener.onItemClick(getItem(position).getId());
+                    clickedListener.onItemClick(personListAdapter.getCurrentList().get(position).getId());
                 }
             }
         }

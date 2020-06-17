@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class PersonDecoration extends RecyclerView.ItemDecoration {
-    private int offsetPx;
+    private final int offsetPx;
 
     public PersonDecoration(int offsetPx) {
         this.offsetPx = offsetPx;

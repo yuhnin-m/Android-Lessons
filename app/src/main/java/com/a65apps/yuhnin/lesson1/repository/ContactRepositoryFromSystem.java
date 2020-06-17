@@ -26,7 +26,6 @@ public class ContactRepositoryFromSystem implements ContactRepository {
     final String LOG_TAG = "contact_repository";
     @Nullable
     private static ContactRepositoryFromSystem instance;
-    @NonNull
     private Context context;
 
 
@@ -41,7 +40,6 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
     @Override
     public void getAllPersons (@NonNull PersonListCallback callback, final @Nullable String searchString) {
-        //ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE \'%" + query + "%\'"
         final WeakReference<PersonListCallback> weakReference = new WeakReference<>(callback);
         new Thread(new Runnable() {
             @Override
