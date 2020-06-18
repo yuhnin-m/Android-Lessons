@@ -26,8 +26,8 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> implemen
         handler = new Handler(Looper.getMainLooper());
     }
 
-    public void requestContactList() {
-        contactRepository.getAllPersons(this);
+    public void requestContactList(String searchString) {
+        contactRepository.getAllPersons(this, searchString);
     }
 
     @Override

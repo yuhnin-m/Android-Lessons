@@ -37,4 +37,5 @@ dependencies {
     implementation ('tech.schoolhelper:moxy-x-androidx:1.7.0'){
         exclude group: 'tech.schoolhelper', module:'moxy-x'
     }
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
 }

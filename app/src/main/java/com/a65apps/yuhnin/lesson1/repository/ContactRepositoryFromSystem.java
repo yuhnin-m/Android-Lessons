@@ -7,8 +7,10 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
 import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
@@ -22,12 +24,12 @@ import java.util.List;
 
 public class ContactRepositoryFromSystem implements ContactRepository {
     final String LOG_TAG = "contact_repository";
-
+    @Nullable
     private static ContactRepositoryFromSystem instance;
     private Context context;
 
 
-    public static synchronized ContactRepositoryFromSystem getInstance(Context context) {
+    public static synchronized ContactRepositoryFromSystem getInstance(@NonNull Context context) {
         if (instance == null) {
             instance = new ContactRepositoryFromSystem();
             instance.context = context;
@@ -35,16 +37,24 @@ public class ContactRepositoryFromSystem implements ContactRepository {
         return instance;
     }
 
+
     @Override
-    public void getAllPersons (PersonListCallback callback) {
+    public void getAllPersons (@NonNull PersonListCallback callback, final @Nullable String searchString) {
         final WeakReference<PersonListCallback> weakReference = new WeakReference<>(callback);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 ArrayList<PersonModelCompact> personList = new ArrayList<>();
                 ContentResolver contentResolver = context.getContentResolver();
-                Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
-                        null, null, null, null);
+                Cursor cursor;
+                if (searchString == null || searchString.isEmpty()) {
+                    cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                            null, null, null, null);
+                } else {
+                    cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                            null,ContactsContract.Contacts.DISPLAY_NAME + " LIKE \'%" + searchString + "%\'",
+                            null,null);
+                }
                 try {
                     if (cursor != null) {
                         while (cursor.moveToNext()) {
@@ -52,9 +62,12 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                                 String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                                 String displaName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                                 String strPhotoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                                String description = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.CONTACT_STATUS_LABEL));
+                                if (strPhotoUri == null) strPhotoUri = Constants.URI_DRAWABLE_AVATAR_NOT_FOUND;
                                 Log.d(LOG_TAG, "Найден контакт: id=" + id + "; ФИО: " + displaName + " фото="+strPhotoUri);
-                                personList.add(new PersonModelCompact(id, displaName, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
-                                //Log.d(LOG_TAG, "Контакт добавлен");
+                                if (id != null && displaName != null) {
+                                    personList.add(new PersonModelCompact(id, displaName, description, strPhotoUri==null ? null : Uri.parse(strPhotoUri)));
+                                }
                             } catch (Exception e) {
                                 Log.d(LOG_TAG, "Произошла ошибка получения контакта: " + e.getMessage());
                             }
@@ -75,7 +88,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
 
     @Override
-    public void getContactByPerson(PersonDetailsCallback callback, final String personId) {
+    public void getContactByPerson(@NonNull PersonDetailsCallback callback, @NonNull final String personId) {
         final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
@@ -109,7 +122,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
 
 
     @Override
-    public void getPersonById(PersonDetailsCallback callback, final String personId) {
+    public void getPersonById(@NonNull PersonDetailsCallback callback, @NonNull final String personId) {
         final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
         new Thread(new Runnable() {
             @Override
@@ -130,7 +143,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
                                 personId,
                                 displaName,
                                 description,
-                                strPhotoUri == null ? null : Uri.parse(strPhotoUri),
+                                strPhotoUri == null ? Uri.parse(Constants.URI_DRAWABLE_AVATAR_NOT_FOUND) : Uri.parse(strPhotoUri),
                                 dateBirthDay);
                     }
                 } catch (Exception e) {
@@ -155,7 +168,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
      * @param contentResolver Экземпляр ContentResolver
      * @return строка - дата рождения
      */
-    private String getDateBirthday(String id, ContentResolver contentResolver) {
+    @Nullable
+    private String getDateBirthday(@NonNull String id, @NonNull ContentResolver contentResolver) {
         Uri uri = ContactsContract.Data.CONTENT_URI;
         String birthDay = null;
         String[] projection = new String[] {
@@ -193,7 +207,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
      * @return Список номеров телефона
      */
     @Nullable
-    private List<ContactInfoModel> getPhoneList(String personId, ContentResolver contentResolver) {
+    private List<ContactInfoModel> getPhoneList(@NonNull String personId, @NonNull ContentResolver contentResolver) {
         Log.d(LOG_TAG, "Читаем номера телефонов по id=" + personId);
         List<ContactInfoModel> phoneList = new ArrayList<ContactInfoModel>();
         Cursor cursorPhone = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
@@ -234,7 +248,7 @@ public class ContactRepositoryFromSystem implements ContactRepository {
      * @return Имя компании и сопутствующие данные
      */
     @Nullable
-    private String getCompanyName(String personId, ContentResolver contentResolver) {
+    private String getCompanyName(@NonNull String personId, @NonNull ContentResolver contentResolver) {
         Log.d(LOG_TAG, "Читаем место работы контакта id=" + personId);
         String personJobDescription = "";
         Cursor cursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
@@ -269,7 +283,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
      * @param contentResolver Экземпляр ContentResolver
      * @return список адресов электронной почты
      */
-    private List<ContactInfoModel> getEmailList(String personId, ContentResolver contentResolver) {
+    @Nullable
+    private List<ContactInfoModel> getEmailList(@NonNull String personId, @NonNull ContentResolver contentResolver) {
         List<ContactInfoModel> emailList = new ArrayList<ContactInfoModel>();
         Cursor cursorEmail = contentResolver.query(
                 ContactsContract.CommonDataKinds.Email.CONTENT_URI,
