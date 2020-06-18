@@ -27,6 +27,7 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> implemen
     }
 
     public void requestContactList(String searchString) {
+        getViewState().showProgressBar();
         contactRepository.getAllPersons(this, searchString);
     }
 
@@ -36,6 +37,8 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> implemen
             @Override
             public void run() {
                 getViewState().getContactList(personList);
+                getViewState().hideProgressBar();
+
             }
         });
     }

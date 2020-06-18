@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -40,30 +41,37 @@ import java.util.List;
 public class ContactDetailsFragment extends MvpAppCompatFragment
         implements ContactDetailsView, CompoundButton.OnCheckedChangeListener {
     final String LOG_TAG = "details_fragment";
-
+    @Nullable
     ImageView ivAvatar;
+    @Nullable
     TextView tvFullname;
+    @Nullable
     ListView lvContacts;
+    @Nullable
     TextView tvDescription;
+    @Nullable
     TextView tvBirthday;
+    @Nullable
     ToggleButton toggleBtnRemindBirthday;
+    @Nullable
+    ProgressBar progressBar;
 
     @NonNull
     PersonModelAdvanced person;
 
     @Nullable
-    private AlarmManager alarmManager;
+    AlarmManager alarmManager;
 
     @Nullable
-    private PendingIntent alarmIntent;
+    PendingIntent alarmIntent;
 
-    private String personId = "";
+    String personId = "";
 
     @Nullable
     List<ContactInfoModel> contactInfoList;
 
     @Nullable
-    private EventActionBarListener eventActionBarListener;
+    EventActionBarListener eventActionBarListener;
 
     @InjectPresenter
     ContactDetailsPresenter contactDetailsPresenter;
@@ -110,6 +118,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         tvDescription = view.findViewById(R.id.tv_person_description);
         tvBirthday = view.findViewById(R.id.tv_birthday);
         toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
+        progressBar = view.findViewById(R.id.progressbar_load_details);
         toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
         alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
         return view;
@@ -133,6 +142,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         tvFullname = null;
         lvContacts = null;
         tvDescription = null;
+        progressBar = null;
         super.onDestroyView();
     }
 
@@ -243,5 +253,19 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         } else {
             Log.e(LOG_TAG, "onFetchContacts - репозиторий вернул contactInfoList=null");
         }
+    }
+
+    @Override
+    public void showProgressBar() {
+        Log.d(LOG_TAG, "Progressbar show");
+        if (progressBar != null)
+            progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgressBar() {
+        Log.d(LOG_TAG, "Progressbar hide");
+        if (progressBar != null)
+            progressBar.setVisibility(View.GONE);
     }
 }

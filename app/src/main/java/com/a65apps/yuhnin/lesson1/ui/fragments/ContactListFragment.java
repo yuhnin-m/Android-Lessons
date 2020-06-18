@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import com.a65apps.yuhnin.lesson1.Constants;
@@ -45,13 +46,16 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     RecyclerView recyclerViewPersonList;
 
     @Nullable
+    ProgressBar progressBar;
+
+    @Nullable
     PersonListAdapter personListAdapter;
 
     @Nullable
-    private OnPersonClickedListener onPersonClickedListener;
+    OnPersonClickedListener onPersonClickedListener;
 
     @Nullable
-    private EventActionBarListener eventActionBarListener;
+    EventActionBarListener eventActionBarListener;
 
     @InjectPresenter
     ContactListPresenter contactListPresenter;
@@ -88,6 +92,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
+        progressBar = view.findViewById(R.id.progressbar_load_persons);
         recyclerViewPersonList = view.findViewById(R.id.rv_person_list);
         recyclerViewPersonList.addItemDecoration(new PersonDecoration(convertDpToPixels(Constants.PERSON_LIST_DECORATION_PADDING_DP)));
         personListAdapter = new PersonListAdapter(onPersonClickedListener);
@@ -141,6 +146,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     public void onDestroyView() {
         Log.d(LOG_TAG, "onDestroyView");
         recyclerViewPersonList = null;
+        progressBar = null;
         personListAdapter = null;
         searchQuery = null;
         super.onDestroyView();
@@ -158,6 +164,16 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
             Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
             personListAdapter.setItems(personList);
         }
+    }
+
+    @Override
+    public void showProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
     }
 
     /**

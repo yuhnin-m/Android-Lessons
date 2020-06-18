@@ -14,4 +14,8 @@ public interface ContactDetailsView extends MvpView {
 
     @StateStrategyType(AddToEndSingleStrategy.class)
     void getContactsInfo(List<ContactInfoModel> listOfContacts);
+
+    void showProgressBar();
+
+    void hideProgressBar();
 }

@@ -33,6 +33,7 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> im
 
     public void requestPersonDetails(String personId) {
         contactRepository.getPersonById(this, personId);
+        getViewState().showProgressBar();
     }
 
     @Override
@@ -41,6 +42,7 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> im
             @Override
             public void run() {
                 getViewState().getContactDetails(personModel);
+                getViewState().hideProgressBar();
             }
         });
     }
@@ -51,6 +53,7 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> im
             @Override
             public void run() {
                 getViewState().getContactsInfo(contactList);
+                getViewState().hideProgressBar();
             }
         });
     }
