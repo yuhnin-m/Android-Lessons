@@ -101,7 +101,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(Constants.KEY_SEARCH_QUERY_TEXT, "");
         }
-        contactListPresenter.requestContactList(searchQuery);
+        contactListPresenter.requestContactList(searchQuery == null ? "" : searchQuery);
         setHasOptionsMenu(true);
         return view;
     }
@@ -117,13 +117,13 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchQuery = query;
-                contactListPresenter.requestContactList(query.isEmpty() ? "" : query);
+                contactListPresenter.requestContactList(query == null ? "" : query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                contactListPresenter.requestContactList(newText.isEmpty() ? "" : newText);
+                contactListPresenter.requestContactList(newText == null ? "" : newText);
                 searchQuery = newText;
                 return false;
             }

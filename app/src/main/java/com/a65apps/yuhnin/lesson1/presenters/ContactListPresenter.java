@@ -45,8 +45,8 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> {
                 );
     }
 
-    public void requestContactList(String searchString) {
-        publishSubject.onNext(searchString == null ? "" : searchString);
+    public void requestContactList(@NonNull String searchString) {
+        publishSubject.onNext(searchString);
     }
 
     @Override
