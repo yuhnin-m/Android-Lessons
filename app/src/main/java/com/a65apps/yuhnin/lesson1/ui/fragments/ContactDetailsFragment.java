@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
@@ -234,7 +235,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     }
 
     @Override
-    public void getContactDetails(PersonModelAdvanced personModel) {
+    public void fetchContactDetails(PersonModelAdvanced personModel) {
         this.person = personModel;
         if (person != null) {
             Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
@@ -245,7 +246,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     }
 
     @Override
-    public void getContactsInfo(List<ContactInfoModel> listOfContacts) {
+    public void fetchContactsInfo(List<ContactInfoModel> listOfContacts) {
         this.contactInfoList = listOfContacts;
         if (lvContacts != null && contactInfoList != null) {
             ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
@@ -253,6 +254,11 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         } else {
             Log.e(LOG_TAG, "onFetchContacts - репозиторий вернул contactInfoList=null");
         }
+    }
+
+    @Override
+    public void fetchError(String errorMessage) {
+        Toast.makeText(getActivity().getApplicationContext(), errorMessage, Toast.LENGTH_SHORT);
     }
 
     @Override

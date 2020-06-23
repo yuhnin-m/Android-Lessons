@@ -10,10 +10,12 @@ import java.util.List;
 
 public interface ContactDetailsView extends MvpView {
     @StateStrategyType(AddToEndSingleStrategy.class)
-    void getContactDetails(PersonModelAdvanced personModel);
+    void fetchContactDetails(PersonModelAdvanced personModel);
 
     @StateStrategyType(AddToEndSingleStrategy.class)
-    void getContactsInfo(List<ContactInfoModel> listOfContacts);
+    void fetchContactsInfo(List<ContactInfoModel> listOfContacts);
+
+    void fetchError(String errorMessage);
 
     void showProgressBar();
 

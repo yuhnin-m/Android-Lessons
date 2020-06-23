@@ -8,19 +8,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.a65apps.yuhnin.lesson1.R;
-import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
-import com.a65apps.yuhnin.lesson1.callbacks.PersonListCallback;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.ContactType;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
-import java.lang.ref.WeakReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class ContactRepositoryFakeImp  implements ContactRepository{
+
+public class ContactRepositoryFakeImp implements ContactRepository{
     private final String LOG_TAG = "contact_repository_fake";
     private static ContactRepositoryFakeImp instance;
 
@@ -54,18 +55,23 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
                 "1",
                 "Гагарин Юрий Алексеевич",
                 "Восток-1", resourceToUri(R.drawable.avatar1), "09-03-1934"));
-
         personModelAdvanceds.add(new PersonModelAdvanced(
                 "2",
                 "Леонов Алексей Архипович",
                 "Восход-2", resourceToUri(R.drawable.avatar2), "30-05-1934"));
-
-        personModelAdvanceds.add(new PersonModelAdvanced("3","Титов Герман Степанович",
+        personModelAdvanceds.add(new PersonModelAdvanced(
+                "3",
+                "Титов Герман Степанович",
                 "Восток-2", resourceToUri(R.drawable.avatar3), "11-09-1935"));
-
-        personModelCompacts.add(new PersonModelCompact("1","Гагарин Юрий Алексеевич", "Позывной: Кедр", resourceToUri(R.drawable.avatar1)));
-        personModelCompacts.add(new PersonModelCompact("2", "Леонов Алексей Архипович", "Позывной: Алмаз-2, Союз-1", resourceToUri(R.drawable.avatar2)));
-        personModelCompacts.add(new PersonModelCompact("3","Титов Герман Степанович", "Позывной: Орёл", resourceToUri(R.drawable.avatar3)));
+        personModelCompacts.add(new PersonModelCompact("1",
+                "Гагарин Юрий Алексеевич",
+                "Позывной: Кедр", resourceToUri(R.drawable.avatar1)));
+        personModelCompacts.add(new PersonModelCompact("2",
+                "Леонов Алексей Архипович",
+                "Позывной: Алмаз-2, Союз-1", resourceToUri(R.drawable.avatar2)));
+        personModelCompacts.add(new PersonModelCompact("3",
+                "Титов Герман Степанович",
+                "Позывной: Орёл", resourceToUri(R.drawable.avatar3)));
     }
 
 
@@ -96,59 +102,50 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
                 ContactType.PHONE_NUMBER, "+73333333334"));
     }
 
-    @Override
-    public void getAllPersons(@NonNull PersonListCallback callback, final @Nullable String searchString) {
-        final WeakReference<PersonListCallback> weakReference = new WeakReference(callback);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                PersonListCallback local = weakReference.get();
-                if (local != null) {
-                    local.getPersonList(personModelCompacts);
-                }
+    @NonNull
+    private List<ContactInfoModel> getContacts(@NonNull final String personId) {
+        List<ContactInfoModel> foundContacts = new ArrayList<ContactInfoModel>();
+        for (ContactInfoModel contact : contactInfoModels) {
+            if (contact.getPersonId().equals(personId)) {
+                foundContacts.add(contact);
             }
-        }).start();
+        }
+        return foundContacts;
     }
 
-
-    @Override
-    public void getContactByPerson(@NonNull PersonDetailsCallback callback, @NonNull final String personId) {
-        final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<ContactInfoModel> foundContacts = new ArrayList<ContactInfoModel>();
-                for (ContactInfoModel contact : contactInfoModels) {
-                    if (contact.getPersonId().equals(personId)) {
-                        foundContacts.add(contact);
-                    }
-                }
-                PersonDetailsCallback local = weakReference.get();
-                if (local != null) {
-                    local.onFetchPersonContacts(contactInfoModels);
-                }
+    @Nullable
+    private PersonModelAdvanced getPerson(@NonNull final String personId) {
+        for (PersonModelAdvanced personModelAdvanced : personModelAdvanceds) {
+            if (personModelAdvanced.getId().equals(personId)) {
+                return personModelAdvanced;
             }
-        }).start();
+        }
+        return null;
+    }
+
+    @Nullable
+    private List<PersonModelCompact> getPersonList() {
+        return personModelCompacts;
     }
 
     @Override
-    public void getPersonById(@NonNull PersonDetailsCallback callback, @NonNull final String personId) {
-        final WeakReference<PersonDetailsCallback> weakReference = new WeakReference(callback);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (PersonModelAdvanced personModelAdvanced : personModelAdvanceds) {
-                    if (personModelAdvanced.getId().equals(personId)) {
-                        PersonDetailsCallback local = weakReference.get();
-                        if (local != null) {
-                            local.onFetchPersonDetails(personModelAdvanced);
-                        }
-                    }
-                }
-
-            }
-        }).start();
+    public Observable<List<PersonModelCompact>> getAllPersons(@Nullable String searchString) {
+        return Observable.fromCallable(() -> getPersonList())
+                .subscribeOn(Schedulers.io());
     }
+
+    @Override
+    public Observable<List<ContactInfoModel>> getContactByPerson(@NonNull String id) {
+        return Observable.fromCallable(() -> getContacts(id))
+                .subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public Observable<PersonModelAdvanced> getPersonById(@NonNull String id) {
+        return Observable.fromCallable(() -> getPerson(id))
+                .subscribeOn(Schedulers.io());
+    }
+
 
     public Uri resourceToUri(int resID) {
         if (context != null) {
@@ -159,4 +156,5 @@ public class ContactRepositoryFakeImp  implements ContactRepository{
         } else
             return null;
     }
+
 }
