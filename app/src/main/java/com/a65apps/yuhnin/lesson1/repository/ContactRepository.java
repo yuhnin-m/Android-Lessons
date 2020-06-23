@@ -9,12 +9,12 @@ import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 public interface ContactRepository {
-    Observable<List<PersonModelCompact>> getAllPersons(@Nullable String searchString);
+    Single<List<PersonModelCompact>> getAllPersons(@Nullable String searchString);
 
-    Observable<List<ContactInfoModel>> getContactByPerson(@NonNull String id);
+    Single<List<ContactInfoModel>> getContactByPerson(@NonNull String id);
 
-    Observable<PersonModelAdvanced> getPersonById(@NonNull String id);
+    Single<PersonModelAdvanced> getPersonById(@NonNull String id);
 }

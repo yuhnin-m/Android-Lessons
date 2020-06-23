@@ -13,6 +13,7 @@ import java.util.List;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.observers.DisposableSingleObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @InjectViewState
@@ -32,17 +33,12 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(x -> getViewState().showProgressBar())
-                .subscribeWith(new DisposableObserver<List<PersonModelCompact>>() {
+                .subscribeWith(new DisposableSingleObserver<List<PersonModelCompact>>() {
                     @Override
-                    public void onComplete() {
+                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<PersonModelCompact> personList) {
+                        getViewState().fetchContactList(personList);
                         getViewState().hideProgressBar();
                     }
-
-                    @Override
-                    public void onNext(List<PersonModelCompact> personList) {
-                        getViewState().fetchContactList(personList);
-                    }
-
                     @Override
                     public void onError(Throwable e) {
                         getViewState().fetchError(e.getMessage());

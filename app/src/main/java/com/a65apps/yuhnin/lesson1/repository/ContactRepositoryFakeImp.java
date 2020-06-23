@@ -17,7 +17,7 @@ import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
@@ -129,20 +129,20 @@ public class ContactRepositoryFakeImp implements ContactRepository{
     }
 
     @Override
-    public Observable<List<PersonModelCompact>> getAllPersons(@Nullable String searchString) {
-        return Observable.fromCallable(() -> getPersonList())
+    public Single<List<PersonModelCompact>> getAllPersons(@Nullable String searchString) {
+        return Single.fromCallable(() -> getPersonList())
                 .subscribeOn(Schedulers.io());
     }
 
     @Override
-    public Observable<List<ContactInfoModel>> getContactByPerson(@NonNull String id) {
-        return Observable.fromCallable(() -> getContacts(id))
+    public Single<List<ContactInfoModel>> getContactByPerson(@NonNull String id) {
+        return Single.fromCallable(() -> getContacts(id))
                 .subscribeOn(Schedulers.io());
     }
 
     @Override
-    public Observable<PersonModelAdvanced> getPersonById(@NonNull String id) {
-        return Observable.fromCallable(() -> getPerson(id))
+    public Single<PersonModelAdvanced> getPersonById(@NonNull String id) {
+        return Single.fromCallable(() -> getPerson(id))
                 .subscribeOn(Schedulers.io());
     }
 

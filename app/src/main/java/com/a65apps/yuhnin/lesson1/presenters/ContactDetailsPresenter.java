@@ -12,9 +12,8 @@ import com.arellomobile.mvp.MvpPresenter;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.observers.DisposableSingleObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @InjectViewState
@@ -35,15 +34,11 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(x -> getViewState().showProgressBar())
-                .subscribeWith(new DisposableObserver<List<ContactInfoModel>>() {
+                .subscribeWith(new DisposableSingleObserver<List<ContactInfoModel>>() {
                     @Override
-                    public void onComplete() {
-                        getViewState().hideProgressBar();
-                    }
-
-                    @Override
-                    public void onNext(List<ContactInfoModel> contactInfoModels) {
+                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ContactInfoModel> contactInfoModels) {
                         getViewState().fetchContactsInfo(contactInfoModels);
+                        getViewState().hideProgressBar();
                     }
 
                     @Override
@@ -59,15 +54,11 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(x -> getViewState().showProgressBar())
-                .subscribeWith(new DisposableObserver<PersonModelAdvanced>() {
+                .subscribeWith(new DisposableSingleObserver<PersonModelAdvanced>() {
                     @Override
-                    public void onComplete() {
-                        getViewState().hideProgressBar();
-                    }
-
-                    @Override
-                    public void onNext(PersonModelAdvanced personModel) {
+                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull PersonModelAdvanced personModel) {
                         getViewState().fetchContactDetails(personModel);
+                        getViewState().hideProgressBar();
                     }
 
                     @Override
