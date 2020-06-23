@@ -11,10 +11,13 @@ public interface ContactListView extends MvpView {
     @StateStrategyType(AddToEndSingleStrategy.class)
     void fetchContactList(List<PersonModelCompact> personList);
 
+    @StateStrategyType(AddToEndSingleStrategy.class)
     void fetchError(String message);
 
+    @StateStrategyType(AddToEndSingleStrategy.class)
     void showProgressBar();
 
+    @StateStrategyType(AddToEndSingleStrategy.class)
     void hideProgressBar();
 
 }

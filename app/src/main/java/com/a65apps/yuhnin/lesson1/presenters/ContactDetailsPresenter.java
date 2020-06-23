@@ -1,11 +1,16 @@
 package com.a65apps.yuhnin.lesson1.presenters;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
+import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
+import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
 import com.a65apps.yuhnin.lesson1.views.ContactDetailsView;
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -26,16 +31,20 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
     }
 
     public void requestContactsByPerson(@NonNull String personId) {
-        compositeDisposable.add(contactRepository.getContactByPerson(personId)
+        compositeDisposable.add(contactRepository.getPersonById(personId)
+                .flatMap(person -> contactRepository.getContactByPerson(personId)
+                        .map(contactList -> new Pair<PersonModelAdvanced, List<ContactInfoModel>>(person, contactList)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(x -> getViewState().showProgressBar())
+                .doOnSubscribe(__ -> getViewState().showProgressBar())
                 .doFinally(() -> getViewState().hideProgressBar())
                 .subscribe(
-                        contactList -> getViewState().fetchContactsInfo(contactList),
+                        personModelAdvancedListPair -> {
+                            getViewState().fetchContactDetails(personModelAdvancedListPair.first);
+                            getViewState().fetchContactsInfo(personModelAdvancedListPair.second);
+                        },
                         e -> getViewState().fetchError(e.getMessage())
-                )
-        );
+                ));
     }
 
     public void requestPersonDetails(@NonNull String personId) {

@@ -130,20 +130,17 @@ public class ContactRepositoryFakeImp implements ContactRepository{
 
     @Override
     public Single<List<PersonModelCompact>> getAllPersons(@Nullable String searchString) {
-        return Single.fromCallable(() -> getPersonList())
-                .subscribeOn(Schedulers.io());
+        return Single.fromCallable(() -> getPersonList());
     }
 
     @Override
     public Single<List<ContactInfoModel>> getContactByPerson(@NonNull String id) {
-        return Single.fromCallable(() -> getContacts(id))
-                .subscribeOn(Schedulers.io());
+        return Single.fromCallable(() -> getContacts(id));
     }
 
     @Override
     public Single<PersonModelAdvanced> getPersonById(@NonNull String id) {
-        return Single.fromCallable(() -> getPerson(id))
-                .subscribeOn(Schedulers.io());
+        return Single.fromCallable(() -> getPerson(id));
     }
 
 
