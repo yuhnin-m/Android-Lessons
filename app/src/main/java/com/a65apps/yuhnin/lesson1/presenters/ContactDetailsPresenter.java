@@ -47,19 +47,6 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
                 ));
     }
 
-    public void requestPersonDetails(@NonNull String personId) {
-        compositeDisposable.add(contactRepository.getPersonById(personId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(x -> getViewState().showProgressBar())
-                .doFinally(() -> getViewState().hideProgressBar())
-                .subscribe(
-                        personModel -> getViewState().fetchContactDetails(personModel),
-                        e -> getViewState().fetchError(e.getMessage())
-                )
-        );
-    }
-
     @Override
     public void onDestroy() {
         this.compositeDisposable.dispose();

@@ -132,7 +132,6 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
             eventActionBarListener.setVisibleToolBarBackButton(true);
         }
         contactDetailsPresenter.requestContactsByPerson(personId);
-        contactDetailsPresenter.requestPersonDetails(personId);
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
