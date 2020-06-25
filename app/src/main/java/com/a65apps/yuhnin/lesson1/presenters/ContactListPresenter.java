@@ -30,7 +30,8 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> {
         this.compositeDisposable = new CompositeDisposable();
         this.publishSubject = PublishSubject.create();
         publishSubject.debounce(400, TimeUnit.MILLISECONDS)
-                .switchMapSingle(query -> contactRepository.getAllPersons(query).subscribeOn(Schedulers.io()))
+                .subscribeOn(Schedulers.io())
+                .switchMapSingle(query -> contactRepository.getAllPersons(query))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(x -> getViewState().showProgressBar())
                 .subscribe(
@@ -52,6 +53,7 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> {
     @Override
     public void onDestroy() {
         this.compositeDisposable.dispose();
+        this.publishSubject = null;
         super.onDestroy();
     }
 }
