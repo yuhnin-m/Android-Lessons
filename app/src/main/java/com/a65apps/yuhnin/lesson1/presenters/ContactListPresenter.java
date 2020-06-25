@@ -29,21 +29,23 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> {
         this.contactRepository = contactRepository;
         this.compositeDisposable = new CompositeDisposable();
         this.publishSubject = PublishSubject.create();
-        publishSubject.debounce(400, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
-                .switchMapSingle(query -> contactRepository.getAllPersons(query))
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(x -> getViewState().showProgressBar())
-                .subscribe(
-                        contactList -> {
-                            getViewState().fetchContactList(contactList);
-                            getViewState().hideProgressBar();
-                        },
-                        e -> {
-                            getViewState().fetchError(e.getMessage());
-                            getViewState().hideProgressBar();
-                        }
-                );
+        compositeDisposable.add(
+                publishSubject.debounce(400, TimeUnit.MILLISECONDS)
+                        .switchMapSingle(query -> contactRepository.getAllPersons(query).subscribeOn(Schedulers.io()))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe(x -> getViewState().showProgressBar())
+                        .subscribe(
+                                contactList -> {
+                                    getViewState().fetchContactList(contactList);
+                                    getViewState().hideProgressBar();
+                                },
+                                e -> {
+                                    getViewState().fetchError(e.getMessage());
+                                    getViewState().hideProgressBar();
+                                }
+                        )
+        );
+
     }
 
     public void requestContactList(@NonNull String searchString) {
@@ -53,7 +55,6 @@ public class ContactListPresenter extends MvpPresenter<ContactListView> {
     @Override
     public void onDestroy() {
         this.compositeDisposable.dispose();
-        this.publishSubject = null;
         super.onDestroy();
     }
 }
