@@ -21,6 +21,10 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -38,4 +42,6 @@ dependencies {
         exclude group: 'tech.schoolhelper', module:'moxy-x'
     }
     implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "io.reactivex.rxjava3:rxjava:3.0.4"
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 }

@@ -1,6 +1,5 @@
 package com.a65apps.yuhnin.lesson1.ui.fragments;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -8,7 +7,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,7 +14,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
@@ -45,13 +45,16 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     RecyclerView recyclerViewPersonList;
 
     @Nullable
+    ProgressBar progressBar;
+
+    @Nullable
     PersonListAdapter personListAdapter;
 
     @Nullable
-    private OnPersonClickedListener onPersonClickedListener;
+    OnPersonClickedListener onPersonClickedListener;
 
     @Nullable
-    private EventActionBarListener eventActionBarListener;
+    EventActionBarListener eventActionBarListener;
 
     @InjectPresenter
     ContactListPresenter contactListPresenter;
@@ -88,6 +91,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
+        progressBar = view.findViewById(R.id.progressbar_load_persons);
         recyclerViewPersonList = view.findViewById(R.id.rv_person_list);
         recyclerViewPersonList.addItemDecoration(new PersonDecoration(convertDpToPixels(Constants.PERSON_LIST_DECORATION_PADDING_DP)));
         personListAdapter = new PersonListAdapter(onPersonClickedListener);
@@ -97,7 +101,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
         if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(Constants.KEY_SEARCH_QUERY_TEXT, "");
         }
-        contactListPresenter.requestContactList(searchQuery);
+        contactListPresenter.requestContactList(searchQuery == null ? "" : searchQuery);
         setHasOptionsMenu(true);
         return view;
     }
@@ -113,13 +117,13 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchQuery = query;
-                contactListPresenter.requestContactList(query.isEmpty() ? "" : query);
+                contactListPresenter.requestContactList(query == null ? "" : query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                contactListPresenter.requestContactList(newText.isEmpty() ? "" : newText);
+                contactListPresenter.requestContactList(newText == null ? "" : newText);
                 searchQuery = newText;
                 return false;
             }
@@ -141,6 +145,7 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     public void onDestroyView() {
         Log.d(LOG_TAG, "onDestroyView");
         recyclerViewPersonList = null;
+        progressBar = null;
         personListAdapter = null;
         searchQuery = null;
         super.onDestroyView();
@@ -153,11 +158,26 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     }
 
     @Override
-    public void getContactList(final List<PersonModelCompact> personList) {
+    public void fetchContactList(final List<PersonModelCompact> personList) {
         if (personList != null && personListAdapter != null) {
             Log.d(LOG_TAG, "Создаем список контактов " + personList.size());
             personListAdapter.setItems(personList);
         }
+    }
+
+    @Override
+    public void fetchError(String errorMessage) {
+        Toast.makeText(getActivity().getApplicationContext(), errorMessage, Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void showProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgressBar() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
     }
 
     /**

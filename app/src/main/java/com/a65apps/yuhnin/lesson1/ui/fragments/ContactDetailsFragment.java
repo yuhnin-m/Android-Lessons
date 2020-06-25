@@ -15,7 +15,9 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
@@ -40,30 +42,37 @@ import java.util.List;
 public class ContactDetailsFragment extends MvpAppCompatFragment
         implements ContactDetailsView, CompoundButton.OnCheckedChangeListener {
     final String LOG_TAG = "details_fragment";
-
+    @Nullable
     ImageView ivAvatar;
+    @Nullable
     TextView tvFullname;
+    @Nullable
     ListView lvContacts;
+    @Nullable
     TextView tvDescription;
+    @Nullable
     TextView tvBirthday;
+    @Nullable
     ToggleButton toggleBtnRemindBirthday;
+    @Nullable
+    ProgressBar progressBar;
 
     @NonNull
     PersonModelAdvanced person;
 
     @Nullable
-    private AlarmManager alarmManager;
+    AlarmManager alarmManager;
 
     @Nullable
-    private PendingIntent alarmIntent;
+    PendingIntent alarmIntent;
 
-    private String personId = "";
+    String personId = "";
 
     @Nullable
     List<ContactInfoModel> contactInfoList;
 
     @Nullable
-    private EventActionBarListener eventActionBarListener;
+    EventActionBarListener eventActionBarListener;
 
     @InjectPresenter
     ContactDetailsPresenter contactDetailsPresenter;
@@ -110,6 +119,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         tvDescription = view.findViewById(R.id.tv_person_description);
         tvBirthday = view.findViewById(R.id.tv_birthday);
         toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
+        progressBar = view.findViewById(R.id.progressbar_load_details);
         toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
         alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
         return view;
@@ -122,7 +132,6 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
             eventActionBarListener.setVisibleToolBarBackButton(true);
         }
         contactDetailsPresenter.requestContactsByPerson(personId);
-        contactDetailsPresenter.requestPersonDetails(personId);
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
@@ -133,6 +142,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         tvFullname = null;
         lvContacts = null;
         tvDescription = null;
+        progressBar = null;
         super.onDestroyView();
     }
 
@@ -224,7 +234,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     }
 
     @Override
-    public void getContactDetails(PersonModelAdvanced personModel) {
+    public void fetchContactDetails(PersonModelAdvanced personModel) {
         this.person = personModel;
         if (person != null) {
             Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.getFullName());
@@ -235,7 +245,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     }
 
     @Override
-    public void getContactsInfo(List<ContactInfoModel> listOfContacts) {
+    public void fetchContactsInfo(List<ContactInfoModel> listOfContacts) {
         this.contactInfoList = listOfContacts;
         if (lvContacts != null && contactInfoList != null) {
             ContactListAdapter contactListAdapter = new ContactListAdapter(getContext(), contactInfoList);
@@ -243,5 +253,24 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         } else {
             Log.e(LOG_TAG, "onFetchContacts - репозиторий вернул contactInfoList=null");
         }
+    }
+
+    @Override
+    public void fetchError(String errorMessage) {
+        Toast.makeText(getActivity().getApplicationContext(), errorMessage, Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void showProgressBar() {
+        Log.d(LOG_TAG, "Progressbar show");
+        if (progressBar != null)
+            progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgressBar() {
+        Log.d(LOG_TAG, "Progressbar hide");
+        if (progressBar != null)
+            progressBar.setVisibility(View.GONE);
     }
 }

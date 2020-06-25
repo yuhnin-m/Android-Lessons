@@ -1,11 +1,8 @@
 package com.a65apps.yuhnin.lesson1.presenters;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
-import com.a65apps.yuhnin.lesson1.callbacks.PersonDetailsCallback;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.repository.ContactRepository;
@@ -15,44 +12,44 @@ import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 @InjectViewState
-public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> implements PersonDetailsCallback {
+public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
     @NonNull
-    private final ContactRepository contactRepository;
+    final ContactRepository contactRepository;
     @NonNull
-    private final Handler handler;
+    CompositeDisposable compositeDisposable;
+
 
     public ContactDetailsPresenter(@NonNull ContactRepository contactRepository) {
         this.contactRepository = contactRepository;
-        this.handler = new Handler(Looper.getMainLooper());
+        this.compositeDisposable = new CompositeDisposable();
     }
 
-    public void requestContactsByPerson(String personId) {
-        contactRepository.getContactByPerson(this, personId);
-    }
-
-    public void requestPersonDetails(String personId) {
-        contactRepository.getPersonById(this, personId);
+    public void requestContactsByPerson(@NonNull String personId) {
+        compositeDisposable.add(contactRepository.getPersonById(personId)
+                .flatMap(person -> contactRepository.getContactByPerson(personId)
+                        .map(contactList -> new Pair<PersonModelAdvanced, List<ContactInfoModel>>(person, contactList)))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(__ -> getViewState().showProgressBar())
+                .doFinally(() -> getViewState().hideProgressBar())
+                .subscribe(
+                        personModelAdvancedListPair -> {
+                            getViewState().fetchContactDetails(personModelAdvancedListPair.first);
+                            getViewState().fetchContactsInfo(personModelAdvancedListPair.second);
+                        },
+                        e -> getViewState().fetchError(e.getMessage())
+                ));
     }
 
     @Override
-    public void onFetchPersonDetails(final PersonModelAdvanced personModel) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                getViewState().getContactDetails(personModel);
-            }
-        });
+    public void onDestroy() {
+        this.compositeDisposable.dispose();
+        super.onDestroy();
     }
-
-    @Override
-    public void onFetchPersonContacts(final List<ContactInfoModel> contactList) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                getViewState().getContactsInfo(contactList);
-            }
-        });
-    }
-
 }

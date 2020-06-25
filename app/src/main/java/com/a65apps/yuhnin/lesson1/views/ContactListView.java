@@ -9,5 +9,15 @@ import java.util.List;
 
 public interface ContactListView extends MvpView {
     @StateStrategyType(AddToEndSingleStrategy.class)
-    void getContactList(List<PersonModelCompact> personList);
+    void fetchContactList(List<PersonModelCompact> personList);
+
+    @StateStrategyType(AddToEndSingleStrategy.class)
+    void fetchError(String message);
+
+    @StateStrategyType(AddToEndSingleStrategy.class)
+    void showProgressBar();
+
+    @StateStrategyType(AddToEndSingleStrategy.class)
+    void hideProgressBar();
+
 }
