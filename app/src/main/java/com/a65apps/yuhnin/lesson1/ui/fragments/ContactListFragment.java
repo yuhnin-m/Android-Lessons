@@ -34,6 +34,9 @@ import com.arellomobile.mvp.presenter.ProvidePresenter;
 
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 /**
  * Фрагмент списка контактов
  */
@@ -55,6 +58,9 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
 
     @Nullable
     EventActionBarListener eventActionBarListener;
+
+    @Inject
+    public Provider<ContactListPresenter> contactListPresenterProvider;
 
     @InjectPresenter
     ContactListPresenter contactListPresenter;
