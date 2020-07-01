@@ -7,7 +7,7 @@ import com.a65apps.yuhnin.lesson1.ui.fragments.ContactDetailsFragment;
 import dagger.Subcomponent;
 
 @ContactDetailsScope
-@Subcomponent(modules = {ContactListModule.class})
+@Subcomponent(modules = {ContactDetailsModule.class})
 public interface ContactDetailsComponent {
     void inject(ContactDetailsFragment contactDetailsFragment);
 }

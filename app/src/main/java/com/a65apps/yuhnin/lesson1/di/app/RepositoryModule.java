@@ -14,6 +14,5 @@ public class RepositoryModule {
     @Singleton
     public ContactRepository provideContactRepository() {
         return new ContactRepositoryFromSystem();
-
     }
 }

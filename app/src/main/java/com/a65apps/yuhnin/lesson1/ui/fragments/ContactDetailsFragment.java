@@ -39,6 +39,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 public class ContactDetailsFragment extends MvpAppCompatFragment
         implements ContactDetailsView, CompoundButton.OnCheckedChangeListener {
     final String LOG_TAG = "details_fragment";
@@ -77,9 +80,12 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     @InjectPresenter
     ContactDetailsPresenter contactDetailsPresenter;
 
+    @Inject
+    public Provider<ContactDetailsPresenter> detailsPresenterProvider;
+
     @ProvidePresenter
     ContactDetailsPresenter providerContactDetailsPresenter(){
-        return contactDetailsPresenter = new ContactDetailsPresenter(ContactRepositoryFromSystem.getInstance(getActivity().getApplicationContext()));
+        return detailsPresenterProvider.get();
     }
 
     public ContactDetailsFragment() {
