@@ -9,7 +9,6 @@ import dagger.Provides;
 
 @Module
 public class ContactDetailsModule {
-
     @Provides
     @ContactDetailsScope
     public ContactDetailsPresenter provideContactDetailsPresenter(ContactRepository contactRepository) {

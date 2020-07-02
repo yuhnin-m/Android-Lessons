@@ -23,10 +23,11 @@ import android.widget.ToggleButton;
 import com.a65apps.yuhnin.lesson1.BirthdayReminderReceiver;
 import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
+import com.a65apps.yuhnin.lesson1.app.AppDelegate;
+import com.a65apps.yuhnin.lesson1.di.contactdetails.ContactDetailsComponent;
 import com.a65apps.yuhnin.lesson1.pojo.ContactInfoModel;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelAdvanced;
 import com.a65apps.yuhnin.lesson1.presenters.ContactDetailsPresenter;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.adapters.ContactListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
 import com.a65apps.yuhnin.lesson1.views.ContactDetailsView;
@@ -97,6 +98,10 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         if (context instanceof EventActionBarListener) {
             eventActionBarListener = (EventActionBarListener) context;
         }
+        AppDelegate appDelegate = (AppDelegate) getActivity().getApplication();
+        ContactDetailsComponent contactDetailsComponent = appDelegate.getAppComponent()
+                .plusContactDetailsComponent();
+        contactDetailsComponent.inject(this);
         super.onAttach(context);
     }
 

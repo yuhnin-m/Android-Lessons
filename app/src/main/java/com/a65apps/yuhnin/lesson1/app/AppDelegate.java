@@ -23,7 +23,7 @@ public class AppDelegate extends Application {
     private void initDependencies() {
         appComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
-                .repositoryModule(new RepositoryModule())
+                .repositoryModule(new RepositoryModule(getApplicationContext()))
                 .build();
     }
 

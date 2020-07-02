@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class ContactRepositoryFakeImp implements ContactRepository{
@@ -26,15 +25,6 @@ public class ContactRepositoryFakeImp implements ContactRepository{
     private static ContactRepositoryFakeImp instance;
 
     private Context context;
-
-    public static synchronized ContactRepositoryFakeImp getInstance(Context context) {
-        if (instance == null) {
-            instance = new ContactRepositoryFakeImp();
-        }
-        instance.setContext(context);
-        return instance;
-    }
-
 
     private List<PersonModelAdvanced> personModelAdvanceds = new ArrayList<PersonModelAdvanced>();
     private List<PersonModelCompact> personModelCompacts = new ArrayList<PersonModelCompact>();
@@ -45,7 +35,9 @@ public class ContactRepositoryFakeImp implements ContactRepository{
     }
 
 
-    public ContactRepositoryFakeImp() {
+
+    public ContactRepositoryFakeImp(Context context) {
+        setContext(context);
         createPersons();
         createContacts();
     }

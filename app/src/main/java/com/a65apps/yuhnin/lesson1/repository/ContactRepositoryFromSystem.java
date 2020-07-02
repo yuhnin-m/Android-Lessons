@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+
 
 public class ContactRepositoryFromSystem implements ContactRepository {
     final String LOG_TAG = "contact_repository";
@@ -29,12 +29,8 @@ public class ContactRepositoryFromSystem implements ContactRepository {
     private Context context;
 
 
-    public static synchronized ContactRepositoryFromSystem getInstance(@NonNull Context context) {
-        if (instance == null) {
-            instance = new ContactRepositoryFromSystem();
-            instance.context = context;
-        }
-        return instance;
+    public ContactRepositoryFromSystem(Context context) {
+        this.context = context;
     }
 
     /**
