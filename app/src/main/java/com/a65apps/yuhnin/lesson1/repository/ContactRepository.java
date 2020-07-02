@@ -12,6 +12,7 @@ import java.util.List;
 import io.reactivex.rxjava3.core.Single;
 
 public interface ContactRepository {
+    
     Single<List<PersonModelCompact>> getAllPersons(@Nullable String searchString);
 
     Single<List<ContactInfoModel>> getContactByPerson(@NonNull String id);

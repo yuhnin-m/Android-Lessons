@@ -20,9 +20,10 @@ import android.widget.Toast;
 
 import com.a65apps.yuhnin.lesson1.Constants;
 import com.a65apps.yuhnin.lesson1.R;
+import com.a65apps.yuhnin.lesson1.app.AppDelegate;
+import com.a65apps.yuhnin.lesson1.di.contactlist.ContactListComponent;
 import com.a65apps.yuhnin.lesson1.pojo.PersonModelCompact;
 import com.a65apps.yuhnin.lesson1.presenters.ContactListPresenter;
-import com.a65apps.yuhnin.lesson1.repository.ContactRepositoryFromSystem;
 import com.a65apps.yuhnin.lesson1.ui.PersonDecoration;
 import com.a65apps.yuhnin.lesson1.ui.adapters.PersonListAdapter;
 import com.a65apps.yuhnin.lesson1.ui.listeners.EventActionBarListener;
@@ -33,6 +34,9 @@ import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
 
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Фрагмент списка контактов
@@ -56,12 +60,15 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
     @Nullable
     EventActionBarListener eventActionBarListener;
 
+    @Inject
+    public Provider<ContactListPresenter> contactListPresenterProvider;
+
     @InjectPresenter
     ContactListPresenter contactListPresenter;
 
     @ProvidePresenter
-    ContactListPresenter providerContactListPresenter(){
-        return contactListPresenter = new ContactListPresenter(ContactRepositoryFromSystem.getInstance(getActivity().getApplicationContext()));
+    ContactListPresenter providerContactListPresenter() {
+        return contactListPresenterProvider.get();
     }
 
     @Override
@@ -75,6 +82,11 @@ public class ContactListFragment extends MvpAppCompatFragment implements Contact
             eventActionBarListener = (EventActionBarListener) context;
             Log.d(LOG_TAG, "onAttach - EventActionBarListener binding");
         }
+
+        AppDelegate appDelegate = (AppDelegate) getActivity().getApplication();
+        ContactListComponent contactListComponent = appDelegate.getAppComponent()
+                .plusContactListComponent();
+        contactListComponent.inject(this);
         super.onAttach(context);
     }
 
