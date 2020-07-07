@@ -27,6 +27,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         Log.d(LOG_TAG, "BirthdayReminderReceiver - НАПОМИНАНИЕ ПОЛУЧЕНО");
         String text = intent.getStringExtra("KEY_TEXT");
         String personId = intent.getStringExtra("KEY_ID");
+
         Intent activityIntent = new Intent(context, MainActivity.class);
         activityIntent.putExtra("KEY_PERSON_ID", personId);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
