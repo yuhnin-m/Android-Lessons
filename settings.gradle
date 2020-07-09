@@ -1,5 +1,4 @@
 include ':application'
 include ':core'
-include ':app'
 include ':library'
 rootProject.name='Lesson1'

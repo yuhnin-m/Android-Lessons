@@ -1,13 +1,11 @@
 package com.a65apps.application.personlist;
 
-import com.a65apps.application.contactlist.ContactListModule;
-import com.a65apps.application.scopes.ContactDetailsScope;
-import com.a65apps.core.interactors.persons.PersonListModel;
-import com.a65apps.library.di.containers.ContactsContainer;
+import com.a65apps.application.scopes.PersonListScope;
+import com.a65apps.library.di.containers.PersonListContainer;
 
 import dagger.Subcomponent;
 
-@ContactDetailsScope
+@PersonListScope
 @Subcomponent(modules = {PersonListModule.class})
-public interface PersonListComponent extends ContactsContainer {
+public interface PersonListComponent extends PersonListContainer {
 }
