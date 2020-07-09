@@ -11,12 +11,17 @@ public class BirthdayReminderModel implements BirthdayReminderInteractor{
         this.repository = repository;
     }
     @Override
-    public boolean onBirthdayReminder(@NonNull final String personId, @NonNull final GregorianCalendar date) {
-        return this.repository.enableBirthdayReminder(personId, date);
+    public boolean setBirthdayReminder(@NonNull final String personId, @NonNull final String fullName, @NonNull final String date) {
+        return this.repository.enableBirthdayReminder(personId, fullName, date);
     }
 
     @Override
-    public boolean offBirthdayReminder(@NonNull final String personId) {
+    public boolean unsetBirthdayReminder(@NonNull final String personId) {
         return this.repository.disableBirthdayReminder(personId);
+    }
+
+    @Override
+    public boolean isReminderOn(@NonNull final String personId) {
+        return repository.isBirthdayReminderEnabled(personId);
     }
 }

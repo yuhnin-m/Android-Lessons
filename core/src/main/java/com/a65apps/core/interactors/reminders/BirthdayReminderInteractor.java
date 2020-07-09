@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 import io.reactivex.rxjava3.annotations.NonNull;
 
 public interface BirthdayReminderInteractor {
-    boolean onBirthdayReminder(@NonNull final String personId, @NonNull GregorianCalendar date);
-    boolean offBirthdayReminder(@NonNull final String personId);
+    boolean setBirthdayReminder(@NonNull final String personId, @NonNull String fullName, @NonNull String date);
+    boolean unsetBirthdayReminder(@NonNull final String personId);
+    boolean isReminderOn(@NonNull final String personId);
 }

@@ -23,6 +23,9 @@ import androidx.fragment.app.FragmentManager;
 
 import com.a65apps.library.Constants;
 import com.a65apps.library.R;
+import com.a65apps.library.ui.fragments.ContactDetailsFragment;
+import com.a65apps.library.ui.fragments.PermissionInfoFragment;
+import com.a65apps.library.ui.fragments.PersonListFragment;
 import com.a65apps.library.ui.listeners.EventActionBarListener;
 import com.a65apps.library.ui.listeners.OnPersonClickedListener;
 
@@ -92,7 +95,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(LOG_TAG, "Создаем фрагмент списка контактов");
         PersonListFragment contactListFragment = (PersonListFragment)fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
         if (contactListFragment == null) {
-            contactListFragment = new ContactListFragment();
+            contactListFragment = new PersonListFragment();
             if (fragmentManager.getFragments().isEmpty()) {
                 fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment, TAG_FRAGMENT_LIST).commit();
             } else {
@@ -131,9 +134,9 @@ public class MainActivity extends AppCompatActivity
      * Метод создания и отображения фрагмента вежливого запроса разрешений
      */
     private void сreatePermissionRequestFragment() {
-        RequestPermissonFragment requestPermissonFragment = (RequestPermissonFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERM_REQ);
+        PermissionInfoFragment requestPermissonFragment = (PermissionInfoFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERM_REQ);
         if (requestPermissonFragment == null) {
-            requestPermissonFragment = new RequestPermissonFragment();
+            requestPermissonFragment = new PermissionInfoFragment();
         }
         if (fragmentManager.getFragments().isEmpty()) {
             fragmentManager.beginTransaction()
@@ -159,17 +162,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < 26) {
-            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(
+                    Constants.NOTIFY_CHANNEL_ID,
+                    Constants.NOTIFY_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription(getString(R.string.notification_channel_desc));
+            notificationManager.createNotificationChannel(channel);
         }
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = new NotificationChannel(
-                "channel",
-                getString(R.string.notification_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription(getString(R.string.notification_channel_desc));
-        notificationManager.createNotificationChannel(channel);
     }
 
 

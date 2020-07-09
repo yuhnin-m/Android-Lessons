@@ -1,6 +1,7 @@
 package com.a65apps.library.ui.fragments;
 
 import android.app.AlarmManager;
+import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -22,20 +23,18 @@ import androidx.annotation.Nullable;
 
 import com.a65apps.library.Constants;
 import com.a65apps.library.R;
+import com.a65apps.library.di.containers.ContactsContainer;
+import com.a65apps.library.di.containers.HasAppContainer;
 import com.a65apps.library.ui.adapters.ContactListAdapter;
 import com.a65apps.library.ui.listeners.EventActionBarListener;
 import com.a65apps.library.models.ContactModel;
 import com.a65apps.library.models.PersonModelAdvanced;
 import com.a65apps.library.presenters.ContactDetailsPresenter;
-import com.a65apps.library.receivers.BirthdayReminderReceiver;
 import com.a65apps.library.views.ContactDetailsView;
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -61,12 +60,6 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
 
     @NonNull
     PersonModelAdvanced person;
-
-    @Nullable
-    AlarmManager alarmManager;
-
-    @Nullable
-    PendingIntent alarmIntent;
 
     String personId = "";
 
@@ -96,10 +89,12 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         if (context instanceof EventActionBarListener) {
             eventActionBarListener = (EventActionBarListener) context;
         }
-        AppDelegate appDelegate = (AppDelegate) getActivity().getApplication();
-        ContactDetailsComponent contactDetailsComponent = appDelegate.getAppComponent()
-                .plusContactDetailsComponent();
-        contactDetailsComponent.inject(this);
+        Application app = requireActivity().getApplication();
+        if (!(app instanceof HasAppContainer)){
+            throw new IllegalStateException();
+        }
+        ContactsContainer contactsContainer = ((HasAppContainer)app).appContainer().plusContactsContainer();
+        contactsContainer.inject(this);
         super.onAttach(context);
     }
 
@@ -130,7 +125,6 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
         progressBar = view.findViewById(R.id.progressbar_load_details);
         toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
-        alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
         return view;
     }
 
@@ -162,7 +156,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         }
         if (toggleBtnRemindBirthday != null) {
             toggleBtnRemindBirthday.setEnabled(person.getDateBirthday() != null);
-            boolean reminderEnabled = checkBirthdayReminder();
+            boolean reminderEnabled = contactDetailsPresenter.checkBirthdayReminderEnabled(person.getId());
             toggleBtnRemindBirthday.setChecked(reminderEnabled);
             toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
@@ -186,61 +180,14 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
-            Log.d(LOG_TAG, "Toggle checked");
+            Log.d(LOG_TAG, "Напоминания включены");
+            contactDetailsPresenter.birthdayReminderEnable(person);
         } else {
-            Log.d(LOG_TAG, "Toggle uncheked");
-        }
-        setBirthdayReminderEnabled(isChecked);
-    }
-
-    private long createMillisToRemind(Date date) {
-        Calendar calendar = GregorianCalendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
-        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
-            calendar.add(Calendar.YEAR, 1);
-        }
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        if ((calendar.get(Calendar.MONTH) == Calendar.FEBRUARY) &&
-                (calendar.get(Calendar.DAY_OF_MONTH) == 29)) {
-            if (!((GregorianCalendar) GregorianCalendar.getInstance()).isLeapYear(calendar.get(Calendar.YEAR))) {
-                calendar.set(Calendar.DAY_OF_MONTH, 28);
-            }
-        }
-        return calendar.getTimeInMillis();
-    }
-
-    private void setBirthdayReminderEnabled(boolean enabled) {
-        if (person.getDateBirthday() != null) {
-            Intent intent = new Intent(getContext(), BirthdayReminderReceiver.class);
-            if (enabled) {
-                Log.d(LOG_TAG, "Create birthday reminder");
-                intent.putExtra("KEY_ID", person.getId());
-                intent.putExtra("KEY_BIRTHDAY", person.getStringBirthday());
-                intent.putExtra("KEY_TEXT", String.format(getString(R.string.text_remind_birthday), person.getFullName()));
-                alarmIntent = PendingIntent.getBroadcast(getContext(), person.getId().hashCode(),
-                        intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                long millisToRemind = createMillisToRemind(person.getDateBirthday());
-                alarmManager.set(AlarmManager.RTC_WAKEUP, millisToRemind, alarmIntent);
-            } else {
-                if (alarmManager != null) {
-                    Log.d(LOG_TAG, "Remove birthday reminder");
-                    alarmIntent = PendingIntent.getBroadcast(getActivity(), person.getId().hashCode(),
-                            intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    alarmManager.cancel(alarmIntent);
-                    alarmIntent.cancel();
-                }
-            }
+            Log.d(LOG_TAG, "Напоминания выключены");
+            contactDetailsPresenter.birthdayReminderDisable(personId);
         }
     }
 
-    private boolean checkBirthdayReminder() {
-        return (PendingIntent.getBroadcast(getActivity(), person.getId().hashCode(),
-                new Intent(getActivity(), BirthdayReminderReceiver.class),
-                PendingIntent.FLAG_NO_CREATE) != null);
-    }
 
     @Override
     public void fetchContactDetails(PersonModelAdvanced personModel) {

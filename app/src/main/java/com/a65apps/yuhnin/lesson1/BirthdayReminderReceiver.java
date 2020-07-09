@@ -31,6 +31,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
         Intent activityIntent = new Intent(context, MainActivity.class);
         activityIntent.putExtra("KEY_PERSON_ID", personId);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         // Выводим уведомление
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channel")
                 .setSmallIcon(R.drawable.ic_launcher_background)

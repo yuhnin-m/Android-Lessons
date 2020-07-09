@@ -5,8 +5,10 @@ import androidx.core.util.Pair;
 import com.a65apps.core.entities.Contact;
 import com.a65apps.core.entities.Person;
 import com.a65apps.core.interactors.contacts.ContactListInteractor;
+import com.a65apps.core.interactors.reminders.BirthdayReminderInteractor;
 import com.a65apps.library.mapper.ContactModelDataMapper;
 import com.a65apps.library.mapper.PersonModelAdvancedDataMapper;
+import com.a65apps.library.models.PersonModelAdvanced;
 import com.a65apps.library.views.ContactDetailsView;
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
@@ -25,17 +27,22 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
     final ContactListInteractor contactListInteractor;
 
     @NonNull
+    final BirthdayReminderInteractor reminderInteractor;
+
+    @NonNull
     CompositeDisposable compositeDisposable;
 
     @NonNull
     ContactModelDataMapper contactModelDataMapper;
 
+    @NonNull
     PersonModelAdvancedDataMapper personModelDataMapper;
 
-    public ContactDetailsPresenter(@NonNull ContactListInteractor contactListInteractor) {
+    public ContactDetailsPresenter(@NonNull ContactListInteractor contactListInteractor, BirthdayReminderInteractor reminderInteractor) {
         this.contactListInteractor = contactListInteractor;
         this.contactModelDataMapper = new ContactModelDataMapper();
         this.personModelDataMapper = new PersonModelAdvancedDataMapper();
+        this.reminderInteractor = reminderInteractor;
         this.compositeDisposable = new CompositeDisposable();
     }
 
@@ -54,6 +61,18 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
                         },
                         e -> getViewState().fetchError(e.getMessage())
                 ));
+    }
+
+    public boolean checkBirthdayReminderEnabled(@NonNull String personId) {
+        return reminderInteractor.isReminderOn(personId);
+    }
+
+    public boolean birthdayReminderEnable(@NonNull PersonModelAdvanced person) {
+        return reminderInteractor.setBirthdayReminder(person.getId(), person.getFullName(), person.getStringBirthday());
+    }
+
+    public boolean birthdayReminderDisable(@NonNull String personId) {
+        return reminderInteractor.unsetBirthdayReminder(personId);
     }
 
     @Override

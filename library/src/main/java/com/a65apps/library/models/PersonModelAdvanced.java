@@ -5,6 +5,8 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.a65apps.library.Constants;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -58,7 +60,7 @@ public class PersonModelAdvanced {
     @Nullable
     public String getStringBirthday() {
         if (dateBirthday != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_STRING_FORMAT);
             return simpleDateFormat.format(dateBirthday);
         } else {
             return "";
