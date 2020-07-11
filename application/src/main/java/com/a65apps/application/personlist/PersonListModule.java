@@ -19,7 +19,7 @@ public class PersonListModule {
 
     @Provides
     @PersonListScope
-    public PersonListInteractor providePersonListInteractor(PersonListRepository contactListRepository) {
-        return new PersonListModel(contactListRepository);
+    public PersonListInteractor providePersonListInteractor(PersonListRepository personListRepository) {
+        return new PersonListModel(personListRepository);
     }
 }

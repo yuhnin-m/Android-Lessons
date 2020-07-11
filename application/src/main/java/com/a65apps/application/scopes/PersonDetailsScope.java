@@ -3,4 +3,4 @@ package com.a65apps.application.scopes;
 import javax.inject.Scope;
 
 @Scope
-public @interface ContactDetailsScope {}
+public @interface PersonDetailsScope {}

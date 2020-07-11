@@ -97,6 +97,12 @@ public class ReminderRepository implements BirthdayReminderRepository {
         return calendar.getTimeInMillis();
     }
 
+    /**
+     * Метод конвертации из GregorianCalendar в строку в формате описанном в
+     * @see Constants#DATE_STRING_FORMAT
+     * @param calendar экземпляр GregorianCalendar
+     * @return строкас датой
+     */
     private String calendarToStringDate(@NonNull GregorianCalendar calendar) {
         SimpleDateFormat fmt = new SimpleDateFormat(Constants.DATE_STRING_FORMAT);
         return fmt.format(calendar);

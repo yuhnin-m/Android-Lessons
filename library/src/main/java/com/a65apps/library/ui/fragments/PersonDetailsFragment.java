@@ -1,10 +1,7 @@
 package com.a65apps.library.ui.fragments;
 
-import android.app.AlarmManager;
 import android.app.Application;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,14 +20,14 @@ import androidx.annotation.Nullable;
 
 import com.a65apps.library.Constants;
 import com.a65apps.library.R;
-import com.a65apps.library.di.containers.ContactsContainer;
+import com.a65apps.library.di.containers.PersonDetailsContainer;
 import com.a65apps.library.di.containers.HasAppContainer;
 import com.a65apps.library.ui.adapters.ContactListAdapter;
 import com.a65apps.library.ui.listeners.EventActionBarListener;
 import com.a65apps.library.models.ContactModel;
 import com.a65apps.library.models.PersonModelAdvanced;
-import com.a65apps.library.presenters.ContactDetailsPresenter;
-import com.a65apps.library.views.ContactDetailsView;
+import com.a65apps.library.presenters.PersonDetailsPresenter;
+import com.a65apps.library.views.PersonDetailsView;
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
@@ -40,8 +37,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class ContactDetailsFragment extends MvpAppCompatFragment
-        implements ContactDetailsView, CompoundButton.OnCheckedChangeListener {
+public class PersonDetailsFragment extends MvpAppCompatFragment
+        implements PersonDetailsView, CompoundButton.OnCheckedChangeListener {
     final String LOG_TAG = "details_fragment";
     @Nullable
     ImageView ivAvatar;
@@ -70,17 +67,17 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     EventActionBarListener eventActionBarListener;
 
     @InjectPresenter
-    ContactDetailsPresenter contactDetailsPresenter;
+    PersonDetailsPresenter personDetailsPresenter;
 
     @Inject
-    public Provider<ContactDetailsPresenter> detailsPresenterProvider;
+    public Provider<PersonDetailsPresenter> detailsPresenterProvider;
 
     @ProvidePresenter
-    ContactDetailsPresenter providerContactDetailsPresenter(){
+    PersonDetailsPresenter providerContactDetailsPresenter(){
         return detailsPresenterProvider.get();
     }
 
-    public ContactDetailsFragment() {
+    public PersonDetailsFragment() {
         // Required empty public constructor
     }
 
@@ -93,7 +90,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         if (!(app instanceof HasAppContainer)){
             throw new IllegalStateException();
         }
-        ContactsContainer contactsContainer = ((HasAppContainer)app).appContainer().plusContactsContainer();
+        PersonDetailsContainer contactsContainer = ((HasAppContainer)app).appContainer().plusContactsContainer();
         contactsContainer.inject(this);
         super.onAttach(context);
     }
@@ -134,7 +131,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         if (eventActionBarListener != null) {
             eventActionBarListener.setVisibleToolBarBackButton(true);
         }
-        contactDetailsPresenter.requestContactsByPerson(personId);
+        personDetailsPresenter.requestContactsByPerson(personId);
         requireActivity().setTitle(getString(R.string.toolbar_header_person_details));
         super.onResume();
     }
@@ -156,7 +153,7 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
         }
         if (toggleBtnRemindBirthday != null) {
             toggleBtnRemindBirthday.setEnabled(person.getDateBirthday() != null);
-            boolean reminderEnabled = contactDetailsPresenter.checkBirthdayReminderEnabled(person.getId());
+            boolean reminderEnabled = personDetailsPresenter.checkBirthdayReminderEnabled(person.getId());
             toggleBtnRemindBirthday.setChecked(reminderEnabled);
             toggleBtnRemindBirthday.setText(R.string.button_text_remind_birthday_on);
             Log.d(LOG_TAG,"Напоминание " + (reminderEnabled ? " включено": " выключено"));
@@ -181,10 +178,10 @@ public class ContactDetailsFragment extends MvpAppCompatFragment
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             Log.d(LOG_TAG, "Напоминания включены");
-            contactDetailsPresenter.birthdayReminderEnable(person);
+            personDetailsPresenter.birthdayReminderEnable(person);
         } else {
             Log.d(LOG_TAG, "Напоминания выключены");
-            contactDetailsPresenter.birthdayReminderDisable(personId);
+            personDetailsPresenter.birthdayReminderDisable(personId);
         }
     }
 

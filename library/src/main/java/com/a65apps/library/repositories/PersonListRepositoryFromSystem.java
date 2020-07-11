@@ -17,12 +17,12 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.annotations.Nullable;
 import io.reactivex.rxjava3.core.Single;
 
-public class PersonRepository implements PersonListRepository {
+public class PersonListRepositoryFromSystem implements PersonListRepository {
     final String LOG_TAG = "person_repository";
     @NonNull
     private Context context;
 
-    public PersonRepository(@NonNull Context context) {
+    public PersonListRepositoryFromSystem(@NonNull Context context) {
         this.context = context;
     }
 

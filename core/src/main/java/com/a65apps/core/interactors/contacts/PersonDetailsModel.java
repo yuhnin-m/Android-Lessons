@@ -8,10 +8,10 @@ import java.util.List;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 
-public class ContactListModel implements ContactListInteractor {
-    private final ContactListRepository repository;
+public class PersonDetailsModel implements PersonDetailsInteractor {
+    private final PersonDetailsRepository repository;
 
-    public ContactListModel(ContactListRepository repository) {
+    public PersonDetailsModel(PersonDetailsRepository repository) {
         this.repository = repository;
     }
 

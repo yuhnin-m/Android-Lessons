@@ -1,14 +1,14 @@
 package com.a65apps.application.birthdayreminder;
 
-import com.a65apps.application.contactlist.ContactListModule;
-import com.a65apps.application.scopes.ContactDetailsScope;
+import com.a65apps.application.persondetails.PersonDetailsModule;
+import com.a65apps.application.scopes.PersonDetailsScope;
 import com.a65apps.library.di.containers.BirthdayReminderContainer;
 
 import dagger.Subcomponent;
 
-@ContactDetailsScope
+@PersonDetailsScope
 @Subcomponent(modules = {
         BirthdayReminderModule.class,
-        ContactListModule.class})
+        PersonDetailsModule.class})
 public interface BirthdayReminderComponent extends BirthdayReminderContainer {
 }

@@ -4,12 +4,12 @@ import androidx.core.util.Pair;
 
 import com.a65apps.core.entities.Contact;
 import com.a65apps.core.entities.Person;
-import com.a65apps.core.interactors.contacts.ContactListInteractor;
+import com.a65apps.core.interactors.contacts.PersonDetailsInteractor;
 import com.a65apps.core.interactors.reminders.BirthdayReminderInteractor;
 import com.a65apps.library.mapper.ContactModelDataMapper;
 import com.a65apps.library.mapper.PersonModelAdvancedDataMapper;
 import com.a65apps.library.models.PersonModelAdvanced;
-import com.a65apps.library.views.ContactDetailsView;
+import com.a65apps.library.views.PersonDetailsView;
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
@@ -21,10 +21,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @InjectViewState
-public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
+public class PersonDetailsPresenter extends MvpPresenter<PersonDetailsView> {
 
     @NonNull
-    final ContactListInteractor contactListInteractor;
+    final PersonDetailsInteractor personDetailsInteractor;
 
     @NonNull
     final BirthdayReminderInteractor reminderInteractor;
@@ -38,8 +38,8 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
     @NonNull
     PersonModelAdvancedDataMapper personModelDataMapper;
 
-    public ContactDetailsPresenter(@NonNull ContactListInteractor contactListInteractor, BirthdayReminderInteractor reminderInteractor) {
-        this.contactListInteractor = contactListInteractor;
+    public PersonDetailsPresenter(@NonNull PersonDetailsInteractor personDetailsInteractor, BirthdayReminderInteractor reminderInteractor) {
+        this.personDetailsInteractor = personDetailsInteractor;
         this.contactModelDataMapper = new ContactModelDataMapper();
         this.personModelDataMapper = new PersonModelAdvancedDataMapper();
         this.reminderInteractor = reminderInteractor;
@@ -47,8 +47,8 @@ public class ContactDetailsPresenter extends MvpPresenter<ContactDetailsView> {
     }
 
     public void requestContactsByPerson(@NonNull String personId) {
-        compositeDisposable.add(contactListInteractor.loadPersonDetails(personId)
-                .flatMap(person -> contactListInteractor.loadContactsByPerson(personId)
+        compositeDisposable.add(personDetailsInteractor.loadPersonDetails(personId)
+                .flatMap(person -> personDetailsInteractor.loadContactsByPerson(personId)
                         .map(contactList -> new Pair<Person, List<Contact>>(person, contactList)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

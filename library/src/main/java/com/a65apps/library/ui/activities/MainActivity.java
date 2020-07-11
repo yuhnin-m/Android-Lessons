@@ -23,7 +23,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.a65apps.library.Constants;
 import com.a65apps.library.R;
-import com.a65apps.library.ui.fragments.ContactDetailsFragment;
+import com.a65apps.library.ui.fragments.PersonDetailsFragment;
 import com.a65apps.library.ui.fragments.PermissionInfoFragment;
 import com.a65apps.library.ui.fragments.PersonListFragment;
 import com.a65apps.library.ui.listeners.EventActionBarListener;
@@ -112,10 +112,10 @@ public class MainActivity extends AppCompatActivity
     private void сreateDetailsFragment(String personId) {
         Bundle bundle = new Bundle();
         bundle.putString(Constants.KEY_PERSON_ID, personId);
-        ContactDetailsFragment contactDetailsFragment = (ContactDetailsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
+        PersonDetailsFragment contactDetailsFragment = (PersonDetailsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
         if (contactDetailsFragment == null) {
             // Фрагмент еще не создан
-            contactDetailsFragment = new ContactDetailsFragment();
+            contactDetailsFragment = new PersonDetailsFragment();
             contactDetailsFragment.setArguments(bundle);
             if (fragmentManager.getFragments().isEmpty()) {
                 fragmentManager.beginTransaction()

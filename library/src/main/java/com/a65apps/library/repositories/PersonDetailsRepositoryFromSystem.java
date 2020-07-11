@@ -10,7 +10,7 @@ import android.util.Log;
 import com.a65apps.core.entities.Contact;
 import com.a65apps.core.entities.ContactType;
 import com.a65apps.core.entities.Person;
-import com.a65apps.core.interactors.contacts.ContactListRepository;
+import com.a65apps.core.interactors.contacts.PersonDetailsRepository;
 import com.a65apps.library.Constants;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.annotations.Nullable;
 import io.reactivex.rxjava3.core.Single;
 
-public class ContactsRepository implements ContactListRepository {
+public class PersonDetailsRepositoryFromSystem implements PersonDetailsRepository {
     private final String LOG_TAG = "contact_list_repository";
     private final Uri KEY_CONTENT_PHONE = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
     private final Uri KEY_CONTENT_EMAIL = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
@@ -29,7 +29,7 @@ public class ContactsRepository implements ContactListRepository {
     @NonNull
     private Context context;
 
-    public ContactsRepository(@NonNull Context context) {
+    public PersonDetailsRepositoryFromSystem(@NonNull Context context) {
         this.context = context;
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 
-public interface ContactListInteractor {
-    Single<List<Contact>> loadContactsByPerson(@NonNull final String personId);
-    Single<Person> loadPersonDetails(@NonNull final String personId);
+public interface PersonDetailsRepository {
+    Single<List<Contact>> getContactsByPerson(@NonNull final String personId);
+    Single<Person> getPersonDetails(@NonNull final String personId);
 }

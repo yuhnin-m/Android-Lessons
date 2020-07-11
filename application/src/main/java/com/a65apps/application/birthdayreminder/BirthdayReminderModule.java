@@ -1,7 +1,5 @@
 package com.a65apps.application.birthdayreminder;
 
-import android.content.Context;
-
 import com.a65apps.core.interactors.reminders.BirthdayReminderInteractor;
 import com.a65apps.core.interactors.reminders.BirthdayReminderModel;
 import com.a65apps.core.interactors.reminders.BirthdayReminderRepository;

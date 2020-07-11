@@ -9,7 +9,7 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType;
 
 import java.util.List;
 
-public interface ContactDetailsView extends MvpView {
+public interface PersonDetailsView extends MvpView {
     @StateStrategyType(AddToEndSingleStrategy.class)
     void fetchContactDetails(PersonModelAdvanced personModel);
 

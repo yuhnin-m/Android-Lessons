@@ -7,6 +7,10 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    compileOptions {
+        encoding = 'Cp1251'
+    }
+    
     defaultConfig {
         applicationId "com.a65apps.application"
         minSdkVersion 22
