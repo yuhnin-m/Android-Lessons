@@ -8,7 +8,6 @@ import dagger.Subcomponent;
 
 @PersonDetailsScope
 @Subcomponent(modules = {
-        BirthdayReminderModule.class,
-        PersonDetailsModule.class})
+        BirthdayReminderModule.class})
 public interface BirthdayReminderComponent extends BirthdayReminderContainer {
 }

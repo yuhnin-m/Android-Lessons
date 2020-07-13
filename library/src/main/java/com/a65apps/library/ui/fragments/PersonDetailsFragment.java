@@ -90,7 +90,8 @@ public class PersonDetailsFragment extends MvpAppCompatFragment
         if (!(app instanceof HasAppContainer)){
             throw new IllegalStateException();
         }
-        PersonDetailsContainer contactsContainer = ((HasAppContainer)app).appContainer().plusContactsContainer();
+        PersonDetailsContainer contactsContainer = ((HasAppContainer)app)
+                .appContainer().plusPersonDetailsContainer();
         contactsContainer.inject(this);
         super.onAttach(context);
     }

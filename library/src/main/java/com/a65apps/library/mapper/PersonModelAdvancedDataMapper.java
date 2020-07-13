@@ -1,7 +1,6 @@
 package com.a65apps.library.mapper;
 
 import com.a65apps.core.entities.Person;
-import com.a65apps.library.di.scopes.MainActivityScope;
 import com.a65apps.library.models.PersonModelAdvanced;
 
 import java.util.ArrayList;
