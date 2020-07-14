@@ -16,8 +16,8 @@ public class PersonDetailsModule {
 
     @Provides
     @PersonDetailsScope
-    public PersonDetailsPresenter provideContactDetailsPresenter(PersonDetailsInteractor personDetailsInteractor){
-        return new PersonDetailsPresenter(personDetailsInteractor);
+    public PersonDetailsPresenter provideContactDetailsPresenter(PersonDetailsInteractor personDetailsInteractor, BirthdayReminderInteractor birthdayReminderInteractor){
+        return new PersonDetailsPresenter(personDetailsInteractor, birthdayReminderInteractor);
     }
 
     @Provides

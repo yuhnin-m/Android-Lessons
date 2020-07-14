@@ -46,18 +46,12 @@ public class PersonDetailsPresenter extends MvpPresenter<PersonDetailsView> {
     PersonModelAdvancedDataMapper personModelDataMapper;
 
     @Inject
-    public PersonDetailsPresenter(@NonNull PersonDetailsInteractor personDetailsInteractor) {
+    public PersonDetailsPresenter(@NonNull PersonDetailsInteractor personDetailsInteractor, @NonNull BirthdayReminderInteractor reminderInteractor) {
         this.personDetailsInteractor = personDetailsInteractor;
         this.contactModelDataMapper = new ContactModelDataMapper();
         this.personModelDataMapper = new PersonModelAdvancedDataMapper();
-
         this.compositeDisposable = new CompositeDisposable();
-    }
-
-    @Inject
-    public void setReminderInteractor(@NonNull BirthdayReminderInteractor reminderInteractor) {
         this.reminderInteractor = reminderInteractor;
-
     }
 
     public void requestContactsByPerson(@NonNull String personId) {

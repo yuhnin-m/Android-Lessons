@@ -73,6 +73,7 @@ public class PersonListFragment extends MvpAppCompatFragment implements PersonLi
     @Override
     public void onAttach(@Nullable Context context) {
         Log.d(LOG_TAG, "onAttach");
+        super.onAttach(context);
         Application app = requireActivity().getApplication();
         if (!(app instanceof HasAppContainer)){
             throw new IllegalStateException();
@@ -88,7 +89,6 @@ public class PersonListFragment extends MvpAppCompatFragment implements PersonLi
             eventActionBarListener = (EventActionBarListener) context;
             Log.d(LOG_TAG, "onAttach - EventActionBarListener binding");
         }
-        super.onAttach(context);
     }
 
     @Override
