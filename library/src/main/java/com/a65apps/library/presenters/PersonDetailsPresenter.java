@@ -15,6 +15,8 @@ import com.arellomobile.mvp.MvpPresenter;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -27,7 +29,7 @@ public class PersonDetailsPresenter extends MvpPresenter<PersonDetailsView> {
     final PersonDetailsInteractor personDetailsInteractor;
 
     @NonNull
-    final BirthdayReminderInteractor reminderInteractor;
+    BirthdayReminderInteractor reminderInteractor;
 
     @NonNull
     CompositeDisposable compositeDisposable;
@@ -38,12 +40,19 @@ public class PersonDetailsPresenter extends MvpPresenter<PersonDetailsView> {
     @NonNull
     PersonModelAdvancedDataMapper personModelDataMapper;
 
-    public PersonDetailsPresenter(@NonNull PersonDetailsInteractor personDetailsInteractor, BirthdayReminderInteractor reminderInteractor) {
+    @Inject
+    public PersonDetailsPresenter(@NonNull PersonDetailsInteractor personDetailsInteractor) {
         this.personDetailsInteractor = personDetailsInteractor;
         this.contactModelDataMapper = new ContactModelDataMapper();
         this.personModelDataMapper = new PersonModelAdvancedDataMapper();
-        this.reminderInteractor = reminderInteractor;
+
         this.compositeDisposable = new CompositeDisposable();
+    }
+
+    @Inject
+    public void setReminderInteractor(@NonNull BirthdayReminderInteractor reminderInteractor) {
+        this.reminderInteractor = reminderInteractor;
+
     }
 
     public void requestContactsByPerson(@NonNull String personId) {
