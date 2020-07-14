@@ -87,8 +87,6 @@ public class PersonDetailsPresenter extends MvpPresenter<PersonDetailsView> {
     @Override
     public void onDestroy() {
         this.compositeDisposable.dispose();
-        this.contactModelDataMapper = null;
-        this.personModelDataMapper = null;
         super.onDestroy();
     }
 }

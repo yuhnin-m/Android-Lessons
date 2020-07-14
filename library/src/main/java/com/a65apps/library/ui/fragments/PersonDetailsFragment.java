@@ -91,7 +91,7 @@ public class PersonDetailsFragment extends MvpAppCompatFragment
             throw new IllegalStateException();
         }
         PersonDetailsContainer contactsContainer = ((HasAppContainer)app)
-                .appContainer().plusPersonDetailsContainer();
+                .appContainer().plusPersonDetailsComponent();
         contactsContainer.inject(this);
         super.onAttach(context);
     }

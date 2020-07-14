@@ -30,7 +30,7 @@ public class BirthdayReminderReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, "BirthdayReminderReceiver - НАПОМИНАНИЕ ПОЛУЧЕНО");
         BirthdayReminderContainer birthdayNotificationComponent =
-                ((HasAppContainer) context.getApplicationContext()).appContainer().plusBirthdayReminderContainer();
+                ((HasAppContainer) context.getApplicationContext()).appContainer().plusBirthdayReminderComponent();
         birthdayNotificationComponent.inject(this);
 
         String personId = intent.getStringExtra(Constants.KEY_PERSON_ID);

@@ -7,13 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class PersonModelAdvancedDataMapper {
 
-    @Inject
     public PersonModelAdvancedDataMapper() {}
 
     /**

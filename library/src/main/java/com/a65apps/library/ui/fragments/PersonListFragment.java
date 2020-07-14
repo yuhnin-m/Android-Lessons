@@ -78,7 +78,7 @@ public class PersonListFragment extends MvpAppCompatFragment implements PersonLi
             throw new IllegalStateException();
         }
         PersonListContainer contactListComponent = ((HasAppContainer)app).appContainer()
-                .plusPersonListContainer();
+                .plusPersonListComponent();
         contactListComponent.inject(this);
         if (context instanceof OnPersonClickedListener) {
             onPersonClickedListener = (OnPersonClickedListener) context;

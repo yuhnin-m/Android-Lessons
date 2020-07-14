@@ -7,6 +7,6 @@ import com.a65apps.library.di.containers.PersonDetailsContainer;
 import dagger.Subcomponent;
 
 @PersonDetailsScope
-@Subcomponent(modules = {PersonDetailsModule.class})
+@Subcomponent(modules = {PersonDetailsModule.class, BirthdayReminderModule.class})
 public interface PersonDetailsComponent extends PersonDetailsContainer {
 }

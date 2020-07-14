@@ -62,7 +62,6 @@ public class PersonListPresenter extends MvpPresenter<PersonListView> {
     @Override
     public void onDestroy() {
         this.compositeDisposable.dispose();
-        this.dataMapper = null;
         super.onDestroy();
     }
 }
