@@ -1,2 +1,4 @@
+include ':application'
+include ':core'
+include ':library'
 rootProject.name='Lesson1'
-include ':app'

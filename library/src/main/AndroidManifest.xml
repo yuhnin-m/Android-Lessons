@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.a65apps.library">
+    <uses-permission
+        android:name="android.permission.READ_CONTACTS">
+    </uses-permission>
+</manifest>
