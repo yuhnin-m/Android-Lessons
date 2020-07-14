@@ -25,6 +25,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @InjectViewState
 public class PersonDetailsPresenter extends MvpPresenter<PersonDetailsView> {
 
+    @Override
+    public void attachView(PersonDetailsView view) {
+        super.attachView(view);
+    }
+
     @NonNull
     final PersonDetailsInteractor personDetailsInteractor;
 

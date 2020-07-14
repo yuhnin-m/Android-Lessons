@@ -10,8 +10,6 @@ import java.util.Collections;
 
 public class PersonModelAdvancedDataMapper {
 
-    public PersonModelAdvancedDataMapper() {}
-
     /**
      * Трансформация {@link Person} into an {@link com.a65apps.library.models.PersonModelAdvanced}.
      * @param person Object to be transformed.

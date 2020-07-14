@@ -9,8 +9,6 @@ import java.util.List;
 
 public class PersonModelCompactDataMapper {
 
-    public PersonModelCompactDataMapper() {}
-
     /**
      * Трансформация {@link Person} into an {@link PersonModelCompact}.
      * @param person Object to be transformed.

@@ -10,8 +10,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class ContactModelDataMapper {
-    @Inject
-    public ContactModelDataMapper() {}
 
     /**
      * Трансформация {@link Contact} into an {@link ContactModel}.
