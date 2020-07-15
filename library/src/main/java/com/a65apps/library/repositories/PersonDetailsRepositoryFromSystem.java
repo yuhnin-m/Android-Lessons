@@ -23,7 +23,7 @@ import io.reactivex.rxjava3.core.Single;
 public class PersonDetailsRepositoryFromSystem implements PersonDetailsRepository {
     private final String LOG_TAG = "contact_list_repository";
     private final Uri KEY_CONTENT_PHONE = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-    private final Uri KEY_CONTENT_EMAIL = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+    private final Uri KEY_CONTENT_EMAIL = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
 
 
     @NonNull
