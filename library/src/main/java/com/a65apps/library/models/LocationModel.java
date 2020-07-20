@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.annotations.Nullable;
 
@@ -30,6 +32,14 @@ public class LocationModel {
         this.latitude = latitude;
     }
 
+    public LocationModel(@NonNull String personId, @Nullable String address,
+                         @NonNull LatLng coord) {
+        this.personId = personId;
+        this.address = address;
+        this.longitude = coord.longitude;
+        this.latitude = coord.latitude;
+    }
+
     @NonNull
     public String getPersonId() {
         return personId;
@@ -48,6 +58,11 @@ public class LocationModel {
     @NonNull
     public double getLatitude() {
         return latitude;
+    }
+
+    @NonNull
+    public LatLng getLatLng() {
+        return new LatLng(latitude, longitude);
     }
 
     @Override

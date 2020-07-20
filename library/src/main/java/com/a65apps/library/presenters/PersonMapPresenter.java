@@ -24,10 +24,12 @@ public class PersonMapPresenter extends MvpPresenter<PersonMapView> {
     }
 
     public Location showMarker() {
+        // TODO: реализовать
         return null;
     }
 
     public boolean savePersonLocation() {
+        // TODO: реализовать
         return false;
     }
 }
