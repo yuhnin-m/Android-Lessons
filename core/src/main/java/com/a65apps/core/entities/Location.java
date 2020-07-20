@@ -19,7 +19,8 @@ public class Location {
     @NonNull
     private final double latitude;
 
-    public Location(@NonNull String uid, @NonNull String personId, @Nullable String address, @NonNull double longitude, @NonNull double latitude) {
+    public Location(@NonNull String uid, @NonNull String personId, @Nullable String address,
+                    @NonNull double longitude, @NonNull double latitude) {
         this.uid = uid;
         this.personId = personId;
         this.address = address;

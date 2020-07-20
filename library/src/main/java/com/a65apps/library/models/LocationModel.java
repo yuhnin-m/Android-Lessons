@@ -49,4 +49,14 @@ public class LocationModel {
     public double getLatitude() {
         return latitude;
     }
+
+    @Override
+    public String toString() {
+        return "LocationModel{" +
+                "personId='" + personId + '\'' +
+                ", address='" + address + '\'' +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                '}';
+    }
 }

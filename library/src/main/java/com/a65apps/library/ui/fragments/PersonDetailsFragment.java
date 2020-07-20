@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,6 +28,7 @@ import com.a65apps.library.ui.listeners.EventActionBarListener;
 import com.a65apps.library.models.ContactModel;
 import com.a65apps.library.models.PersonModelAdvanced;
 import com.a65apps.library.presenters.PersonDetailsPresenter;
+import com.a65apps.library.ui.listeners.OnPersonSetLocation;
 import com.a65apps.library.views.PersonDetailsView;
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
@@ -53,6 +55,8 @@ public class PersonDetailsFragment extends MvpAppCompatFragment
     @Nullable
     ToggleButton toggleBtnRemindBirthday;
     @Nullable
+    Button btnOpenSetLocation;
+    @Nullable
     ProgressBar progressBar;
 
     @NonNull
@@ -65,6 +69,9 @@ public class PersonDetailsFragment extends MvpAppCompatFragment
 
     @Nullable
     EventActionBarListener eventActionBarListener;
+
+    @Nullable
+    OnPersonSetLocation onPersonSetLocation;
 
     @InjectPresenter
     PersonDetailsPresenter personDetailsPresenter;
@@ -85,6 +92,9 @@ public class PersonDetailsFragment extends MvpAppCompatFragment
     public void onAttach(@Nullable Context context) {
         if (context instanceof EventActionBarListener) {
             eventActionBarListener = (EventActionBarListener) context;
+        }
+        if (context instanceof OnPersonSetLocation) {
+            onPersonSetLocation = (OnPersonSetLocation) context;
         }
         Application app = requireActivity().getApplication();
         if (!(app instanceof HasAppContainer)){
@@ -122,6 +132,16 @@ public class PersonDetailsFragment extends MvpAppCompatFragment
         tvBirthday = view.findViewById(R.id.tv_birthday);
         toggleBtnRemindBirthday = view.findViewById(R.id.togglebtn_remind_birthday);
         progressBar = view.findViewById(R.id.progressbar_load_details);
+        btnOpenSetLocation = view.findViewById(R.id.btn_open_set_location);
+        if (btnOpenSetLocation != null) {
+            btnOpenSetLocation.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (person != null) {
+                        onPersonSetLocation.onPersonSetLocation(person.getId());
+                    }
+                }
+            });
+        }
         toggleBtnRemindBirthday.setOnCheckedChangeListener(this);
         return view;
     }

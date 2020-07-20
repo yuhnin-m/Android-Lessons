@@ -2,41 +2,68 @@ package com.a65apps.library.ui.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.a65apps.library.R;
+import com.a65apps.library.models.LocationModel;
+import com.a65apps.library.ui.listeners.EventActionBarListener;
+import com.a65apps.library.ui.listeners.OnPersonSetLocation;
+import com.a65apps.library.views.PersonMapView;
+import com.arellomobile.mvp.MvpAppCompatFragment;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class PersonMapsFragment extends Fragment {
+import java.util.Objects;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+public class PersonMapsFragment extends MvpAppCompatFragment implements PersonMapView, OnMapReadyCallback{
 
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    private final String LOG_TAG = "person_map_fragment";
+
+    @Nullable
+    Button btn_save_location;
+
+    @Nullable
+    MapView mapView;
+
+    @Nullable
+    GoogleMap googleMap;
+
+    @Nullable
+    EventActionBarListener eventActionBarListener;
+
+    @Nullable
+    OnPersonSetLocation onPersonSetLocation;
+
+    @Override
+    public void onAttach(@Nullable Context context) {
+        if (context instanceof EventActionBarListener) {
+            eventActionBarListener = (EventActionBarListener) context;
         }
-    };
+        if (context instanceof OnPersonSetLocation) {
+            onPersonSetLocation = (OnPersonSetLocation) context;
+        }
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+
+        super.onDetach();
+    }
 
     @Nullable
     @Override
@@ -49,10 +76,48 @@ public class PersonMapsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
+        btn_save_location = view.findViewById(R.id.btn_open_set_location);
+        mapView = view.findViewById(R.id.mapView);
+        if (mapView != null) {
+            mapView.getMapAsync(this);
         }
+        Objects.requireNonNull(getActivity()).setTitle(R.string.text_header_map_view);
     }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
+        LatLng coordinates = new LatLng( 56.846428, 53.233475 );
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(coordinates)
+                .zoom(15)
+                .tilt(20)
+                .build();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+        this.googleMap.animateCamera(cameraUpdate);
+
+    }
+
+    @Override
+    public void drawMarker(LocationModel locationModel) {
+
+        return;
+    }
+
+    @Override
+    public void onPersonLocationLoad(LocationModel locationModel) {
+        return;
+    }
+
+    @Override
+    public void onPersonLocationSaved(LocationModel locationModel) {
+        Log.d(LOG_TAG, "Местоположение контакта сохранено: " + locationModel.toString());
+    }
+
+    @Override
+    public void onError(String errorMessage) {
+        Log.e(LOG_TAG, "Возникла ошибка " + errorMessage);
+
+    }
+
 }
