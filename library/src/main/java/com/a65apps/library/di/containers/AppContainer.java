@@ -4,6 +4,6 @@ public interface AppContainer {
     PersonDetailsContainer plusPersonDetailsComponent();
     PersonListContainer plusPersonListComponent();
     BirthdayReminderContainer plusBirthdayReminderComponent();
-    PersonLocationContainer plusPersonLocationContainer();
+    PersonLocationContainer plusPersonLocationComponent();
 
 }

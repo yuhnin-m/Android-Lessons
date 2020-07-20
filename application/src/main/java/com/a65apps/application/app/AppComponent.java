@@ -3,6 +3,7 @@ package com.a65apps.application.app;
 import com.a65apps.application.birthdayreminder.BirthdayReminderReceiverComponent;
 import com.a65apps.application.persondetails.PersonDetailsComponent;
 import com.a65apps.application.personlist.PersonListComponent;
+import com.a65apps.application.personlocation.PersonLocationComponent;
 import com.a65apps.library.di.containers.AppContainer;
 import com.a65apps.library.di.containers.PersonLocationContainer;
 
@@ -24,6 +25,6 @@ public interface AppComponent extends AppContainer {
     BirthdayReminderReceiverComponent plusBirthdayReminderComponent();
 
     @Override
-    PersonLocationContainer plusPersonLocationContainer();
+    PersonLocationComponent plusPersonLocationComponent();
 
 }

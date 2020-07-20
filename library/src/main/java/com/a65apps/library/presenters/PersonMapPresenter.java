@@ -3,11 +3,15 @@ package com.a65apps.library.presenters;
 import com.a65apps.core.entities.Location;
 import com.a65apps.core.interactors.locations.PersonLocationInteractor;
 import com.a65apps.library.views.PersonMapView;
+import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
+
+import javax.inject.Inject;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
+@InjectViewState
 public class PersonMapPresenter extends MvpPresenter<PersonMapView> {
     private final String LOG_TAG = "person_map_presenter";
 
@@ -17,7 +21,7 @@ public class PersonMapPresenter extends MvpPresenter<PersonMapView> {
     @NonNull
     private final CompositeDisposable compositeDisposable;
 
-
+    @Inject
     public PersonMapPresenter(@NonNull PersonLocationInteractor personLocationInteractor) {
         this.personLocationInteractor = personLocationInteractor;
         compositeDisposable = new CompositeDisposable();
