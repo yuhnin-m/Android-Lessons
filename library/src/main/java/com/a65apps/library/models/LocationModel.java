@@ -6,21 +6,26 @@ import androidx.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.annotations.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 
 @Entity
 public class LocationModel {
     @PrimaryKey
     @ColumnInfo(name = "person_id")
+    @NonNull
     private final String personId;
 
+    @Nullable
     @ColumnInfo(name = "person_address")
     private final String address;
 
+    @NonNull
     @ColumnInfo(name = "longitude")
     private final double longitude ;
 
+    @NonNull
     @ColumnInfo(name = "latitude")
     private final double latitude;
 
