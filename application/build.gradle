@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 buildscript {
     ext.moxy_arello_ver = '1.4.5'
     ext.dagger_ver = '2.28.1'
+    ext.room_version = '2.2.5'
 }
 android {
     compileSdkVersion 29
@@ -53,5 +54,9 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger_ver"
     annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_ver"
     annotationProcessor "com.google.dagger:dagger-compiler:$dagger_ver"
+
+    implementation "androidx.room:room-rxjava2:$room_version"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
 
 }

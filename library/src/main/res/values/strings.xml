@@ -21,5 +21,10 @@
     <string name="permission_granted">Необходимые разрешения получены</string>
     <string name="permission_not_received">Разрешения не получены</string>
     <string name="action_search">Поиск</string>
+    <string name="action_set_location">Установить местоположение</string>
+    <string name="action_change_location">Изменить местоположение</string>
+    <string name="text_header_map_view">Местоположение контакта</string>
+    <string name="button_save_person_location">Сохранить местоположение</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDPgvJHJnPPvXN-Tw3aXIPE8eCE31FrrQw</string>
 
 </resources>

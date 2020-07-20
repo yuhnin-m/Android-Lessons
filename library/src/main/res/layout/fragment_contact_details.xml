@@ -100,4 +100,11 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btn_open_set_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_baseline_place_24"
+        android:text="@string/action_set_location" />
 </LinearLayout>

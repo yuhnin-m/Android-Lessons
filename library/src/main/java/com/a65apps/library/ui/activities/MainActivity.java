@@ -26,15 +26,18 @@ import com.a65apps.library.R;
 import com.a65apps.library.ui.fragments.PersonDetailsFragment;
 import com.a65apps.library.ui.fragments.PermissionInfoFragment;
 import com.a65apps.library.ui.fragments.PersonListFragment;
+import com.a65apps.library.ui.fragments.PersonMapsFragment;
 import com.a65apps.library.ui.listeners.EventActionBarListener;
 import com.a65apps.library.ui.listeners.OnPersonClickedListener;
+import com.a65apps.library.ui.listeners.OnPersonSetLocation;
 
 public class MainActivity extends AppCompatActivity
-        implements OnPersonClickedListener, EventActionBarListener {
+        implements OnPersonClickedListener, OnPersonSetLocation, EventActionBarListener {
 
     final String LOG_TAG = "activity_application";
     final String TAG_FRAGMENT_DETAILS = "TAG_FRAGMENT_DETAILS";
     final String TAG_FRAGMENT_PERM_REQ = "TAG_FRAGMENT_PERM_REQ";
+    final String TAG_FRAGMENT_PERSON_LOCATION = "TAG_FRAGMENT_PERSON_LOCATION";
     final String TAG_FRAGMENT_LIST = "TAG_FRAGMENT_LIST";
 
     FragmentManager fragmentManager = getSupportFragmentManager();
@@ -86,7 +89,6 @@ public class MainActivity extends AppCompatActivity
         });
         Log.d(LOG_TAG, "onCreate end");
     }
-
 
     /**
      * Метод создания и отображения фрагмента со списком контактов
@@ -148,6 +150,31 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         }
     }
+
+    /**
+     * Метод создания и отображения фрагмента задания местоположения контакта
+     */
+    private void createPersonMapFragment(String personId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.KEY_PERSON_ID, personId);
+
+        PersonMapsFragment personMapsFragment = (PersonMapsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERSON_LOCATION);
+        if (personMapsFragment == null) {
+            personMapsFragment = new PersonMapsFragment();
+            personMapsFragment.setArguments(bundle);
+
+        }
+        if (fragmentManager.getFragments().isEmpty()) {
+            fragmentManager.beginTransaction()
+                    .add(R.id.fragment_container, personMapsFragment, TAG_FRAGMENT_PERSON_LOCATION)
+                    .commit();
+        } else {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, personMapsFragment, TAG_FRAGMENT_PERSON_LOCATION)
+                    .commit();
+        }
+    }
+
 
     @Override
     public void onItemClick(String personId) {
@@ -225,5 +252,10 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
             }
         }
+    }
+
+    @Override
+    public void onPersonSetLocation(String personId) {
+        createPersonMapFragment(personId);
     }
 }
