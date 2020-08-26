@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.a65apps.application.scopes.PersonLocationScope;
 import com.a65apps.core.interactors.locations.PersonLocationInteractor;
 import com.a65apps.core.interactors.locations.PersonLocationModel;
+import com.a65apps.core.interactors.locations.PersonLocationRepository;
 import com.a65apps.library.presenters.PersonMapPresenter;
 import com.a65apps.library.repositories.PersonLocationRepositoryFromDb;
 
@@ -24,7 +25,7 @@ public class PersonLocationModule {
     @PersonLocationScope
     @NonNull
     public PersonLocationInteractor provideContactLocationModel(
-            @NonNull PersonLocationRepositoryFromDb repository) {
+            @NonNull PersonLocationRepository repository) {
         return new PersonLocationModel(repository);
     }
 }

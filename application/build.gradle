@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
 buildscript {
     ext.moxy_arello_ver = '1.4.5'
     ext.dagger_ver = '2.28.1'
@@ -47,15 +49,15 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation "com.arello-mobile:moxy:$moxy_arello_ver"
-    annotationProcessor "com.arello-mobile:moxy-compiler:$moxy_arello_ver"
+    kapt "com.arello-mobile:moxy-compiler:$moxy_arello_ver"
     implementation ('tech.schoolhelper:moxy-x-androidx:1.7.0'){
         exclude group: 'tech.schoolhelper', module:'moxy-x'
     }
 
     implementation "com.google.dagger:dagger:$dagger_ver"
     implementation "com.google.dagger:dagger-android-support:$dagger_ver"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_ver"
-    annotationProcessor "com.google.dagger:dagger-compiler:$dagger_ver"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_ver"
+    kapt "com.google.dagger:dagger-compiler:$dagger_ver"
 
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-runtime:$room_version"

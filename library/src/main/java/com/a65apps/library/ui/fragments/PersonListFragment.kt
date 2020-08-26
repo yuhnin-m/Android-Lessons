@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a65apps.library.Constants
 import com.a65apps.library.R
@@ -21,36 +20,38 @@ import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import kotlinx.android.synthetic.main.fragment_contact_list.*
+import kotlinx.android.synthetic.main.fragment_contact_list.view.*
 import javax.inject.Inject
 import javax.inject.Provider
 
 private val LOG_TAG = "contact_list_fragment"
 
 class PersonListFragment : MvpAppCompatFragment(), PersonListView {
-    var personListAdapter: PersonListAdapter? = null
-    var onPersonClickedListener: OnPersonClickedListener? = null
-    var eventActionBarListener: EventActionBarListener? = null
-    var searchQuery: String? = null
+    private var personListAdapter: PersonListAdapter? = null
+    private var onPersonClickedListener: OnPersonClickedListener? = null
+    private var eventActionBarListener: EventActionBarListener? = null
+    private var searchQuery: String? = null
 
     companion object{
-        fun  newInstance():PersonListFragment = PersonListFragment()
+        fun newInstance():PersonListFragment = PersonListFragment()
     }
+
     @Inject
-    lateinit var contactListPresenterProvider: Provider<PersonListPresenter>
+    lateinit var personListPresenterProvider: Provider<PersonListPresenter>
 
     @InjectPresenter
-    lateinit var contactListPresenter: PersonListPresenter
+    lateinit var personListPresenter: PersonListPresenter
 
     @ProvidePresenter
-    fun providerContactListPresenter(): PersonListPresenter? {
-        return contactListPresenterProvider.get()
+    fun providerPersonListPresenter(): PersonListPresenter {
+        return personListPresenterProvider.get()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        val app = requireActivity().application
+        var app = requireActivity().application
         check(app is HasAppContainer)
-        val contactListComponent = (app as HasAppContainer).appContainer().plusPersonListComponent()
+        var contactListComponent = (app as HasAppContainer).appContainer().plusPersonListComponent()
         contactListComponent.inject(this)
         if (context is OnPersonClickedListener) {
             onPersonClickedListener = context
@@ -72,8 +73,9 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_contact_list, container, false)
-        personListAdapter = PersonListAdapter(onPersonClickedListener)
-        with(recyclerviewPersonList){
+
+        onPersonClickedListener?.let {personListAdapter = PersonListAdapter(it)}
+        with(view.recyclerviewPersonList){
             adapter = personListAdapter
             setLayoutManager(LinearLayoutManager(activity))
         }
@@ -81,9 +83,7 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(Constants.KEY_SEARCH_QUERY_TEXT, "")
         }
-        if (searchQuery == null) "" else searchQuery?.let { contactListPresenter?.requestContactList(it) }
-
-        contactListPresenter.requestContactList(searchQuery?:"")
+        personListPresenter.requestContactList(searchQuery?:"")
         setHasOptionsMenu(true)
 
         return view
@@ -99,12 +99,12 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 searchQuery = query
-                contactListPresenter!!.requestContactList(query ?: "")
+                personListPresenter.requestContactList(query ?: "")
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                contactListPresenter!!.requestContactList(newText ?: "")
+                personListPresenter.requestContactList(newText ?: "")
                 searchQuery = newText
                 return false
             }
@@ -117,34 +117,25 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         super.onSaveInstanceState(outState)
     }
 
-    override fun fetchContactList(personList: MutableList<PersonModelCompact>?) {
-        if (personList != null && personListAdapter != null) {
-            personListAdapter?.let {
-
-            }
+    override fun fetchContactList(personList: List<PersonModelCompact>?) {
+        if (personList != null) {
+            personListAdapter?.setItems(personList)
             Log.d(LOG_TAG, "Создаем список контактов " + personList.size)
-            personListAdapter!!.setItems(personList)
         }
     }
 
-    override fun hideProgressBar() {
-        progressbarLoadPersons.setVisibility(View.GONE)
+    override fun fetchError(errorMessage: String) {
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT)
     }
 
-    override fun fetchError(errorMessage: String?) {
-        Toast.makeText(activity!!.applicationContext, errorMessage, Toast.LENGTH_SHORT)
+    override fun hideProgressBar() {
+        progressbarLoadPersons.visibility = View.GONE
     }
 
     override fun showProgressBar() {
-        progressbarLoadPersons.setVisibility(View.VISIBLE)
+        progressbarLoadPersons.visibility = View.VISIBLE
     }
 
-    /**
-     * Метод необходимый для перевода из dp в пиксели
-     * @param dp величина density-independent pixel
-     * @return величина в пикселях
-     */
-    private fun convertDpToPixels(dp: Int): Int {
-        return (dp * requireContext().resources.displayMetrics.density).toInt()
-    }
+
+
 }

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 buildscript{
     ext.moxy_arello_ver = '1.4.5'
@@ -50,8 +51,9 @@ dependencies {
 
     implementation "com.google.dagger:dagger:$dagger_ver"
     implementation "com.google.dagger:dagger-android-support:$dagger_ver"
-    annotationProcessor "com.google.dagger:dagger-compiler:$dagger_ver"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_ver"
+    kapt "com.google.dagger:dagger-compiler:$dagger_ver"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_ver"
+    //kapt "com.google.dagger:dagger-compiler:$dagger_ver"
 
     implementation "com.arello-mobile:moxy:$moxy_arello_ver"
     annotationProcessor "com.arello-mobile:moxy-compiler:$moxy_arello_ver"

@@ -22,7 +22,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvName"
+            android:id="@+id/textviewName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -30,7 +30,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <TextView
-            android:id="@+id/tvSubtext"
+            android:id="@+id/textviewSubtext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="TextView"
