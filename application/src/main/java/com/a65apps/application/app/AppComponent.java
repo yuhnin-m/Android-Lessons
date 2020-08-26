@@ -5,7 +5,6 @@ import com.a65apps.application.persondetails.PersonDetailsComponent;
 import com.a65apps.application.personlist.PersonListComponent;
 import com.a65apps.application.personlocation.PersonLocationComponent;
 import com.a65apps.library.di.containers.AppContainer;
-import com.a65apps.library.di.containers.PersonLocationContainer;
 
 import javax.inject.Singleton;
 
