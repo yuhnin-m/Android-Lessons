@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 buildscript {
     ext.moxy_arello_ver = '1.4.5'
     ext.dagger_ver = '2.28.1'
