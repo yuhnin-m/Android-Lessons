@@ -7,7 +7,7 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 
 interface PersonListView : MvpView {
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun fetchContactList(personList: List<PersonModelCompact>?)
+    fun fetchContactList(personList: List<PersonModelCompact>)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun fetchError(message: String)

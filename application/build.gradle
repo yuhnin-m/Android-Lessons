@@ -12,7 +12,14 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    androidExtensions {
+        experimental = true
+    }
+
     compileOptions {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
+        }
         encoding = 'Cp1251'
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -48,17 +55,20 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    // Moxy
     implementation "com.arello-mobile:moxy:$moxy_arello_ver"
     kapt "com.arello-mobile:moxy-compiler:$moxy_arello_ver"
     implementation ('tech.schoolhelper:moxy-x-androidx:1.7.0'){
         exclude group: 'tech.schoolhelper', module:'moxy-x'
     }
 
+    // Dagger
     implementation "com.google.dagger:dagger:$dagger_ver"
     implementation "com.google.dagger:dagger-android-support:$dagger_ver"
     kapt "com.google.dagger:dagger-android-processor:$dagger_ver"
     kapt "com.google.dagger:dagger-compiler:$dagger_ver"
 
+    // Room
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"

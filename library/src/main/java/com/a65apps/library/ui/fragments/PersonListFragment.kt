@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a65apps.library.Constants
 import com.a65apps.library.R
@@ -24,7 +25,7 @@ import kotlinx.android.synthetic.main.fragment_contact_list.view.*
 import javax.inject.Inject
 import javax.inject.Provider
 
-private val LOG_TAG = "contact_list_fragment"
+private const val LOG_TAG = "contact_list_fragment"
 
 class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     private var personListAdapter: PersonListAdapter? = null
@@ -32,8 +33,8 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     private var eventActionBarListener: EventActionBarListener? = null
     private var searchQuery: String? = null
 
-    companion object{
-        fun newInstance():PersonListFragment = PersonListFragment()
+    companion object {
+        fun newInstance(): PersonListFragment = PersonListFragment()
     }
 
     @Inject
@@ -65,17 +66,19 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
 
     override fun onDetach() {
         Log.d(LOG_TAG, "onDetach")
-        onPersonClickedListener = null
         eventActionBarListener = null
+        onPersonClickedListener = null
         super.onDetach()
     }
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_contact_list, container, false)
+        personListAdapter = PersonListAdapter {
+            onPersonClickedListener?.onItemClick(it)
+        }
 
-        onPersonClickedListener?.let {personListAdapter = PersonListAdapter(it)}
-        with(view.recyclerviewPersonList){
+        with(view.recyclerviewPersonList) {
             adapter = personListAdapter
             setLayoutManager(LinearLayoutManager(activity))
         }
@@ -83,7 +86,7 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(Constants.KEY_SEARCH_QUERY_TEXT, "")
         }
-        personListPresenter.requestContactList(searchQuery?:"")
+        personListPresenter.requestContactList(searchQuery ?: "")
         setHasOptionsMenu(true)
 
         return view
@@ -94,21 +97,24 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         inflater.inflate(R.menu.menu, menu)
         val searchMenuItem = menu.findItem(R.id.appSearchBar)
         val searchView = searchMenuItem.actionView as SearchView
-        searchView.queryHint = resources.getString(R.string.action_search)
-        searchView.setQuery(searchQuery, false)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                searchQuery = query
-                personListPresenter.requestContactList(query ?: "")
-                return true
-            }
+        with(searchView) {
+            queryHint = resources.getString(R.string.action_search)
+            setQuery(searchQuery, false)
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    searchQuery = query
+                    personListPresenter.requestContactList(query ?: "")
+                    return true
+                }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                personListPresenter.requestContactList(newText ?: "")
-                searchQuery = newText
-                return false
-            }
-        })
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    personListPresenter.requestContactList(newText ?: "")
+                    searchQuery = newText
+                    return false
+                }
+            })
+        }
+
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -117,11 +123,9 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         super.onSaveInstanceState(outState)
     }
 
-    override fun fetchContactList(personList: List<PersonModelCompact>?) {
-        if (personList != null) {
-            personListAdapter?.setItems(personList)
-            Log.d(LOG_TAG, "Создаем список контактов " + personList.size)
-        }
+    override fun fetchContactList(personList: List<PersonModelCompact>) {
+        personListAdapter?.setItems(personList)
+        Log.d(LOG_TAG, "Создаем список контактов " + personList.size)
     }
 
     override fun fetchError(errorMessage: String) {
@@ -129,13 +133,12 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     }
 
     override fun hideProgressBar() {
-        progressbarLoadPersons.visibility = View.GONE
+        progressbarLoadPersons.isVisible = false
     }
 
     override fun showProgressBar() {
-        progressbarLoadPersons.visibility = View.VISIBLE
+        progressbarLoadPersons.isVisible = true
     }
-
 
 
 }

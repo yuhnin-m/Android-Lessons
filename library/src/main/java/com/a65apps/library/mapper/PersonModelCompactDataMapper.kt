@@ -10,22 +10,24 @@ class PersonModelCompactDataMapper {
      * @param person Экземпляр сущности [Person].
      * @return [PersonModelCompact].
      */
-    fun transform(person: Person): PersonModelCompact {
-        return PersonModelCompact(
-                person.id,
-                person.fullName,
-                person.description,
-                Uri.parse(person.imageUriString))
-    }
+    private fun transform(person: Person) =
+            with(person){
+                PersonModelCompact(
+                        id = id,
+                        displayName = fullName,
+                        description = description,
+                        photoPreviewUri = Uri.parse(imageUriString))
+            }
+
 
     /**
      * Трансформация списка [Person] в список [PersonModelCompact].
-     * @param person список сущностей [Person].
+     * @param personCollection список сущностей [Person].
      * @return Список [PersonModelCompact].
      */
-    fun transform(personCollection: List<Person>?): List<PersonModelCompact>?{
+    fun transform(personCollection: List<Person>): List<PersonModelCompact>{
         val personModelsCollection = mutableSetOf<PersonModelCompact>()
-        if (personCollection != null && !personCollection.isEmpty()) {
+        if (personCollection.isNotEmpty()) {
             for (person in personCollection) {
                 personModelsCollection.add(transform(person))
             }

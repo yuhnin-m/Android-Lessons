@@ -12,6 +12,10 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    androidExtensions {
+        experimental = true
+    }
+
     defaultConfig {
         minSdkVersion 22
         targetSdkVersion 29
@@ -32,6 +36,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
+        }
     }
 }
 
@@ -46,29 +53,32 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    // Rx Java
     implementation "io.reactivex.rxjava3:rxjava:3.0.4"
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
+    // Dagger
     implementation "com.google.dagger:dagger:$dagger_ver"
     implementation "com.google.dagger:dagger-android-support:$dagger_ver"
     kapt "com.google.dagger:dagger-compiler:$dagger_ver"
     kapt "com.google.dagger:dagger-android-processor:$dagger_ver"
-    //kapt "com.google.dagger:dagger-compiler:$dagger_ver"
 
+    // Moxy
     implementation "com.arello-mobile:moxy:$moxy_arello_ver"
     annotationProcessor "com.arello-mobile:moxy-compiler:$moxy_arello_ver"
     implementation ('tech.schoolhelper:moxy-x-androidx:1.7.0'){
         exclude group: 'tech.schoolhelper', module:'moxy-x'
     }
 
+    // RecyclerView
     implementation "androidx.recyclerview:recyclerview:1.1.0"
 
+    // Google Room
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-
-
+    // Kotlin
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
