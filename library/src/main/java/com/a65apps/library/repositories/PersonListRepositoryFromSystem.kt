@@ -9,7 +9,7 @@ import com.a65apps.core.interactors.persons.PersonListRepository
 import com.a65apps.library.Constants
 import io.reactivex.rxjava3.core.Single
 
-const val LOG_TAG: String = "person_repository"
+private const val LOG_TAG: String = "person_repository"
 
 class PersonListRepositoryFromSystem(val context: Context) : PersonListRepository {
 
