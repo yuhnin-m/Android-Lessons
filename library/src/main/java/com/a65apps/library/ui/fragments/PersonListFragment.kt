@@ -78,9 +78,9 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
             onPersonClickedListener?.onItemClick(it)
         }
 
-        with(view.recyclerviewPersonList) {
+        with(recyclerviewPersonList) {
             adapter = personListAdapter
-            setLayoutManager(LinearLayoutManager(activity))
+            layoutManager = LinearLayoutManager(activity)
         }
         requireActivity().title = getString(R.string.toolbar_header_person_list)
         if (savedInstanceState != null) {
@@ -129,7 +129,7 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     }
 
     override fun fetchError(errorMessage: String) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT)
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     override fun hideProgressBar() {
