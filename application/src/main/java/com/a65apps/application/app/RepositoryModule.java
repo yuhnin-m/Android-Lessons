@@ -44,7 +44,7 @@ public class RepositoryModule {
     @Singleton
     public PersonLocationRepository providePersonLocationRepository(
             @NonNull AppDatabase database,
-            @NonNull Context context){
+            @NonNull Context context) {
         return new PersonLocationRepositoryFromDb(database, context);
     }
 }
