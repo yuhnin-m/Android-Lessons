@@ -32,7 +32,7 @@ class PersonListAdapter(private val clickedListener: (String) -> Unit)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
         val view: View = LayoutInflater.from(parent.context)
                 .inflate(R.layout.layout_person_list_item, parent, false)
-        return PersonViewHolder(view, clickedListener, this, view)
+        return PersonViewHolder(view, clickedListener, this)
     }
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
@@ -44,11 +44,11 @@ class PersonListAdapter(private val clickedListener: (String) -> Unit)
     }
 
     class PersonViewHolder(
-            itemView: View,
+            override val containerView: View,
             private val clickedListener: (String) -> Unit,
             private val personListAdapter: PersonListAdapter,
-            override val containerView: View)
-        : RecyclerView.ViewHolder(itemView), View.OnClickListener, LayoutContainer {
+            )
+        : RecyclerView.ViewHolder(containerView), View.OnClickListener, LayoutContainer {
 
         init {
             itemView.setOnClickListener(this)
