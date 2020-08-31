@@ -8,6 +8,8 @@ import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.persons.PersonListRepository
 import com.a65apps.library.Constants
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 private const val LOG_TAG: String = "person_repository"
 
@@ -16,6 +18,11 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
     override fun getAllPersons(searchString: String?): Single<List<Person>> {
         return Single.fromCallable { getPersonList(searchString ?: "") }
     }
+
+    fun getAllPersons(searchString: String): Flow<List<Person>> = flow {
+        emit(getPersonList(searchString))
+    }
+
 
     private fun getPersonList(searchString: String): List<Person> {
         var personList = mutableListOf<Person>()
