@@ -21,7 +21,6 @@ import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import kotlinx.android.synthetic.main.fragment_contact_list.*
-import kotlinx.android.synthetic.main.fragment_contact_list.view.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -72,12 +71,11 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_contact_list, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         personListAdapter = PersonListAdapter {
             onPersonClickedListener?.onItemClick(it)
         }
-
         with(recyclerviewPersonList) {
             adapter = personListAdapter
             layoutManager = LinearLayoutManager(activity)
@@ -88,8 +86,9 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         }
         personListPresenter.requestContactList(searchQuery ?: "")
         setHasOptionsMenu(true)
-
-        return view
+    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_contact_list, container, false)
     }
 
 

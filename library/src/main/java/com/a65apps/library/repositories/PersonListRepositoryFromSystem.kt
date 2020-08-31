@@ -7,7 +7,7 @@ import android.util.Log
 import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.persons.PersonListRepository
 import com.a65apps.library.Constants
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -15,16 +15,17 @@ private const val LOG_TAG: String = "person_repository"
 
 class PersonListRepositoryFromSystem(val context: Context) : PersonListRepository {
 
-    override fun getAllPersons(searchString: String?): Single<List<Person>> {
-        return Single.fromCallable { getPersonList(searchString ?: "") }
-    }
 
-    fun getAllPersons(searchString: String): Flow<List<Person>> = flow {
+
+    override fun getAllPersonsFlow(searchString: String) = flow {
         emit(getPersonList(searchString))
     }
 
+    override suspend fun getAllPersons(searchString: String): List<Person> {
+        return getPersonList(searchString);
+    }
 
-    private fun getPersonList(searchString: String): List<Person> {
+    fun getPersonList(searchString: String): List<Person> {
         var personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver
         val cursor: Cursor?
@@ -61,6 +62,8 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
             cursor?.close()
         }
         Log.d(LOG_TAG, "Найдено " + personList.size + " контактов")
+
         return personList.toList()
     }
+
 }

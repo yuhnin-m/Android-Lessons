@@ -1,50 +1,45 @@
 package com.a65apps.library.presenters
 
+import android.util.Log
 import com.a65apps.core.interactors.persons.PersonListInteractor
 import com.a65apps.library.mapper.PersonModelCompactDataMapper
 import com.a65apps.library.views.PersonListView
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.*
 
+private const val LOG_TAG = "person_presenter"
 @InjectViewState
 class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpPresenter<PersonListView>() {
+    private val job = SupervisorJob()
+    private var scope: CoroutineScope? = CoroutineScope(Dispatchers.Main + job)
+
     private var dataMapper: PersonModelCompactDataMapper = PersonModelCompactDataMapper()
-    private var compositeDisposable: CompositeDisposable = CompositeDisposable();
-    private val publishSubject: PublishSubject<String> = PublishSubject.create();
 
-    init {
-        compositeDisposable.add(
-                publishSubject.debounce(400, TimeUnit.MILLISECONDS, Schedulers.io())
-                        .switchMapSingle { personListInteractor.loadAllPersons(it) }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnSubscribe { viewState.showProgressBar() }
-                        .subscribe(
-                                {
-
-                                    viewState.fetchContactList(dataMapper.transform(it))
-                                    viewState.hideProgressBar()
-                                }
-                        )
-                        { throwable ->
-                            throwable.message?.let {
-                                viewState.fetchError(it)
-                            }
-                            viewState.hideProgressBar()
-                        }
-        )
+    private fun loadPersonList(searchString: String) {
+        scope?.launch {
+            runBlocking {
+                viewState.showProgressBar()
+                try {
+                    val listPersons = personListInteractor.loadAllPersons(searchString)
+                    viewState.fetchContactList(dataMapper.transform(listPersons))
+                } catch (e: Exception) {
+                    Log.d(LOG_TAG, "Error retrieve list of person: " + e.message)
+                    e.message?.let { viewState.fetchError(it) }
+                } finally {
+                    viewState.hideProgressBar()
+                }
+            }
+        }
     }
 
+
     fun requestContactList(searchString: String) {
-        publishSubject.onNext(searchString)
+        loadPersonList(searchString)
     }
 
     override fun onDestroy() {
-        compositeDisposable.dispose()
+        scope = null;
         super.onDestroy()
     }
 }
