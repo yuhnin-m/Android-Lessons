@@ -10,22 +10,30 @@ import com.a65apps.library.Constants
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 private const val LOG_TAG: String = "person_repository"
 
 class PersonListRepositoryFromSystem(val context: Context) : PersonListRepository {
-
-
 
     override fun getAllPersonsFlow(searchString: String) = flow {
         emit(getPersonList(searchString))
     }
 
     override suspend fun getAllPersons(searchString: String): List<Person> {
-        return getPersonList(searchString);
+        return suspendCoroutine {
+            try {
+                val listOfPersons = getPersonList(searchString)
+                it.resume(listOfPersons)
+            } catch (e: Exception) {
+                it.resumeWithException(e)
+            }
+        }
     }
 
-    fun getPersonList(searchString: String): List<Person> {
+    private fun getPersonList(searchString: String): List<Person> {
         var personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver
         val cursor: Cursor?

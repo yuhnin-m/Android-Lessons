@@ -1,6 +1,7 @@
 package com.a65apps.library.presenters
 
 import android.util.Log
+import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.persons.PersonListInteractor
 import com.a65apps.library.mapper.PersonModelCompactDataMapper
 import com.a65apps.library.views.PersonListView
@@ -18,17 +19,20 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
 
     private fun loadPersonList(searchString: String) {
         scope?.launch {
-            runBlocking {
-                viewState.showProgressBar()
-                try {
-                    val listPersons = personListInteractor.loadAllPersons(searchString)
-                    viewState.fetchContactList(dataMapper.transform(listPersons))
-                } catch (e: Exception) {
-                    Log.d(LOG_TAG, "Error retrieve list of person: " + e.message)
-                    e.message?.let { viewState.fetchError(it) }
-                } finally {
-                    viewState.hideProgressBar()
+            viewState.showProgressBar()
+            try {
+                var listPersons: List<Person>? = null
+                withContext(Dispatchers.IO) {
+                    listPersons = personListInteractor.loadAllPersons(searchString)
                 }
+                listPersons?.let {
+                    viewState.fetchContactList(dataMapper.transform(it))
+                }
+            } catch (e: Exception) {
+                Log.d(LOG_TAG, "Error retrieve list of person: " + e.message)
+                e.message?.let { viewState.fetchError(it) }
+            } finally {
+                viewState.hideProgressBar()
             }
         }
     }
@@ -39,7 +43,6 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
     }
 
     override fun onDestroy() {
-        scope = null;
         super.onDestroy()
     }
 }
