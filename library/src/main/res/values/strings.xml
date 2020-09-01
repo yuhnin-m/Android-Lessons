@@ -7,6 +7,11 @@
     <string name="button_text_remind_birthday_on">Напоминание ВКЛ</string>
     <string name="button_text_remind_birthday_off">Напоминание ВЫКЛ</string>
     <string name="text_birthday_date">День рождения: %s</string>
+    <string name="text_contact_type_phone">Телефон</string>
+    <string name="text_contact_type_email">Email:</string>
+    <string name="text_contact_type_skype">Скайп</string>
+    <string name="text_contact_type_site">Сайт</string>
+    <string name="text_contact_type_other">Другое</string>
     <string name="text_birthday_notset">Не задано</string>
     <string name="text_birthday">День рождения</string>
     <string name="text_remind_birthday">Сегодня день рождения у %s</string>

@@ -118,8 +118,8 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
 
     override fun fetchContactsInfo(listOfContacts: List<ContactModel>) {
         contactInfoList = listOfContacts
-        listviewContacts?.let {
-            val contactListAdapter = ContactListAdapter(context, contactInfoList)
+        recyclerviewContacts?.let {
+            val contactListAdapter = ContactListAdapter(listOfContacts)
             it.adapter = contactListAdapter
         }
     }

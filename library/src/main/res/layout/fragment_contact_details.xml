@@ -78,12 +78,12 @@
         android:layout_height="wrap_content"
         android:text="@string/header_contacts" />
 
-    <ListView
-        android:id="@+id/listviewContacts"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerviewContacts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp">
-    </ListView>
+    </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
         style="?android:attr/listSeparatorTextViewStyle"
