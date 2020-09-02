@@ -4,17 +4,20 @@ import com.a65apps.core.entities.Person
 import com.a65apps.library.models.PersonModelAdvanced
 
 class PersonModelAdvancedDataMapper {
+
     /**
      * Трансформация [Person] into an [com.a65apps.library.models.PersonModelAdvanced].
      * @param person Object to be transformed.
      * @return [PersonModelAdvanced].
      */
-    fun transform(person: Person): PersonModelAdvanced {
-        person.apply {
-            return PersonModelAdvanced(id, fullName, description, imageUriString, birthdayString)
-        }
+    fun transform(person: Person) = with(person) {
+        PersonModelAdvanced(
+                id = id,
+                displayName = fullName,
+                description = description,
+                photoUriString = imageUriString,
+                dateBirthday = person.birthdayString)
     }
-
 
     /**
      * Метод трансформации коллекции [Person] в коллекция [PersonModelAdvanced].

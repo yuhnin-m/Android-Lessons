@@ -1,12 +1,9 @@
 package com.a65apps.library.ui.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.a65apps.core.entities.Contact
 import com.a65apps.core.entities.ContactType
 import com.a65apps.library.R
 import com.a65apps.library.models.ContactModel
@@ -14,7 +11,7 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.layout_contact_list_item.*
 
 
-class ContactListAdapter(private val contactList: List<ContactModel>):
+class ContactListAdapter(private val contactList: List<ContactModel>) :
         RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
@@ -49,9 +46,12 @@ class ContactListAdapter(private val contactList: List<ContactModel>):
                     imageviewContactsType.setImageResource(R.drawable.typesite)
                     textviewContactsType.text = containerView.context.getText(R.string.text_contact_type_site)
                 }
+                else -> {
+                    imageviewContactsType.setImageResource(R.drawable.typesite)
+                    textviewContactsType.text = containerView.context.getText(R.string.text_notset)
+                }
             }
             textviewContactsValue.text = contact.value
         }
     }
-
 }

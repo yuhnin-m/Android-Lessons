@@ -2,18 +2,16 @@ package com.a65apps.library.mapper
 
 import com.a65apps.core.entities.Contact
 import com.a65apps.library.models.ContactModel
-import com.a65apps.library.models.PersonModelCompact
-import java.util.*
 
 class ContactModelDataMapper {
+
     /**
      * Трансформация [Contact] into an [ContactModel].
      * @param contact Object to be transformed.
      * @return [ContactModel].
      */
-    private fun transform(contact: Contact) = with(contact)
-    {
-        ContactModel(contact.id, contact.personId, contactType, value)
+    private fun transform(contact: Contact) = with(contact) {
+        ContactModel(id, contact.personId, contactType, value)
     }
 
     /**

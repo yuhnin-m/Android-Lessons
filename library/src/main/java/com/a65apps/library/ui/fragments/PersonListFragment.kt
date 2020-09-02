@@ -21,7 +21,6 @@ import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import kotlinx.android.synthetic.main.fragment_contact_list.*
-import kotlinx.android.synthetic.main.fragment_contact_list.view.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -71,13 +70,11 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         super.onDetach()
     }
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_contact_list, container, false)
         personListAdapter = PersonListAdapter {
             onPersonClickedListener?.onItemClick(it)
         }
-
         with(recyclerviewPersonList) {
             adapter = personListAdapter
             layoutManager = LinearLayoutManager(activity)
@@ -91,7 +88,6 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
 
         return view
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu, menu)
@@ -114,7 +110,6 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
                 }
             })
         }
-
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -139,6 +134,4 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     override fun showProgressBar() {
         progressbarLoadPersons.isVisible = true
     }
-
-
 }

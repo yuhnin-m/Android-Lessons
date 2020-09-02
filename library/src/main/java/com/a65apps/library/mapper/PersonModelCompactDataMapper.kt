@@ -5,13 +5,14 @@ import com.a65apps.core.entities.Person
 import com.a65apps.library.models.PersonModelCompact
 
 class PersonModelCompactDataMapper {
+
     /**
      * Трансформация [Person] в [PersonModelCompact].
      * @param person Экземпляр сущности [Person].
      * @return [PersonModelCompact].
      */
     private fun transform(person: Person) =
-            with(person){
+            with(person) {
                 PersonModelCompact(
                         id = id,
                         displayName = fullName,
@@ -19,13 +20,12 @@ class PersonModelCompactDataMapper {
                         photoPreviewUri = Uri.parse(imageUriString))
             }
 
-
     /**
      * Трансформация списка [Person] в список [PersonModelCompact].
      * @param personCollection список сущностей [Person].
      * @return Список [PersonModelCompact].
      */
-    fun transform(personCollection: List<Person>): List<PersonModelCompact>{
+    fun transform(personCollection: List<Person>): List<PersonModelCompact> {
         val personModelsCollection = mutableSetOf<PersonModelCompact>()
         if (personCollection.isNotEmpty()) {
             for (person in personCollection) {
@@ -34,5 +34,4 @@ class PersonModelCompactDataMapper {
         }
         return personModelsCollection.toList()
     }
-
 }

@@ -1,6 +1,7 @@
 package com.a65apps.library.ui.fragments
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -33,6 +34,7 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     private var personId: String = ""
     private var contactInfoList: List<ContactModel>? = null
     private lateinit var person: PersonModelAdvanced
+
     @Inject
     lateinit var detailsPresenterProvider: Provider<PersonDetailsPresenter>
 
@@ -44,15 +46,14 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
         return detailsPresenterProvider.get()
     }
 
-
     companion object {
         fun newInstance(): PersonListFragment = PersonListFragment()
     }
 
     override fun onAttach(context: Context) {
-        var app = requireActivity().application
+        val app = requireActivity().application
         check(app is HasAppContainer)
-        var contactDetailsContainer = (app as HasAppContainer).appContainer()
+        val contactDetailsContainer = (app as HasAppContainer).appContainer()
                 .plusPersonDetailsComponent()
         contactDetailsContainer.inject(this)
         if (context is EventActionBarListener) {
@@ -71,19 +72,17 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            personId = arguments?.getString(Constants.KEY_PERSON_ID) ?: ""
-        }
+        personId = arguments?.getString(Constants.KEY_PERSON_ID) ?: ""
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btnOpenSetLocation.setOnClickListener {
-            person?.let {
+            person.let {
                 onPersonSetLocation?.onPersonSetLocation(it.id)
             }
         }
-        togglebtnRemindBirthday?.setOnCheckedChangeListener(this)
+        togglebtnRemindBirthday.setOnCheckedChangeListener(this)
     }
 
     override fun onResume() {
@@ -94,31 +93,26 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     }
 
     private fun updateFields() {
-        togglebtnRemindBirthday?.let {
-            it.isEnabled = (person.dateBirthday != null)
-            val reminderEnabled = personDetailsPresenter.checkBirthdayReminderEnabled(person!!.id)
-            it.isChecked = reminderEnabled
+        togglebtnRemindBirthday.let {
+            it.isEnabled = !person.dateBirthday.isNullOrEmpty()
+            it.isChecked = personDetailsPresenter.checkBirthdayReminderEnabled(person.id)
             it.setText(R.string.button_text_remind_birthday_on)
-            Log.d(LOG_TAG, "Напоминание " + if (reminderEnabled) " включено" else " выключено")
+            Log.d(LOG_TAG, "Birthday reminder is " + if (it.isChecked) " enabled" else " disabled")
         }
-        imageviewAvatar.setImageURI(person.imageUri)
-        textviewFullname.text = person.fullName
-        textviewDescription.text = person.description
-        val birthday = if (person.stringBirthday.isNullOrEmpty())
-            getString(R.string.text_birthday_notset)
-        else person.stringBirthday
-        textviewBirthday.text = birthday
-
+        imageviewAvatar.setImageURI(Uri.parse(person.photoUriString))
+        textviewFullname.text = person.displayName
+        textviewDescription.text = person.description ?: getString(R.string.text_notset)
+        textviewBirthday.text = person.dateBirthday ?: getString(R.string.text_notset)
     }
+
     override fun fetchContactDetails(personModel: PersonModelAdvanced) {
         person = personModel
         updateFields()
-        Log.d(LOG_TAG, "Создаем список контактных данных контакта " + person.fullName)
     }
 
     override fun fetchContactsInfo(listOfContacts: List<ContactModel>) {
         contactInfoList = listOfContacts
-        recyclerviewContacts?.let {
+        recyclerviewContacts.let {
             val contactListAdapter = ContactListAdapter(listOfContacts)
             it.adapter = contactListAdapter
         }
@@ -130,21 +124,18 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     }
 
     override fun showProgressBar() {
-        progressbarLoadDetails?.isVisible = true;
+        progressbarLoadDetails.isVisible = true;
     }
 
     override fun hideProgressBar() {
-        progressbarLoadDetails?.isVisible = false;
+        progressbarLoadDetails.isVisible = false;
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
         if (isChecked) {
-            Log.d(LOG_TAG, "Напоминания включены")
             personDetailsPresenter.birthdayReminderEnable(person)
         } else {
-            Log.d(LOG_TAG, "Напоминания выключены")
             personDetailsPresenter.birthdayReminderDisable(personId)
         }
     }
-
 }

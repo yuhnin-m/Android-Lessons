@@ -30,7 +30,6 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
                     ContactsContract.Contacts.DISPLAY_NAME + " LIKE \'%" + searchString + "%\'",
                     null, null)
         }
-
         try {
             cursor?.let {
                 while (cursor.moveToNext()) {

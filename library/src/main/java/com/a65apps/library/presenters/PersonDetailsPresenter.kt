@@ -14,7 +14,6 @@ import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 @InjectViewState
@@ -31,18 +30,16 @@ class PersonDetailsPresenter(
         compositeDisposable.add(personDetailsInteractor.loadPersonDetails(personId)
                 .flatMap { person: Person ->
                     personDetailsInteractor.loadContactsByPerson(personId)
-                            .map { contactList: List<Contact> -> Pair(person, contactList) }
+                            .map { contactList -> person to contactList }
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { viewState.showProgressBar() }
                 .doFinally { viewState.hideProgressBar() }
                 .subscribe(
-                        { personModelAdvancedListPair: Pair<Person, List<Contact>> ->
-                            personModelAdvancedListPair.first?.let {
-                                viewState.fetchContactDetails(personModelDataMapper.transform(it))
-                            }
-                            personModelAdvancedListPair.second?.let {
+                        { (person, contacts) ->
+                            viewState.fetchContactDetails(personModelDataMapper.transform(person))
+                            contacts?.let {
                                 viewState.fetchContactsInfo(contactModelDataMapper.transform(it))
                             }
                         }
@@ -55,15 +52,15 @@ class PersonDetailsPresenter(
         )
     }
 
-    fun checkBirthdayReminderEnabled(personId: @NonNull String?): Boolean {
+    fun checkBirthdayReminderEnabled(personId: String): Boolean {
         return reminderInteractor.isReminderOn(personId)
     }
 
-    fun birthdayReminderEnable(person: @NonNull PersonModelAdvanced?): Boolean {
-        return reminderInteractor.setBirthdayReminder(person!!.id, person.fullName, person.stringBirthday)
+    fun birthdayReminderEnable(person: PersonModelAdvanced): Boolean {
+        return reminderInteractor.setBirthdayReminder(person.id, person.displayName, person.dateBirthday)
     }
 
-    fun birthdayReminderDisable(personId: @NonNull String?): Boolean {
+    fun birthdayReminderDisable(personId: String): Boolean {
         return reminderInteractor.unsetBirthdayReminder(personId)
     }
 }
