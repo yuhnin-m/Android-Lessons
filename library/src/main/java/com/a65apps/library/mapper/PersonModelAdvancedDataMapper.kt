@@ -16,7 +16,7 @@ class PersonModelAdvancedDataMapper {
                 displayName = fullName,
                 description = description,
                 photoUriString = imageUriString,
-                dateBirthday = person.birthdayString)
+                dateBirthday = birthdayString)
     }
 
     /**

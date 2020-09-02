@@ -78,9 +78,7 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btnOpenSetLocation.setOnClickListener {
-            person.let {
-                onPersonSetLocation?.onPersonSetLocation(it.id)
-            }
+            onPersonSetLocation?.onPersonSetLocation(person.id)
         }
         togglebtnRemindBirthday.setOnCheckedChangeListener(this)
     }
@@ -93,11 +91,11 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     }
 
     private fun updateFields() {
-        togglebtnRemindBirthday.let {
-            it.isEnabled = !person.dateBirthday.isNullOrEmpty()
-            it.isChecked = personDetailsPresenter.checkBirthdayReminderEnabled(person.id)
-            it.setText(R.string.button_text_remind_birthday_on)
-            Log.d(LOG_TAG, "Birthday reminder is " + if (it.isChecked) " enabled" else " disabled")
+        with(togglebtnRemindBirthday) {
+            isEnabled = !person.dateBirthday.isNullOrEmpty()
+            isChecked = personDetailsPresenter.checkBirthdayReminderEnabled(person.id)
+            setText(R.string.button_text_remind_birthday_on)
+            Log.d(LOG_TAG, "Birthday reminder is " + if (isChecked) " enabled" else " disabled")
         }
         imageviewAvatar.setImageURI(Uri.parse(person.photoUriString))
         textviewFullname.text = person.displayName
@@ -112,10 +110,8 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
 
     override fun fetchContactsInfo(listOfContacts: List<ContactModel>) {
         contactInfoList = listOfContacts
-        recyclerviewContacts.let {
-            val contactListAdapter = ContactListAdapter(listOfContacts)
-            it.adapter = contactListAdapter
-        }
+        val contactListAdapter = ContactListAdapter(listOfContacts)
+        recyclerviewContacts.adapter = contactListAdapter
     }
 
     override fun fetchError(errorMessage: String) {
@@ -124,11 +120,11 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     }
 
     override fun showProgressBar() {
-        progressbarLoadDetails.isVisible = true;
+        progressbarLoadDetails.isVisible = true
     }
 
     override fun hideProgressBar() {
-        progressbarLoadDetails.isVisible = false;
+        progressbarLoadDetails.isVisible = false
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {

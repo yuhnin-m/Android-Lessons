@@ -11,7 +11,7 @@ class ContactModelDataMapper {
      * @return [ContactModel].
      */
     private fun transform(contact: Contact) = with(contact) {
-        ContactModel(id, contact.personId, contactType, value)
+        ContactModel(id, personId, contactType, value)
     }
 
     /**
@@ -26,6 +26,6 @@ class ContactModelDataMapper {
                 contactModels.add(transform(contact))
             }
         }
-        return contactModels.toList();
+        return contactModels.toList()
     }
 }

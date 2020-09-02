@@ -26,7 +26,7 @@ class PersonDetailsPresenter(
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
 
-    fun requestContactsByPerson(personId: @NonNull String) {
+    fun requestContactsByPerson(personId: String) {
         compositeDisposable.add(personDetailsInteractor.loadPersonDetails(personId)
                 .flatMap { person: Person ->
                     personDetailsInteractor.loadContactsByPerson(personId)
@@ -39,9 +39,7 @@ class PersonDetailsPresenter(
                 .subscribe(
                         { (person, contacts) ->
                             viewState.fetchContactDetails(personModelDataMapper.transform(person))
-                            contacts?.let {
-                                viewState.fetchContactsInfo(contactModelDataMapper.transform(it))
-                            }
+                            viewState.fetchContactsInfo(contactModelDataMapper.transform(contacts))
                         }
                 )
                 { e: Throwable ->

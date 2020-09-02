@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit
 @InjectViewState
 class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpPresenter<PersonListView>() {
     private var dataMapper: PersonModelCompactDataMapper = PersonModelCompactDataMapper()
-    private var compositeDisposable: CompositeDisposable = CompositeDisposable();
-    private val publishSubject: PublishSubject<String> = PublishSubject.create();
+    private var compositeDisposable: CompositeDisposable = CompositeDisposable()
+    private val publishSubject: PublishSubject<String> = PublishSubject.create()
 
     init {
         compositeDisposable.add(
