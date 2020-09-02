@@ -1,7 +1,6 @@
 package com.a65apps.library.presenters
 
 import android.util.Log
-import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.persons.PersonListInteractor
 import com.a65apps.library.mapper.PersonModelCompactDataMapper
 import com.a65apps.library.views.PersonListView
@@ -13,6 +12,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 
 private const val LOG_TAG = "person_presenter"
+
 @InjectViewState
 class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpPresenter<PersonListView>() {
     private val job = SupervisorJob()
@@ -24,12 +24,11 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
         scope.launch {
             broadcastChannel.asFlow()
                     .onEach {
-                        withContext(Dispatchers.Main){viewState.showProgressBar()}
+                        withContext(Dispatchers.Main) { viewState.showProgressBar() }
                     }
                     .debounce(400)
                     .flatMapLatest {
-                        withContext(Dispatchers.Main){viewState.showProgressBar()}
-                        Log.d(LOG_TAG, "Запрашиваем данные из репозитория $it" )
+                        Log.d(LOG_TAG, "Запрашиваем данные из репозитория $it")
                         personListInteractor.loadAllPersonsFlow(it)
                     }.flowOn(Dispatchers.IO)
                     .distinctUntilChanged()
@@ -46,13 +45,8 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
         scope.launch {
             viewState.showProgressBar()
             try {
-                var listPersons: List<Person>? = null
-                withContext(Dispatchers.IO) {
-                    listPersons = personListInteractor.loadAllPersons(searchString)
-                }
-                listPersons?.let {
-                    viewState.fetchContactList(dataMapper.transform(it))
-                }
+                val listPersons = personListInteractor.loadAllPersons(searchString)
+                viewState.fetchContactList(dataMapper.transform(listPersons))
             } catch (e: Exception) {
                 Log.d(LOG_TAG, "Error retrieve list of person: " + e.message)
                 e.message?.let { viewState.fetchError(it) }
@@ -62,7 +56,6 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
         }
     }
 
-
     fun requestContactList(searchString: String) {
         Log.d(LOG_TAG, "Выполняем поиск по $searchString")
         broadcastChannel.offer(searchString)
@@ -71,6 +64,7 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
     override fun onDestroy() {
         Log.d(LOG_TAG, "Flow завершен")
         broadcastChannel.close()
+        scope.cancel()
         super.onDestroy()
     }
 }

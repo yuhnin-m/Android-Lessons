@@ -7,9 +7,9 @@ import android.util.Log
 import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.persons.PersonListRepository
 import com.a65apps.library.Constants
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -22,8 +22,8 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
         emit(getPersonList(searchString))
     }
 
-    override suspend fun getAllPersons(searchString: String): List<Person> {
-        return suspendCoroutine {
+    override suspend fun getAllPersons(searchString: String): List<Person> = withContext(Dispatchers.IO) {
+        suspendCoroutine {
             try {
                 val listOfPersons = getPersonList(searchString)
                 it.resume(listOfPersons)
@@ -46,7 +46,6 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
                     ContactsContract.Contacts.DISPLAY_NAME + " LIKE \'%" + searchString + "%\'",
                     null, null)
         }
-
         try {
             cursor?.let {
                 while (cursor.moveToNext()) {
@@ -70,8 +69,6 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
             cursor?.close()
         }
         Log.d(LOG_TAG, "Найдено " + personList.size + " контактов")
-
         return personList.toList()
     }
-
 }

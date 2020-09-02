@@ -70,7 +70,6 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         super.onDetach()
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         personListAdapter = PersonListAdapter {
@@ -87,10 +86,10 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         personListPresenter.requestContactList(searchQuery ?: "")
         setHasOptionsMenu(true)
     }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_contact_list, container, false)
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu, menu)
@@ -113,7 +112,6 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
                 }
             })
         }
-
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -138,6 +136,4 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     override fun showProgressBar() {
         progressbarLoadPersons.isVisible = true
     }
-
-
 }

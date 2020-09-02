@@ -11,5 +11,4 @@ class PersonListModel(private val repository: PersonListRepository) : PersonList
     override suspend fun loadAllPersons(searchString: String): List<Person> {
         return repository.getAllPersons(searchString)
     }
-
 }
