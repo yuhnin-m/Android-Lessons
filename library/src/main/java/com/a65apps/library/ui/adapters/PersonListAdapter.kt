@@ -54,7 +54,7 @@ class PersonListAdapter(private val clickedListener: (String) -> Unit)
         }
 
         override fun onClick(v: View?) {
-            var position = adapterPosition
+            val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 clickedListener.invoke(personListAdapter.currentList[position].id)
             }

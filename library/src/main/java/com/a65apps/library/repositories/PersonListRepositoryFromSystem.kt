@@ -34,7 +34,7 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
     }
 
     private fun getPersonList(searchString: String): List<Person> {
-        var personList = mutableListOf<Person>()
+        val personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver
         val cursor: Cursor?
         cursor = if (searchString.isEmpty()) {

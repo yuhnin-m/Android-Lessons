@@ -49,9 +49,9 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        var app = requireActivity().application
+        val app = requireActivity().application
         check(app is HasAppContainer)
-        var contactListComponent = (app as HasAppContainer).appContainer().plusPersonListComponent()
+        val contactListComponent = (app as HasAppContainer).appContainer().plusPersonListComponent()
         contactListComponent.inject(this)
         if (context is OnPersonClickedListener) {
             onPersonClickedListener = context

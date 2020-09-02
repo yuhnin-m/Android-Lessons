@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.*
 private const val LOG_TAG = "person_presenter"
 
 @InjectViewState
-class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpPresenter<PersonListView>() {
+class PersonListPresenter(private val personListInteractor: PersonListInteractor) : MvpPresenter<PersonListView>() {
     private val job = SupervisorJob()
     private var scope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
     private var dataMapper: PersonModelCompactDataMapper = PersonModelCompactDataMapper()
