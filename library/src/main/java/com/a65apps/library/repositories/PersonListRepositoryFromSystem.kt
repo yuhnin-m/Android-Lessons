@@ -34,7 +34,7 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
     }
 
     private fun getPersonList(searchString: String): List<Person> {
-        var personList = mutableListOf<Person>()
+        val personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver
         val cursor: Cursor?
         cursor = if (searchString.isEmpty()) {
@@ -54,21 +54,21 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
                         val displayName: String? = it.getString(it.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
                         var strPhotoUri: String? = it.getString(it.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
                         strPhotoUri = strPhotoUri ?: Constants.URI_DRAWABLE_AVATAR_NOT_FOUND
-                        Log.d(LOG_TAG, "Найден контакт: id=$id; ФИО: $displayName фото=$strPhotoUri")
+                        Log.d(LOG_TAG, "Found contact: id=$id; Name: $displayName Photo=$strPhotoUri")
                         if (id != null && displayName != null) {
                             personList.add(Person(id, displayName, null, strPhotoUri, null))
                         }
                     } catch (ex: Exception) {
-                        Log.d(LOG_TAG, "Произошла ошибка получения контакта: ${ex.message}")
+                        Log.e(LOG_TAG, "Error while getting the list of contact details: ${ex.message}")
                     }
                 }
             }
         } catch (e: Exception) {
-            Log.d(LOG_TAG, "Произошла ошибка получения списка контактов: ${e.message}")
+            Log.d(LOG_TAG, "Error while getting the list of contact list: ${e.message}")
         } finally {
             cursor?.close()
         }
-        Log.d(LOG_TAG, "Найдено " + personList.size + " контактов")
+        Log.d(LOG_TAG, "Found " + personList.size + " contacts")
         return personList.toList()
     }
 }

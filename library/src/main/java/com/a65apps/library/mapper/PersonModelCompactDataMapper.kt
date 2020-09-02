@@ -5,6 +5,7 @@ import com.a65apps.core.entities.Person
 import com.a65apps.library.models.PersonModelCompact
 
 class PersonModelCompactDataMapper {
+
     /**
      * Трансформация [Person] в [PersonModelCompact].
      * @param person Экземпляр сущности [Person].

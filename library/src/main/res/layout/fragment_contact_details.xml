@@ -14,7 +14,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/iv_avatar"
+            android:id="@+id/imageviewAvatar"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="10dp"
@@ -28,7 +28,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_fullname"
+                android:id="@+id/textviewFullname"
                 style="?android:attr/textAppearanceLarge"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tv_birthday"
+                    android:id="@+id/textviewBirthday"
                     style="?android:attr/textAppearanceMedium"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -53,7 +53,7 @@
                     android:text="@string/text_birthday" />
 
                 <ToggleButton
-                    android:id="@+id/togglebtn_remind_birthday"
+                    android:id="@+id/togglebtnRemindBirthday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
@@ -66,7 +66,7 @@
     </LinearLayout>
 
     <ProgressBar
-        android:id="@+id/progressbar_load_details"
+        android:id="@+id/progressbarLoadDetails"
         style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,12 +78,12 @@
         android:layout_height="wrap_content"
         android:text="@string/header_contacts" />
 
-    <ListView
-        android:id="@+id/lv_contacts"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerviewContacts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp">
-    </ListView>
+    </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
         style="?android:attr/listSeparatorTextViewStyle"
@@ -92,7 +92,7 @@
         android:text="@string/header_description" />
 
     <TextView
-        android:id="@+id/tv_person_description"
+        android:id="@+id/textviewDescription"
         style="@style/TextAppearance.AppCompat.Large"
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -102,7 +102,7 @@
         android:padding="10dp" />
 
     <Button
-        android:id="@+id/btn_open_set_location"
+        android:id="@+id/btnOpenSetLocation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/ic_baseline_place_24"

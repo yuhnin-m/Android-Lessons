@@ -1,10 +1,9 @@
 package com.a65apps.library.models
 
-import android.net.Uri
-
-data class PersonModelCompact(
+data class PersonModelAdvanced(
         val id: String,
         val displayName: String,
         val description: String?,
-        val photoPreviewUri: Uri
+        val photoUriString: String,
+        val dateBirthday: String?
 )

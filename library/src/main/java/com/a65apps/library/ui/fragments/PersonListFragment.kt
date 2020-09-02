@@ -87,10 +87,6 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_contact_list, container, false)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu, menu)
         val searchMenuItem = menu.findItem(R.id.appSearchBar)
