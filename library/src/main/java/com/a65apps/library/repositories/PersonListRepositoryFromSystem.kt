@@ -37,7 +37,7 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
         var personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver
         val cursor: Cursor?
-        cursor = if (searchString.isNotEmpty()) {
+        cursor = if (searchString.isEmpty()) {
             contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
                     null, null, null, null)
         } else {
