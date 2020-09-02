@@ -47,8 +47,7 @@ class PersonListAdapter(private val clickedListener: (String) -> Unit)
             override val containerView: View,
             private val clickedListener: (String) -> Unit,
             private val personListAdapter: PersonListAdapter,
-            )
-        : RecyclerView.ViewHolder(containerView), View.OnClickListener, LayoutContainer {
+    ) : RecyclerView.ViewHolder(containerView), View.OnClickListener, LayoutContainer {
 
         init {
             itemView.setOnClickListener(this)
