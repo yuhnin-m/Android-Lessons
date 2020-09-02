@@ -11,10 +11,9 @@ class ContactModelDataMapper {
      * @param contact Object to be transformed.
      * @return [ContactModel].
      */
-    private fun transform(contact: Contact): ContactModel {
-        contact.apply {
-            return ContactModel(id, personId, contactType, value)
-        }
+    private fun transform(contact: Contact) = with(contact)
+    {
+        ContactModel(contact.id, contact.personId, contactType, value)
     }
 
     /**
