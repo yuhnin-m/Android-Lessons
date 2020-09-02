@@ -34,19 +34,16 @@ class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpP
                     }.flowOn(Dispatchers.IO)
                     .distinctUntilChanged()
                     .collect { list ->
-                        list.let {
-                            Log.d(LOG_TAG, "Обновление списка ${it.size}")
-                            viewState.fetchContactList(dataMapper.transform(it))
-                            viewState.hideProgressBar()
-                            Log.d(LOG_TAG, "Скрыли прогрессбар")
-                        }
+                        Log.d(LOG_TAG, "Обновление списка ${list.size}")
+                        viewState.fetchContactList(dataMapper.transform(list))
+                        viewState.hideProgressBar()
+                        Log.d(LOG_TAG, "Скрыли прогрессбар")
                     }
         }
-
     }
 
     private fun loadPersonList(searchString: String) {
-        scope?.launch {
+        scope.launch {
             viewState.showProgressBar()
             try {
                 var listPersons: List<Person>? = null
