@@ -7,21 +7,37 @@ import android.util.Log
 import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.persons.PersonListRepository
 import com.a65apps.library.Constants
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 private const val LOG_TAG: String = "person_repository"
 
 class PersonListRepositoryFromSystem(val context: Context) : PersonListRepository {
 
-    override fun getAllPersons(searchString: String?): Single<List<Person>> {
-        return Single.fromCallable { getPersonList(searchString ?: "") }
+    override fun getAllPersonsFlow(searchString: String) = flow {
+        emit(getPersonList(searchString))
+    }
+
+    override suspend fun getAllPersons(searchString: String): List<Person> = withContext(Dispatchers.IO) {
+        suspendCoroutine {
+            try {
+                val listOfPersons = getPersonList(searchString)
+                it.resume(listOfPersons)
+            } catch (e: Exception) {
+                it.resumeWithException(e)
+            }
+        }
     }
 
     private fun getPersonList(searchString: String): List<Person> {
         var personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver
         val cursor: Cursor?
-        cursor = if (searchString.isNotEmpty()) {
+        cursor = if (searchString.isEmpty()) {
             contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
                     null, null, null, null)
         } else {
@@ -30,7 +46,6 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
                     ContactsContract.Contacts.DISPLAY_NAME + " LIKE \'%" + searchString + "%\'",
                     null, null)
         }
-
         try {
             cursor?.let {
                 while (cursor.moveToNext()) {

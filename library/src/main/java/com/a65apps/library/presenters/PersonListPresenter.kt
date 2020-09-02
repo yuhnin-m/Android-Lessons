@@ -1,50 +1,70 @@
 package com.a65apps.library.presenters
 
+import android.util.Log
 import com.a65apps.core.interactors.persons.PersonListInteractor
 import com.a65apps.library.mapper.PersonModelCompactDataMapper
 import com.a65apps.library.views.PersonListView
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
+
+private const val LOG_TAG = "person_presenter"
 
 @InjectViewState
 class PersonListPresenter(val personListInteractor: PersonListInteractor) : MvpPresenter<PersonListView>() {
+    private val job = SupervisorJob()
+    private var scope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
     private var dataMapper: PersonModelCompactDataMapper = PersonModelCompactDataMapper()
-    private var compositeDisposable: CompositeDisposable = CompositeDisposable();
-    private val publishSubject: PublishSubject<String> = PublishSubject.create();
+    private val broadcastChannel = BroadcastChannel<String>(Channel.CONFLATED)
 
     init {
-        compositeDisposable.add(
-                publishSubject.debounce(400, TimeUnit.MILLISECONDS, Schedulers.io())
-                        .switchMapSingle { personListInteractor.loadAllPersons(it) }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnSubscribe { viewState.showProgressBar() }
-                        .subscribe(
-                                {
+        scope.launch {
+            broadcastChannel.asFlow()
+                    .onEach {
+                        withContext(Dispatchers.Main) { viewState.showProgressBar() }
+                    }
+                    .debounce(400)
+                    .flatMapLatest {
+                        Log.d(LOG_TAG, "Запрашиваем данные из репозитория $it")
+                        personListInteractor.loadAllPersonsFlow(it)
+                    }.flowOn(Dispatchers.IO)
+                    .distinctUntilChanged()
+                    .collect { list ->
+                        Log.d(LOG_TAG, "Обновление списка ${list.size}")
+                        viewState.fetchContactList(dataMapper.transform(list))
+                        viewState.hideProgressBar()
+                        Log.d(LOG_TAG, "Скрыли прогрессбар")
+                    }
+        }
+    }
 
-                                    viewState.fetchContactList(dataMapper.transform(it))
-                                    viewState.hideProgressBar()
-                                }
-                        )
-                        { throwable ->
-                            throwable.message?.let {
-                                viewState.fetchError(it)
-                            }
-                            viewState.hideProgressBar()
-                        }
-        )
+    private fun loadPersonList(searchString: String) {
+        scope.launch {
+            viewState.showProgressBar()
+            try {
+                val listPersons = personListInteractor.loadAllPersons(searchString)
+                viewState.fetchContactList(dataMapper.transform(listPersons))
+            } catch (e: Exception) {
+                Log.d(LOG_TAG, "Error retrieve list of person: " + e.message)
+                e.message?.let { viewState.fetchError(it) }
+            } finally {
+                viewState.hideProgressBar()
+            }
+        }
     }
 
     fun requestContactList(searchString: String) {
-        publishSubject.onNext(searchString)
+        Log.d(LOG_TAG, "Выполняем поиск по $searchString")
+        broadcastChannel.offer(searchString)
     }
 
     override fun onDestroy() {
-        compositeDisposable.dispose()
+        Log.d(LOG_TAG, "Flow завершен")
+        broadcastChannel.close()
+        scope.cancel()
         super.onDestroy()
     }
 }
