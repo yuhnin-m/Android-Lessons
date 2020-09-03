@@ -15,9 +15,9 @@ class PersonModelCompactDataMapper {
             with(person) {
                 PersonModelCompact(
                         id = id,
-                        displayName = fullName,
+                        displayName = displayName,
                         description = description,
-                        photoPreviewUri = Uri.parse(imageUriString))
+                        photoPreviewUri = Uri.parse(photoStringUri))
             }
 
     /**

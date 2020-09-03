@@ -56,7 +56,7 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
                         strPhotoUri = strPhotoUri ?: Constants.URI_DRAWABLE_AVATAR_NOT_FOUND
                         Log.d(LOG_TAG, "Found contact: id=$id; Name: $displayName Photo=$strPhotoUri")
                         if (id != null && displayName != null) {
-                            personList.add(Person(id, displayName, null, strPhotoUri, null))
+                            personList.add(Person(id, displayName, "", strPhotoUri, ""))
                         }
                     } catch (ex: Exception) {
                         Log.e(LOG_TAG, "Error while getting the list of contact details: ${ex.message}")

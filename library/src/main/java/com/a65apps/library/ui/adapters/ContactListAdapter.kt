@@ -11,8 +11,7 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.layout_contact_list_item.*
 
 
-class ContactListAdapter(private val contactList: List<ContactModel>) :
-        RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
+class ContactListAdapter(private val contactList: List<ContactModel>) : RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view: View = LayoutInflater.from(parent.context)

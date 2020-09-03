@@ -33,6 +33,7 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     private var searchQuery: String? = null
 
     companion object {
+        @JvmStatic
         fun newInstance(): PersonListFragment = PersonListFragment()
     }
 
@@ -70,8 +71,11 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         super.onDetach()
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_contact_list, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         personListAdapter = PersonListAdapter {
             onPersonClickedListener?.onItemClick(it)
         }
@@ -85,6 +89,7 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         }
         personListPresenter.requestContactList(searchQuery ?: "")
         setHasOptionsMenu(true)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

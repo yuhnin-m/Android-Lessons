@@ -13,10 +13,10 @@ class PersonModelAdvancedDataMapper {
     fun transform(person: Person) = with(person) {
         PersonModelAdvanced(
                 id = id,
-                displayName = fullName,
+                displayName = displayName,
                 description = description,
-                photoUriString = imageUriString,
-                dateBirthday = birthdayString)
+                photoUriString = photoStringUri,
+                dateBirthday = dateBirthday)
     }
 
     /**

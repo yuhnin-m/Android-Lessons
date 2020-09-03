@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(LOG_TAG, "Создаем фрагмент списка контактов");
         PersonListFragment contactListFragment = (PersonListFragment)fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
         if (contactListFragment == null) {
-            contactListFragment = new PersonListFragment();
+            contactListFragment = PersonListFragment.newInstance();
             if (fragmentManager.getFragments().isEmpty()) {
                 fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment, TAG_FRAGMENT_LIST).commit();
             } else {
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity
         switch(requestCode) {
             case Constants.CODE_PERMISSION_READ_CONTACTS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
                     String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
                     if (id != null && !id.isEmpty()) {
                         сreateDetailsFragment(id);
@@ -244,12 +244,12 @@ public class MainActivity extends AppCompatActivity
                     }
                     return;
                 } else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT).show();
                     сreatePermissionRequestFragment();
                 }
                 break;
             default: {
-                Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
+                Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT).show();
             }
         }
     }
