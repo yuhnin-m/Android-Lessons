@@ -17,17 +17,23 @@ import com.a65apps.library.views.PersonMapView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
 import javax.inject.Provider
+
 
 private const val LOG_TAG = "person_map_fragment";
 class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCallback {
     var eventActionBarListener: EventActionBarListener? = null
     var onPersonSetLocation: OnPersonSetLocation? = null
     private lateinit var personId: String;
+    private lateinit var personName: String;
     private lateinit var googleMap: GoogleMap
 
     companion object {
@@ -74,6 +80,8 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         personId = arguments?.getString(Constants.KEY_PERSON_ID) ?: ""
+        personName = arguments?.getString(Constants.KEY_PERSON_NAME) ?: ""
+        personMapPresenter.requestPersonLocation(personId)
         Log.d(LOG_TAG, "Received from bundle: personId=$personId")
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment?
         mapFragment?.let {
@@ -106,10 +114,30 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
         TODO("Not yet implemented")
     }
 
-    override fun onMapReady(googleMap: GoogleMap?) {
-        googleMap?.let {
+    private fun createMarker(coordinate: LatLng, text: String) {
+        googleMap.addMarker(MarkerOptions().position(coordinate).title(text))
+    }
+
+    private fun setCameraPosition(coordinate: LatLng) {
+        val cameraPosition = CameraPosition.Builder()
+                .target(coordinate)
+                .zoom(20f)
+                .tilt(15f)
+                .build()
+        val cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition)
+        googleMap.animateCamera(cameraUpdate)
+    }
+
+    override fun onMapReady(gMap: GoogleMap?) {
+        gMap?.let {
+            this.googleMap = gMap
             Log.d(LOG_TAG, "Map retrieved")
-            this.googleMap = googleMap
+            val sydney = LatLng(-33.852, 151.211)
+            googleMap.addMarker(MarkerOptions()
+                    .position(sydney)
+                    .title("Marker in Sydney"))
         }
     }
+
+
 }

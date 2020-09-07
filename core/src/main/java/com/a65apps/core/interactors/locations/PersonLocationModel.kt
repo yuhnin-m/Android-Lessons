@@ -4,7 +4,7 @@ import com.a65apps.core.entities.Location
 import kotlinx.coroutines.flow.Flow
 
 class PersonLocationModel(private val personLocationRepository: PersonLocationRepository) : PersonLocationInteractor {
-    override fun loadLocationByPerson(personId: String): Flow<Location>? {
+    override fun loadLocationByPerson(personId: String): Flow<Location> {
         return personLocationRepository.getLocationByPerson(personId)
     }
 

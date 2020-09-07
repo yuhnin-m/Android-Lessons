@@ -90,7 +90,7 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
         viewManager = LinearLayoutManager(requireContext())
 
         btnOpenSetLocation.setOnClickListener {
-            onPersonSetLocation?.onPersonSetLocation(person.id)
+            onPersonSetLocation?.onPersonSetLocation(person.id, person.displayName)
         }
         togglebtnRemindBirthday.setOnCheckedChangeListener(this)
     }

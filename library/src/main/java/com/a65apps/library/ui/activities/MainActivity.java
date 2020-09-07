@@ -158,11 +158,13 @@ public class MainActivity extends AppCompatActivity
     /**
      * Метод создания и отображения фрагмента задания местоположения контакта
      */
-    private void createPersonMapFragment(String personId) {
+    private void createPersonMapFragment(String personId, String name) {
         Bundle bundle = new Bundle();
         bundle.putString(Constants.KEY_PERSON_ID, personId);
+        bundle.putString(Constants.KEY_PERSON_NAME, name);
 
-        PersonMapsFragment personMapsFragment = (PersonMapsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERSON_LOCATION);
+        PersonMapsFragment personMapsFragment = (PersonMapsFragment) fragmentManager
+                .findFragmentByTag(TAG_FRAGMENT_PERSON_LOCATION);
         if (personMapsFragment == null) {
             personMapsFragment = new PersonMapsFragment();
             personMapsFragment.setArguments(bundle);
@@ -269,7 +271,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPersonSetLocation(String personId) {
-        createPersonMapFragment(personId);
+    public void onPersonSetLocation(String personId, String name) {
+        createPersonMapFragment(personId, name);
     }
 }
