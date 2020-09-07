@@ -6,7 +6,7 @@ object Constants {
     const val KEY_BIRTHDAY = "KEY_NOTIFICATION_TEXT"
     const val KEY_FULL_NAME = "KEY_FULL_NAME"
     const val NOTIF_CHANNEL = "AndroidLessonChannel"
-    const val CODE_PERMISSION_READ_CONTACTS = 1
+    const val CODE_PERMISSION_REQUEST_CODE = 1
     const val NOTIFY_ID = 101
     const val NOTIFY_CHANNEL_ID = "BIRTHDAY_NOTIFY_CHANNEL"
     const val NOTIFY_CHANNEL_NAME = "BIRTHDAY_CHANNEL"

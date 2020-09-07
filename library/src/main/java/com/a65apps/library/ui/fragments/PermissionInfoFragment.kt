@@ -14,8 +14,11 @@ class PermissionInfoFragment : Fragment(R.layout.fragment_request_permisson) {
         super.onViewCreated(view, savedInstanceState)
         btnRequestPermissions.setOnClickListener(View.OnClickListener {
             ActivityCompat.requestPermissions(requireActivity(),
-                    arrayOf(Manifest.permission.READ_CONTACTS),
-                    Constants.CODE_PERMISSION_READ_CONTACTS)
+                    arrayOf(Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION),
+                    Constants.CODE_PERMISSION_REQUEST_CODE)
         })
     }
 }

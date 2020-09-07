@@ -1,11 +1,8 @@
 package com.a65apps.library.database.dao
 
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.a65apps.library.models.LocationModel
-
+@Dao
 interface LocationDao {
     @Query("SELECT * FROM LocationModel")
     fun getAll(): List<LocationModel>

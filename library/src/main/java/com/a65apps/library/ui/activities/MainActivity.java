@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity
         createNotificationChannel();
         fragmentManager = getSupportFragmentManager();
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
+        permissionStatus += ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        permissionStatus += ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        permissionStatus += ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             if (fragmentManager.getFragments().isEmpty()) {
                 String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void createPersonListFragment() {
         Log.d(LOG_TAG, "Создаем фрагмент списка контактов");
-        PersonListFragment contactListFragment = (PersonListFragment)fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
+        PersonListFragment contactListFragment = (PersonListFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
         if (contactListFragment == null) {
             contactListFragment = PersonListFragment.newInstance();
             if (fragmentManager.getFragments().isEmpty()) {
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Метод создания и отображения фрагмента деталей о контакте
+     *
      * @param personId идентификатор контакта
      */
     private void сreateDetailsFragment(String personId) {
@@ -205,7 +209,12 @@ public class MainActivity extends AppCompatActivity
      * Метод запрашивающий разрешение на чтение контактов
      */
     private void requestReadContactsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
+        boolean isNeedRequestPermissions = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.INTERNET);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (isNeedRequestPermissions) {
             new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.permission_request_title))
                     .setMessage(getString(R.string.permission_request_message))
@@ -214,8 +223,13 @@ public class MainActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(
                                     MainActivity.this,
-                                    new String[]{Manifest.permission.READ_CONTACTS},
-                                    Constants.CODE_PERMISSION_READ_CONTACTS);
+                                    new String[]{
+                                            Manifest.permission.READ_CONTACTS,
+                                            Manifest.permission.INTERNET,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    Constants.CODE_PERMISSION_REQUEST_CODE);
                         }
                     })
                     .setNegativeButton(getString(R.string.permission_request_btn_negative), new DialogInterface.OnClickListener() {
@@ -226,14 +240,14 @@ public class MainActivity extends AppCompatActivity
                         }
                     }).create().show();
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, Constants.CODE_PERMISSION_READ_CONTACTS);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, Constants.CODE_PERMISSION_REQUEST_CODE);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch(requestCode) {
-            case Constants.CODE_PERMISSION_READ_CONTACTS:
+        switch (requestCode) {
+            case Constants.CODE_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
                     String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
