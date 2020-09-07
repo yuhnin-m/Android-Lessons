@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.a65apps.library.Constants
 import com.a65apps.library.R
 import com.a65apps.library.di.containers.HasAppContainer
@@ -19,6 +20,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
@@ -29,6 +31,7 @@ import javax.inject.Provider
 
 
 private const val LOG_TAG = "person_map_fragment";
+
 class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCallback {
     var eventActionBarListener: EventActionBarListener? = null
     var onPersonSetLocation: OnPersonSetLocation? = null
@@ -98,12 +101,9 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
         super.onDetach()
     }
 
-    override fun drawMarker(locationModel: LocationModel) {
-        TODO("Not yet implemented")
-    }
-
     override fun onPersonLocationLoad(locationModel: LocationModel) {
-        TODO("Not yet implemented")
+        createMarker(locationModel.latLng, personName)
+        setCameraPosition(locationModel.latLng)
     }
 
     override fun onPersonLocationSaved(locationModel: LocationModel) {
@@ -111,31 +111,40 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
     }
 
     override fun onError(errorMessage: String) {
-        TODO("Not yet implemented")
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     private fun createMarker(coordinate: LatLng, text: String) {
+        googleMap.clear()
         googleMap.addMarker(MarkerOptions().position(coordinate).title(text))
     }
 
     private fun setCameraPosition(coordinate: LatLng) {
+        val zoomValue: Float = if (googleMap.cameraPosition.zoom < Constants.DEFAULT_MAP_ZOOM)
+            Constants.DEFAULT_MAP_ZOOM else googleMap.cameraPosition.zoom
         val cameraPosition = CameraPosition.Builder()
                 .target(coordinate)
-                .zoom(20f)
-                .tilt(15f)
+                .zoom(zoomValue)
                 .build()
         val cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition)
         googleMap.animateCamera(cameraUpdate)
+    }
+
+    private fun onMapClickListener(point: LatLng) {
+        Log.d(LOG_TAG, "Выбрана координата $point")
+        createMarker(point, personName)
+        setCameraPosition(point)
     }
 
     override fun onMapReady(gMap: GoogleMap?) {
         gMap?.let {
             this.googleMap = gMap
             Log.d(LOG_TAG, "Map retrieved")
-            val sydney = LatLng(-33.852, 151.211)
-            googleMap.addMarker(MarkerOptions()
-                    .position(sydney)
-                    .title("Marker in Sydney"))
+            gMap.setOnMapClickListener(OnMapClickListener { point: LatLng? ->
+                gMap.clear()
+                point?.let { onMapClickListener(it) }
+
+            })
         }
     }
 

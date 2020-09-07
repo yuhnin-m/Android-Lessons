@@ -12,14 +12,18 @@ import kotlinx.coroutines.flow.flow
 private const val LOG_TAG = "location_repository"
 class PersonLocationRepositoryFromDb(private val database: AppDatabase, private val context: Context) : PersonLocationRepository {
     override fun getLocationByPerson(personId: String) = flow {
-        Log.d(LOG_TAG, "get location by personId = $personId")
-        val personLocation = database.locationDao().getByPersonId(personId)
-        emit(LocationModelMapper().transform(personLocation))
+        Log.d(LOG_TAG, "Get location by personId = $personId")
+        val personLocation : LocationModel? = database.locationDao().getByPersonId(personId)
+        if (personLocation != null) {
+            emit(LocationModelMapper().transformModelToEntity(locationModel = personLocation))
+        } else {
+            emit(null)
+        }
     }
 
     override fun getAllPersonLocation() = flow<List<Location>> {
         val locationList = database.locationDao().getAll()
-        emit(LocationModelMapper().transform(locationList))
+        emit(LocationModelMapper().transformModelListToEntityList(locationList))
     }
 
     override fun createPersonLocation(location: Location) {

@@ -14,7 +14,8 @@ object Constants {
     const val PERSON_LIST_DECORATION_PADDING_DP = 5
     const val KEY_SEARCH_QUERY_TEXT = "KEY_SEARCH_QUERY_TEXT"
     const val URI_DRAWABLE_AVATAR_NOT_FOUND = "android.resource://com.a65apps.application/drawable/avatar_not_found"
-    const val DEFAULT_LATITUDE = 0f
-    const val DEFAULT_LONGITUDE = 0f
+    const val DEFAULT_LATITUDE = 56.85
+    const val DEFAULT_LONGITUDE = 53.21
+    const val DEFAULT_MAP_ZOOM = 15f
     const val DATE_STRING_FORMAT = "dd-MM"
 }

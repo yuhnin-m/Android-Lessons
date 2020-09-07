@@ -8,13 +8,10 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 
 interface PersonMapView : MvpView {
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun drawMarker(locationModel: Location)
+    fun onPersonLocationLoad(locationModel: LocationModel)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun onPersonLocationLoad(locationModel: Location)
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
-    fun onPersonLocationSaved(locationModel: Location)
+    fun onPersonLocationSaved(locationModel: LocationModel)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun onError(errorMessage: String)
