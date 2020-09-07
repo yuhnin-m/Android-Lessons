@@ -12,7 +12,7 @@ class PersonLocationModel(private val personLocationRepository: PersonLocationRe
         return personLocationRepository.getAllPersonLocation()
     }
 
-    override fun createPersonLocation(location: Location): Flow<Location>? {
+    override fun createPersonLocation(location: Location) {
         return personLocationRepository.createPersonLocation(location)
     }
 }

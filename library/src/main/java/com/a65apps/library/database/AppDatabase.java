@@ -11,5 +11,5 @@ import io.reactivex.rxjava3.annotations.NonNull;
 @Database(entities = {LocationModel.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     @NonNull
-    public abstract LocationDao userDao();
+    public abstract LocationDao locationDao();
 }

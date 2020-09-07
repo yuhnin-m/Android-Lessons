@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface PersonLocationInteractor {
     fun loadLocationByPerson(personId: String): Flow<Location>?
     fun loadAllPersonLocations(): Flow<List<Location>>?
-    fun createPersonLocation(location: Location): Flow<Location>?
+    fun createPersonLocation(location: Location)
 }
