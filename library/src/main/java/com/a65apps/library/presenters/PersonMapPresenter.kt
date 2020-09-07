@@ -1,5 +1,7 @@
 package com.a65apps.library.presenters
 
+import android.util.Log
+import com.a65apps.core.entities.Location
 import com.a65apps.core.interactors.locations.PersonLocationInteractor
 import com.a65apps.library.Constants
 import com.a65apps.library.mapper.LocationModelMapper
@@ -41,7 +43,28 @@ class PersonMapPresenter(private val personLocationInteractor: PersonLocationInt
         }
     }
 
-    fun requestSavePersonLocation(coords: LatLng) {
+    fun requestSavePersonLocation(personId: String, address:String, coords: LatLng) {
+        Log.d(LOG_TAG, "Request save person=$personId location $coords")
+        try {
+            scope.launch {
+                try {
+                    val locationForSave = Location(
+                            personId = personId,
+                            address = address,
+                            longitude = coords.longitude,
+                            latitude = coords.latitude)
+                    withContext(Dispatchers.IO) {
+                        personLocationInteractor.createPersonLocation(locationForSave)
+                    }
+                    viewState.onPersonLocationSaved(LocationModelMapper().transformEntityToModel(locationForSave))
+                } catch (e: Exception) {
+                    viewState.onError(e.message?:"-")
+                }
+            }
+        } catch (e: Exception) {
+
+        }
+
 
     }
 

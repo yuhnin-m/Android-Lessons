@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             fragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, personMapsFragment, TAG_FRAGMENT_PERSON_LOCATION)
+                    .addToBackStack(null)
                     .commit();
         }
     }

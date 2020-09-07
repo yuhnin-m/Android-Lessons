@@ -27,8 +27,9 @@ class PersonLocationRepositoryFromDb(private val database: AppDatabase, private 
     }
 
     override fun createPersonLocation(location: Location) {
-        location.let {
-            val locationModel = LocationModel(it.personId, it.address, it.longitude, it.latitude)
+        with(location) {
+            Log.d(LOG_TAG, "Write location personId=$personId; lng=$longitude; lat=$latitude")
+            val locationModel = LocationModel(personId, address, longitude, latitude)
             database.locationDao().insertLocation(locationModel)
         }
     }

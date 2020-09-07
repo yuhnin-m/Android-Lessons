@@ -23,10 +23,10 @@ class PersonListPresenter(private val personListInteractor: PersonListInteractor
     init {
         scope.launch {
             broadcastChannel.asFlow()
+                    .debounce(400)
                     .onEach {
                         withContext(Dispatchers.Main) { viewState.showProgressBar() }
                     }
-                    .debounce(400)
                     .flatMapLatest {
                         Log.d(LOG_TAG, "Запрашиваем данные из репозитория $it")
                         personListInteractor.loadAllPersonsFlow(it)

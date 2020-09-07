@@ -25,7 +25,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.android.synthetic.main.fragment_person_maps.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -38,6 +40,7 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
     private lateinit var personId: String;
     private lateinit var personName: String;
     private lateinit var googleMap: GoogleMap
+    private lateinit var currentMarker: Marker
 
     companion object {
         @JvmStatic
@@ -85,12 +88,20 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
         personId = arguments?.getString(Constants.KEY_PERSON_ID) ?: ""
         personName = arguments?.getString(Constants.KEY_PERSON_NAME) ?: ""
         personMapPresenter.requestPersonLocation(personId)
+
         Log.d(LOG_TAG, "Received from bundle: personId=$personId")
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment?
         mapFragment?.let {
             Log.d(LOG_TAG, "Request async map")
             it.getMapAsync(this)
         }
+        buttonSaveLocation.setOnClickListener {
+            if (currentMarker != null) {
+                personMapPresenter.requestSavePersonLocation(personId, "", currentMarker.position)
+            }
+            Toast.makeText(requireContext(), "You clicked me.", Toast.LENGTH_SHORT).show()
+        }
+
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -107,16 +118,21 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
     }
 
     override fun onPersonLocationSaved(locationModel: LocationModel) {
-        TODO("Not yet implemented")
+        Toast.makeText(requireContext(),
+                "${getText(R.string.text_success_save_location)} : $locationModel",
+                Toast.LENGTH_SHORT).show()
     }
 
     override fun onError(errorMessage: String) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+                requireContext(),
+                "${getText(R.string.text_error_fetch_person_location)}: $errorMessage",
+                Toast.LENGTH_SHORT).show()
     }
 
     private fun createMarker(coordinate: LatLng, text: String) {
         googleMap.clear()
-        googleMap.addMarker(MarkerOptions().position(coordinate).title(text))
+        currentMarker = googleMap.addMarker(MarkerOptions().position(coordinate).title(text))
     }
 
     private fun setCameraPosition(coordinate: LatLng) {
