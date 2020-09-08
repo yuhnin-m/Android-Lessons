@@ -17,11 +17,22 @@ import kotlin.coroutines.suspendCoroutine
 private const val LOG_TAG: String = "person_repository"
 
 class PersonListRepositoryFromSystem(val context: Context) : PersonListRepository {
-
+    /**
+     * Переопределенный метод, запрашивающий список всех контактов в телефоне
+     * Метод реализован через Flow
+     * @param searchString строка поиска - фильтр по имени
+     * @return Вовзращает Flow со списком [Person]
+     */
     override fun getAllPersonsFlow(searchString: String) = flow {
         emit(getPersonList(searchString))
     }
 
+    /**
+     * Переопределенный метод, запрашивающий список всех контактов в телефоне
+     * Метод реализован в виде suspend функции
+     * @param searchString строка поиска - фильтр по имени
+     * @return Вовзращает список [Person]
+     */
     override suspend fun getAllPersons(searchString: String): List<Person> = withContext(Dispatchers.IO) {
         suspendCoroutine {
             try {
@@ -33,6 +44,11 @@ class PersonListRepositoryFromSystem(val context: Context) : PersonListRepositor
         }
     }
 
+    /**
+     * Метод, запрашивающий список всех контактов в телефоне
+     * @param searchString строка поиска - фильтр по имени
+     * @return Вовзращает список [Person]
+     */
     private fun getPersonList(searchString: String): List<Person> {
         val personList = mutableListOf<Person>()
         val contentResolver = context.contentResolver

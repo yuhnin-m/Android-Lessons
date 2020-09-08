@@ -10,7 +10,6 @@ import com.a65apps.core.entities.Person
 import com.a65apps.core.interactors.contacts.PersonDetailsRepository
 import com.a65apps.library.Constants
 import kotlinx.coroutines.flow.flow
-import java.util.*
 
 private const val LOG_TAG = "contact_list_repository"
 private val KEY_CONTENT_PHONE = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
@@ -18,11 +17,20 @@ private val KEY_CONTENT_EMAIL = ContactsContract.CommonDataKinds.Email.CONTENT_U
 private const val KEY_CONTENT_ID = ContactsContract.CommonDataKinds.Email.CONTACT_ID
 
 class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDetailsRepository {
-
+    /**
+     * Переопределенный метод запроса контактной информации
+     * @param personId идентификатор контакта
+     * @return Flow со списком контактной информации
+     */
     override fun getContactsByPerson(personId: String) = flow {
         emit(getContacts(personId))
     }
 
+    /**
+     * Переопределенный метод запроса деталей о контакте
+     * @param personId идентификатор контакта
+     * @return Flow с [Person]
+     */
     override fun getPersonDetails(personId: String) = flow {
         getPerson(personId)?.let {
             emit(it)
@@ -34,9 +42,9 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
      * @param personId идентификатор контакта
      * @return возвращает экземпляр PersonModelAdvanced
      */
-    fun getPerson(personId: String): Person? {
+    private fun getPerson(personId: String): Person? {
         val cursor = context.contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null,
-                ContactsContract.Contacts._ID + " = " + personId, null, null)
+                "${ContactsContract.Contacts._ID} = $personId", null, null)
         cursor?.use {
             try {
                 it.moveToNext()
@@ -69,7 +77,7 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
         Log.d(LOG_TAG, "Читаем место работы контакта id=$personId")
         var personJobDescription = ""
         val cursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + personId,
+                "${ContactsContract.CommonDataKinds.Phone.CONTACT_ID} = $personId",
                 null, null)
         cursor?.use {
             while (it.moveToNext()) {
@@ -79,7 +87,6 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
         }
         return personJobDescription
     }
-
 
     /**
      * Метод для получения списка контактной информации у контакта
@@ -92,15 +99,13 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
             val phoneNumbers: List<Contact> = getContactsByType(ContactType.PHONE_NUMBER, personId, context.contentResolver)
             contactInfoModels.addAll(phoneNumbers)
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения списка телефонов контакта id=" + personId +
-                    ". Текст ошибки: " + e.message)
+            Log.e(LOG_TAG, "Ошибка чтения телефонов контакта id=$personId: ${e.message}")
         }
         try {
             val emails: List<Contact> = getContactsByType(ContactType.EMAIL, personId, context.contentResolver)
             contactInfoModels.addAll(emails)
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "Произошла ошибка чтения списка адресов эл.почты контакта " + personId +
-                    ". Текст ошибки: " + e.message)
+            Log.e(LOG_TAG, "Ошибка чтения списка эл.почт контакта $personId : ${e.message}")
         }
         return contactInfoModels
     }
@@ -137,7 +142,7 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
     /**
      * Метод, в зависимости от параметра, возвращающий номера телефонов или адреса
      * электронной почты для определенного контакта с заданным ID
-     * @param uri ссылка для поиска контактов: либо KEY_CONTENT_PHONE, либо KEY_CONTENT_EMAIL
+     * @param contactType тип контакта из [ContactType]
      * @param personId идентификатор контакта
      * @param contentResolver экземпляр ContentResolver
      * @return Список номеров телефонов, либо адресов email
@@ -159,8 +164,8 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
         cursor?.use {
             try {
                 while (it.moveToNext()) {
-                    val value = it.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                    val valueId = it.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID))
+                    val value = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    val valueId = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID))
                     if (!value.isNullOrEmpty() && !valueId.isNullOrEmpty()) {
                         try {
                             contactList.add(Contact(
@@ -176,8 +181,7 @@ class PersonDetailsRepositoryFromSystem(private val context: Context) : PersonDe
                     }
                 }
             } catch (e: Exception) {
-                Log.e(LOG_TAG, "Произошла ошибка чтения номеров телефона контакта " + personId +
-                        ". Текст ошибки: ${e.message}")
+                Log.e(LOG_TAG, "Ошибка чтения номеров контакта $personId: ${e.message}")
             }
         }
         return contactList

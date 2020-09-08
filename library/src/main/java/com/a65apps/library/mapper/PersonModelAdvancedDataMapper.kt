@@ -4,7 +4,6 @@ import com.a65apps.core.entities.Person
 import com.a65apps.library.models.PersonModelAdvanced
 
 class PersonModelAdvancedDataMapper {
-
     /**
      * Трансформация [Person] into an [com.a65apps.library.models.PersonModelAdvanced].
      * @param person Object to be transformed.

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +39,6 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     private var personId: String = ""
     private var contactInfoList: List<ContactModel>? = null
     private lateinit var person: PersonModelAdvanced
-    private var contactListAdapter: ContactListAdapter? = null
     private lateinit var viewManager: RecyclerView.LayoutManager
 
     @Inject
@@ -53,7 +53,9 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     }
 
     companion object {
-        fun newInstance(): PersonListFragment = PersonListFragment()
+        fun newInstance(personId: String) = PersonDetailsFragment().apply {
+            arguments = bundleOf(Constants.KEY_PERSON_ID to personId)
+        }
     }
 
     override fun onAttach(context: Context) {

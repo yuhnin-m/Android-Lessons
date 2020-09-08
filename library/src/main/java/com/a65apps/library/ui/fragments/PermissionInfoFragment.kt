@@ -10,15 +10,19 @@ import com.a65apps.library.R
 import kotlinx.android.synthetic.main.fragment_request_permisson.*
 
 class PermissionInfoFragment : Fragment(R.layout.fragment_request_permisson) {
+    companion object {
+        fun newInstance() = PermissionInfoFragment()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnRequestPermissions.setOnClickListener(View.OnClickListener {
+        btnRequestPermissions.setOnClickListener {
             ActivityCompat.requestPermissions(requireActivity(),
                     arrayOf(Manifest.permission.READ_CONTACTS,
                             Manifest.permission.INTERNET,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION),
                     Constants.CODE_PERMISSION_REQUEST_CODE)
-        })
+        }
     }
 }

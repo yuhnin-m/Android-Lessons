@@ -12,7 +12,6 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {AppModule.class, RepositoryModule.class, DbModule.class})
-
 public interface AppComponent extends AppContainer {
     @Override
     PersonDetailsComponent plusPersonDetailsComponent();

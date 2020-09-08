@@ -33,7 +33,6 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
     private var searchQuery: String? = null
 
     companion object {
-        @JvmStatic
         fun newInstance(): PersonListFragment = PersonListFragment()
     }
 
@@ -126,8 +125,8 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         Log.d(LOG_TAG, "Создаем список контактов " + personList.size)
     }
 
-    override fun fetchError(errorMessage: String) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+    override fun fetchError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     override fun hideProgressBar() {
