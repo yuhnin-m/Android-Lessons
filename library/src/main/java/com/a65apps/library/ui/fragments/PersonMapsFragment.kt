@@ -7,13 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import com.a65apps.library.Constants
 import com.a65apps.library.R
 import com.a65apps.library.di.containers.HasAppContainer
 import com.a65apps.library.models.LocationModel
 import com.a65apps.library.presenters.PersonMapPresenter
 import com.a65apps.library.ui.listeners.EventActionBarListener
-import com.a65apps.library.ui.listeners.OnPersonSetLocation
 import com.a65apps.library.views.PersonMapView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
@@ -31,25 +31,19 @@ import kotlinx.android.synthetic.main.fragment_person_maps.*
 import javax.inject.Inject
 import javax.inject.Provider
 
+private const val LOG_TAG = "person_map_fragment"
 
-private const val LOG_TAG = "person_map_fragment";
-
-class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCallback {
-    var eventActionBarListener: EventActionBarListener? = null
-    var onPersonSetLocation: OnPersonSetLocation? = null
-    private lateinit var personId: String;
-    private lateinit var personName: String;
-    private lateinit var googleMap: GoogleMap
-    private lateinit var currentMarker: Marker
+class PersonMapsFragment : MvpAppCompatFragment(), PersonMapView, OnMapReadyCallback {
+    private var eventActionBarListener: EventActionBarListener? = null
+    private lateinit var personId: String
+    private lateinit var personName: String
+    private var googleMap: GoogleMap? = null
+    private var currentMarker: Marker? = null
 
     companion object {
-        @JvmStatic
-        fun newInstance(personId: String): PersonMapsFragment {
-            val fragment = PersonMapsFragment()
-            val args = Bundle()
-            args.putString(Constants.KEY_PERSON_ID, personId)
-            fragment.arguments = args
-            return fragment
+        fun newInstance(personId: String, name: String) = PersonMapsFragment().apply {
+            arguments = bundleOf(Constants.KEY_PERSON_ID to personId,
+                    Constants.KEY_PERSON_NAME to name)
         }
     }
 
@@ -64,7 +58,6 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
         return personMapPresenterProvider.get()
     }
 
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         val app = requireActivity().application
@@ -74,9 +67,6 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
         contactMapComponent.inject(this)
         if (context is EventActionBarListener) {
             eventActionBarListener = context
-        }
-        if (context is OnPersonSetLocation) {
-            onPersonSetLocation = context
         }
     }
 
@@ -88,7 +78,7 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
         personId = arguments?.getString(Constants.KEY_PERSON_ID) ?: ""
         personName = arguments?.getString(Constants.KEY_PERSON_NAME) ?: ""
         personMapPresenter.requestPersonLocation(personId)
-
+        eventActionBarListener?.setVisibleToolBarBackButton(true)
         Log.d(LOG_TAG, "Received from bundle: personId=$personId")
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment?
         mapFragment?.let {
@@ -96,19 +86,16 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
             it.getMapAsync(this)
         }
         buttonSaveLocation.setOnClickListener {
-            if (currentMarker != null) {
-                personMapPresenter.requestSavePersonLocation(personId, "", currentMarker.position)
+            currentMarker?.let { marker ->
+                personMapPresenter.requestSavePersonLocation(personId, "", marker.position)
             }
             Toast.makeText(requireContext(), "You clicked me.", Toast.LENGTH_SHORT).show()
         }
-
         super.onViewCreated(view, savedInstanceState)
     }
 
-
     override fun onDetach() {
         eventActionBarListener = null
-        onPersonSetLocation = null
         super.onDetach()
     }
 
@@ -131,38 +118,38 @@ class PersonMapsFragment() : MvpAppCompatFragment(), PersonMapView, OnMapReadyCa
     }
 
     private fun createMarker(coordinate: LatLng, text: String) {
-        googleMap.clear()
-        currentMarker = googleMap.addMarker(MarkerOptions().position(coordinate).title(text))
+        googleMap?.clear()
+        currentMarker = googleMap?.addMarker(MarkerOptions().position(coordinate).title(text))
     }
 
     private fun setCameraPosition(coordinate: LatLng) {
-        val zoomValue: Float = if (googleMap.cameraPosition.zoom < Constants.DEFAULT_MAP_ZOOM)
-            Constants.DEFAULT_MAP_ZOOM else googleMap.cameraPosition.zoom
-        val cameraPosition = CameraPosition.Builder()
-                .target(coordinate)
-                .zoom(zoomValue)
-                .build()
-        val cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition)
-        googleMap.animateCamera(cameraUpdate)
+        googleMap?.let { map ->
+            val zoomValue: Float = if (map.cameraPosition.zoom < Constants.DEFAULT_MAP_ZOOM)
+                Constants.DEFAULT_MAP_ZOOM else map.cameraPosition.zoom
+            val cameraPosition = CameraPosition.Builder()
+                    .target(coordinate)
+                    .zoom(zoomValue)
+                    .build()
+            val cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition)
+            map.animateCamera(cameraUpdate)
+        }
     }
 
     private fun onMapClickListener(point: LatLng) {
-        Log.d(LOG_TAG, "Выбрана координата $point")
         createMarker(point, personName)
         setCameraPosition(point)
     }
 
     override fun onMapReady(gMap: GoogleMap?) {
         gMap?.let {
-            this.googleMap = gMap
+            this.googleMap = it
             Log.d(LOG_TAG, "Map retrieved")
-            gMap.setOnMapClickListener(OnMapClickListener { point: LatLng? ->
+            it.setOnMapClickListener { point: LatLng? ->
                 gMap.clear()
-                point?.let { onMapClickListener(it) }
-
-            })
+                point?.let { latLng ->
+                    onMapClickListener(latLng)
+                }
+            }
         }
     }
-
-
 }

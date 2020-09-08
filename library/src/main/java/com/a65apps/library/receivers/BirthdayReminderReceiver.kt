@@ -17,7 +17,6 @@ import javax.inject.Inject
 private const val LOG_TAG = "alarm_receiver"
 
 class BirthdayReminderReceiver : BroadcastReceiver() {
-
     @Inject
     lateinit var reminderInteractor: BirthdayReminderInteractor
 
@@ -36,7 +35,6 @@ class BirthdayReminderReceiver : BroadcastReceiver() {
             Log.d(LOG_TAG, "Переустанавливаем напоминалку")
             reminderInteractor.setBirthdayReminder(personId, fullName, birthDayString)
         }
-
     }
 
     /**

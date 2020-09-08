@@ -5,20 +5,18 @@ import com.a65apps.core.entities.Person
 import com.a65apps.library.models.PersonModelCompact
 
 class PersonModelCompactDataMapper {
-
     /**
      * Трансформация [Person] в [PersonModelCompact].
      * @param person Экземпляр сущности [Person].
      * @return [PersonModelCompact].
      */
-    private fun transform(person: Person) =
-            with(person) {
-                PersonModelCompact(
-                        id = id,
-                        displayName = displayName,
-                        description = description,
-                        photoPreviewUri = Uri.parse(photoStringUri))
-            }
+    private fun transform(person: Person) = with(person) {
+        PersonModelCompact(
+                id = id,
+                displayName = displayName,
+                description = description,
+                photoPreviewUri = Uri.parse(photoStringUri))
+    }
 
     /**
      * Трансформация списка [Person] в список [PersonModelCompact].

@@ -53,6 +53,6 @@ public class RepositoryModule {
     public PersonLocationRepository providePersonLocationRepository(
             @NonNull AppDatabase database,
             @NonNull Context context) {
-        return new PersonLocationRepositoryFromDb(database, context);
+        return new PersonLocationRepositoryFromDb(database);
     }
 }

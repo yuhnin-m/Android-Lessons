@@ -18,4 +18,5 @@ object Constants {
     const val DEFAULT_LONGITUDE = 53.21
     const val DEFAULT_MAP_ZOOM = 15f
     const val DATE_STRING_FORMAT = "dd-MM"
+    const val CODE_DATE_PARSE_ERROR = -1L
 }

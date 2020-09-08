@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private const val LOG_TAG = "lib_reminder_repository"
+
 class ReminderRepository(private val context: Context) : BirthdayReminderRepository {
     private var alarmManager: AlarmManager? = null
 
@@ -32,9 +33,11 @@ class ReminderRepository(private val context: Context) : BirthdayReminderReposit
                 String.format(context.getString(R.string.text_remind_birthday), fullName))
         val alarmIntent = PendingIntent.getBroadcast(context, personId.hashCode(),
                 intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        var millisToRemind = 0L
+        val millisToRemind: Long
         try {
             millisToRemind = createMillisToRemind(date)
+            if (millisToRemind == Constants.CODE_DATE_PARSE_ERROR )
+                return false
         } catch (e: ParseException) {
             Log.e(LOG_TAG, "Невозможно распарсить дату: $date. Ошибка: $e")
             return false
@@ -72,21 +75,27 @@ class ReminderRepository(private val context: Context) : BirthdayReminderReposit
      */
     private fun createMillisToRemind(date: String): Long {
         val calendar = GregorianCalendar.getInstance()
-        calendar.time = SimpleDateFormat(Constants.DATE_STRING_FORMAT, Locale.ENGLISH).parse(date)
-        calendar[Calendar.YEAR] = Calendar.getInstance()[Calendar.YEAR]
-        if (calendar.timeInMillis < System.currentTimeMillis()) {
-            calendar.add(Calendar.YEAR, 1)
-        }
-        calendar[Calendar.HOUR_OF_DAY] = 12
-        calendar[Calendar.MINUTE] = 0
-        calendar[Calendar.SECOND] = 0
-        if (calendar[Calendar.MONTH] == Calendar.FEBRUARY &&
-                calendar[Calendar.DAY_OF_MONTH] == 29) {
-            if (!(GregorianCalendar.getInstance() as GregorianCalendar).isLeapYear(calendar[Calendar.YEAR])) {
-                calendar[Calendar.DAY_OF_MONTH] = 28
+        val parsedDate : Date? = SimpleDateFormat(Constants.DATE_STRING_FORMAT, Locale.ENGLISH).parse(date)
+        parsedDate?.let {
+            with(calendar) {
+                time = it
+                this[Calendar.YEAR] = Calendar.getInstance()[Calendar.YEAR]
+                if (timeInMillis < System.currentTimeMillis()) {
+                    add(Calendar.YEAR, 1)
+                }
+                this[Calendar.HOUR_OF_DAY] = 12
+                this[Calendar.MINUTE] = 0
+                this[Calendar.SECOND] = 0
+                if (this[Calendar.MONTH] == Calendar.FEBRUARY &&
+                        this[Calendar.DAY_OF_MONTH] == 29) {
+                    if (!(GregorianCalendar.getInstance() as GregorianCalendar).isLeapYear(calendar[Calendar.YEAR])) {
+                        this[Calendar.DAY_OF_MONTH] = 28
+                    }
+                }
+                return this.timeInMillis
             }
         }
-        return calendar.timeInMillis
+        return Constants.CODE_DATE_PARSE_ERROR
     }
 
     /**

@@ -5,9 +5,8 @@ import com.a65apps.library.models.LocationModel
 
 
 class LocationModelMapper {
-
     /**
-     * Трансформация класса [LocationModel] в класс [Location]
+     * РўСЂР°РЅСЃС„РѕСЂРјР°С†РёСЏ РєР»Р°СЃСЃР° [LocationModel] РІ РєР»Р°СЃСЃ [Location]
      * @param locationModel Object to be transformed.
      * @return [Location].
      */
@@ -20,7 +19,7 @@ class LocationModelMapper {
     }
 
     /**
-     * Трансформация класса [Location] в класс [LocationModel]
+     * РўСЂР°РЅСЃС„РѕСЂРјР°С†РёСЏ РєР»Р°СЃСЃР° [Location] РІ РєР»Р°СЃСЃ [LocationModel]
      * @param location Object to be transformed.
      * @return [LocationModel].
      */
@@ -30,9 +29,9 @@ class LocationModelMapper {
 
 
     /**
-     * Метод трансформации коллекции [LocationModel] в список [Location]
-     * @param locationModels объекты для трансформации
-     * @return Коллекция [Location].
+     * РњРµС‚РѕРґ С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё РєРѕР»Р»РµРєС†РёРё [LocationModel] РІ СЃРїРёСЃРѕРє [Location]
+     * @param locationModels РѕР±СЉРµРєС‚С‹ РґР»СЏ С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё
+     * @return РљРѕР»Р»РµРєС†РёСЏ [Location].
      */
     fun transformModelListToEntityList(locationModels: List<LocationModel>): List<Location> {
         val locationCollection = mutableSetOf<Location>()
@@ -45,9 +44,9 @@ class LocationModelMapper {
     }
 
     /**
-     * Метод трансформации коллекции [LocationModel] в список [Location]
-     * @param locationCollection объекты для трансформации
-     * @return Коллекция [Location].
+     * РњРµС‚РѕРґ С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё РєРѕР»Р»РµРєС†РёРё [LocationModel] РІ СЃРїРёСЃРѕРє [Location]
+     * @param locationCollection РѕР±СЉРµРєС‚С‹ РґР»СЏ С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё
+     * @return РљРѕР»Р»РµРєС†РёСЏ [Location].
      */
     fun transformEntityListToModelList(locationCollection: List<Location>): List<LocationModel> {
         val locationModels = mutableSetOf<LocationModel>()
