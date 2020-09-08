@@ -3,6 +3,7 @@ package com.a65apps.library.presenters
 import android.util.Log
 import com.a65apps.core.entities.Location
 import com.a65apps.core.interactors.locations.PersonLocationInteractor
+import com.a65apps.core.interactors.organizations.LocationOrganizationInteractor
 import com.a65apps.library.Constants
 import com.a65apps.library.mapper.LocationModelMapper
 import com.a65apps.library.models.LocationModel
@@ -17,7 +18,9 @@ import kotlinx.coroutines.flow.flowOn
 private const val LOG_TAG = "person_map_presenter"
 
 @InjectViewState
-class PersonMapPresenter(private val personLocationInteractor: PersonLocationInteractor) : MvpPresenter<PersonMapView>() {
+class PersonMapPresenter(
+        private val personLocationInteractor: PersonLocationInteractor,
+        private val locationOrganizationInteractor: LocationOrganizationInteractor) : MvpPresenter<PersonMapView>() {
     private val job = SupervisorJob()
     private var scope: CoroutineScope = CoroutineScope(Dispatchers.Main + job)
 

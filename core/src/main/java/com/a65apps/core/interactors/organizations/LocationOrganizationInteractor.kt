@@ -5,5 +5,8 @@ import com.a65apps.core.entities.Organization
 import kotlinx.coroutines.flow.Flow
 
 interface LocationOrganizationInteractor {
-    fun loadOrganizationsByLocation(location: Location): Flow<List<Organization>?>
+    fun saveOrganization(organization: Organization)
+    fun loadOrganizationByAddress(address: String): Flow<List<Organization>?>
+    fun loadOrganizationsByPersonId(personId: String): Flow<List<Organization>?>
+    fun loadAllOrganizations(searchString: String): Flow<List<Organization>?>
 }

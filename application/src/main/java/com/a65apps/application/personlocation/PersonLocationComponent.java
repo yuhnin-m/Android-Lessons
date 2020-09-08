@@ -6,7 +6,7 @@ import com.a65apps.library.di.containers.PersonLocationContainer;
 import dagger.Subcomponent;
 
 @PersonLocationScope
-@Subcomponent(modules = {PersonLocationModule.class})
+@Subcomponent(modules = {PersonLocationModule.class, LocationOrganizationModule.class})
 public interface PersonLocationComponent extends PersonLocationContainer {
 
 }

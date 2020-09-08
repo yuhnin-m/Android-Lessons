@@ -12,8 +12,6 @@ import dagger.Provides;
 
 @Module
 public class PersonDetailsModule {
-
-
     @Provides
     @PersonDetailsScope
     public PersonDetailsPresenter provideContactDetailsPresenter(PersonDetailsInteractor personDetailsInteractor, BirthdayReminderInteractor birthdayReminderInteractor){

@@ -5,5 +5,8 @@ import com.a65apps.core.entities.Organization
 import kotlinx.coroutines.flow.Flow
 
 interface LocationOrganizationRepository {
-    fun getOrganizationsByLocation(location: Location): Flow<List<Organization>?>
+    fun getOrganizationsByPerson(personId: String): Flow<List<Organization>?>
+    fun getOrganizationsByAddress(address: String): Flow<List<Organization>?>
+    fun getAllOrganizations(searchString: String): Flow<List<Organization>?>
+    fun saveOrganization(organization: Organization)
 }
