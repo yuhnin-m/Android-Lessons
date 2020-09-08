@@ -7,7 +7,6 @@ import com.a65apps.core.interactors.locations.PersonLocationInteractor;
 import com.a65apps.core.interactors.locations.PersonLocationModel;
 import com.a65apps.core.interactors.locations.PersonLocationRepository;
 import com.a65apps.library.presenters.PersonMapPresenter;
-import com.a65apps.library.repositories.PersonLocationRepositoryFromDb;
 
 import dagger.Module;
 import dagger.Provides;
