@@ -7,9 +7,11 @@ import androidx.annotation.NonNull;
 
 import com.a65apps.core.interactors.contacts.PersonDetailsRepository;
 import com.a65apps.core.interactors.locations.PersonLocationRepository;
+import com.a65apps.core.interactors.organizations.LocationOrganizationRepository;
 import com.a65apps.core.interactors.persons.PersonListRepository;
 import com.a65apps.core.interactors.reminders.BirthdayReminderRepository;
 import com.a65apps.library.database.AppDatabase;
+import com.a65apps.library.repositories.LocationOrganizationRepositoryRetrofit;
 import com.a65apps.library.repositories.PersonDetailsRepositoryFromSystem;
 import com.a65apps.library.repositories.PersonListRepositoryFromSystem;
 import com.a65apps.library.repositories.PersonLocationRepositoryFromDb;
@@ -26,6 +28,12 @@ public class RepositoryModule {
     @Singleton
     public PersonDetailsRepository providePersonDetailsRepository(Context context) {
         return new PersonDetailsRepositoryFromSystem(context);
+    }
+
+    @Provides
+    @Singleton
+    public LocationOrganizationRepository provideLocationOrganizationRepository(Context context) {
+        return new LocationOrganizationRepositoryRetrofit(context);
     }
 
     @Provides
