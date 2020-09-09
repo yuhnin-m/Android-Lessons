@@ -4,10 +4,15 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.a65apps.library.Constants
 import com.a65apps.library.R
 import com.a65apps.library.di.containers.HasAppContainer
@@ -34,6 +39,7 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     private var personId: String = ""
     private var contactInfoList: List<ContactModel>? = null
     private lateinit var person: PersonModelAdvanced
+    private lateinit var viewManager: RecyclerView.LayoutManager
 
     @Inject
     lateinit var detailsPresenterProvider: Provider<PersonDetailsPresenter>
@@ -47,7 +53,9 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     }
 
     companion object {
-        fun newInstance(): PersonListFragment = PersonListFragment()
+        fun newInstance(personId: String) = PersonDetailsFragment().apply {
+            arguments = bundleOf(Constants.KEY_PERSON_ID to personId)
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -75,10 +83,16 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
         personId = arguments?.getString(Constants.KEY_PERSON_ID) ?: ""
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_contact_details, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewManager = LinearLayoutManager(requireContext())
+
         btnOpenSetLocation.setOnClickListener {
-            onPersonSetLocation?.onPersonSetLocation(person.id)
+            onPersonSetLocation?.onPersonSetLocation(person.id, person.displayName)
         }
         togglebtnRemindBirthday.setOnCheckedChangeListener(this)
     }
@@ -111,6 +125,7 @@ class PersonDetailsFragment : MvpAppCompatFragment(), PersonDetailsView,
     override fun fetchContactsInfo(listOfContacts: List<ContactModel>) {
         contactInfoList = listOfContacts
         val contactListAdapter = ContactListAdapter(listOfContacts)
+        recyclerviewContacts.layoutManager = viewManager
         recyclerviewContacts.adapter = contactListAdapter
     }
 

@@ -13,6 +13,9 @@
     <string name="text_contact_type_site">Сайт</string>
     <string name="text_contact_type_other">Другое</string>
     <string name="text_notset">Не задано</string>
+    <string name="text_error_fetch_person_location">Ошибка при получении местоположения</string>
+    <string name="text_error_fetch_list_location">Ошибка при получении списка местоположений контактов</string>
+    <string name="text_success_save_location">Ошибка при получении списка местоположений контактов</string>
     <string name="text_birthday">День рождения</string>
     <string name="text_remind_birthday">Сегодня день рождения у %s</string>
     <string name="text_remind">Напоминать о ДР</string>

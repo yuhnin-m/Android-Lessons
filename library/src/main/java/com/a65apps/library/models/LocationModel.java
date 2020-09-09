@@ -1,13 +1,12 @@
 package com.a65apps.library.models;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 
 @Entity
@@ -23,7 +22,7 @@ public class LocationModel {
 
     @NonNull
     @ColumnInfo(name = "longitude")
-    private final double longitude ;
+    private final double longitude;
 
     @NonNull
     @ColumnInfo(name = "latitude")

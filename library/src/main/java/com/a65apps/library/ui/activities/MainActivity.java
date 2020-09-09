@@ -5,12 +5,10 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,8 +21,8 @@ import androidx.fragment.app.FragmentManager;
 
 import com.a65apps.library.Constants;
 import com.a65apps.library.R;
-import com.a65apps.library.ui.fragments.PersonDetailsFragment;
 import com.a65apps.library.ui.fragments.PermissionInfoFragment;
+import com.a65apps.library.ui.fragments.PersonDetailsFragment;
 import com.a65apps.library.ui.fragments.PersonListFragment;
 import com.a65apps.library.ui.fragments.PersonMapsFragment;
 import com.a65apps.library.ui.listeners.EventActionBarListener;
@@ -33,7 +31,6 @@ import com.a65apps.library.ui.listeners.OnPersonSetLocation;
 
 public class MainActivity extends AppCompatActivity
         implements OnPersonClickedListener, OnPersonSetLocation, EventActionBarListener {
-
     final String LOG_TAG = "activity_application";
     final String TAG_FRAGMENT_DETAILS = "TAG_FRAGMENT_DETAILS";
     final String TAG_FRAGMENT_PERM_REQ = "TAG_FRAGMENT_PERM_REQ";
@@ -69,11 +66,13 @@ public class MainActivity extends AppCompatActivity
         createNotificationChannel();
         fragmentManager = getSupportFragmentManager();
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
+        permissionStatus += ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        permissionStatus += ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             if (fragmentManager.getFragments().isEmpty()) {
                 String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
                 if (id != null && !id.isEmpty()) {
-                    сreateDetailsFragment(id);
+                    createDetailsFragment(id);
                 } else {
                     createPersonListFragment();
                 }
@@ -81,12 +80,9 @@ public class MainActivity extends AppCompatActivity
         } else {
             requestReadContactsPermission();
         }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        }
         Log.d(LOG_TAG, "onCreate end");
     }
 
@@ -95,9 +91,9 @@ public class MainActivity extends AppCompatActivity
      */
     private void createPersonListFragment() {
         Log.d(LOG_TAG, "Создаем фрагмент списка контактов");
-        PersonListFragment contactListFragment = (PersonListFragment)fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
+        PersonListFragment contactListFragment = (PersonListFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_LIST);
         if (contactListFragment == null) {
-            contactListFragment = new PersonListFragment();
+            contactListFragment = PersonListFragment.Companion.newInstance();
             if (fragmentManager.getFragments().isEmpty()) {
                 fragmentManager.beginTransaction().add(R.id.fragment_container, contactListFragment, TAG_FRAGMENT_LIST).commit();
             } else {
@@ -109,16 +105,14 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Метод создания и отображения фрагмента деталей о контакте
+     *
      * @param personId идентификатор контакта
      */
-    private void сreateDetailsFragment(String personId) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.KEY_PERSON_ID, personId);
+    private void createDetailsFragment(String personId) {
         PersonDetailsFragment contactDetailsFragment = (PersonDetailsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_DETAILS);
         if (contactDetailsFragment == null) {
             // Фрагмент еще не создан
-            contactDetailsFragment = new PersonDetailsFragment();
-            contactDetailsFragment.setArguments(bundle);
+            contactDetailsFragment = PersonDetailsFragment.Companion.newInstance(personId);
             if (fragmentManager.getFragments().isEmpty()) {
                 fragmentManager.beginTransaction()
                         .add(R.id.fragment_container, contactDetailsFragment, TAG_FRAGMENT_DETAILS)
@@ -135,10 +129,10 @@ public class MainActivity extends AppCompatActivity
     /**
      * Метод создания и отображения фрагмента вежливого запроса разрешений
      */
-    private void сreatePermissionRequestFragment() {
+    private void createPermissionRequestFragment() {
         PermissionInfoFragment requestPermissonFragment = (PermissionInfoFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERM_REQ);
         if (requestPermissonFragment == null) {
-            requestPermissonFragment = new PermissionInfoFragment();
+            requestPermissonFragment = PermissionInfoFragment.Companion.newInstance();
         }
         if (fragmentManager.getFragments().isEmpty()) {
             fragmentManager.beginTransaction()
@@ -147,6 +141,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             fragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, requestPermissonFragment, TAG_FRAGMENT_PERM_REQ)
+                    .addToBackStack(null)
                     .commit();
         }
     }
@@ -154,15 +149,11 @@ public class MainActivity extends AppCompatActivity
     /**
      * Метод создания и отображения фрагмента задания местоположения контакта
      */
-    private void createPersonMapFragment(String personId) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.KEY_PERSON_ID, personId);
-
-        PersonMapsFragment personMapsFragment = (PersonMapsFragment) fragmentManager.findFragmentByTag(TAG_FRAGMENT_PERSON_LOCATION);
+    private void createPersonMapFragment(String personId, String name) {
+        PersonMapsFragment personMapsFragment = (PersonMapsFragment) fragmentManager
+                .findFragmentByTag(TAG_FRAGMENT_PERSON_LOCATION);
         if (personMapsFragment == null) {
-            personMapsFragment = new PersonMapsFragment();
-            personMapsFragment.setArguments(bundle);
-
+            personMapsFragment = PersonMapsFragment.Companion.newInstance(personId, name);
         }
         if (fragmentManager.getFragments().isEmpty()) {
             fragmentManager.beginTransaction()
@@ -171,14 +162,14 @@ public class MainActivity extends AppCompatActivity
         } else {
             fragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, personMapsFragment, TAG_FRAGMENT_PERSON_LOCATION)
+                    .addToBackStack(null)
                     .commit();
         }
     }
 
-
     @Override
     public void onItemClick(String personId) {
-        сreateDetailsFragment(personId);
+        createDetailsFragment(personId);
     }
 
     @Override
@@ -200,62 +191,63 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     /**
      * Метод запрашивающий разрешение на чтение контактов
      */
     private void requestReadContactsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
+        boolean isNeedRequestPermissions = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        isNeedRequestPermissions |= ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (isNeedRequestPermissions) {
             new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.permission_request_title))
                     .setMessage(getString(R.string.permission_request_message))
-                    .setPositiveButton(getString(R.string.permission_request_btn_positive), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(
-                                    MainActivity.this,
-                                    new String[]{Manifest.permission.READ_CONTACTS},
-                                    Constants.CODE_PERMISSION_READ_CONTACTS);
-                        }
-                    })
-                    .setNegativeButton(getString(R.string.permission_request_btn_negative), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            сreatePermissionRequestFragment();
-                        }
+                    .setPositiveButton(getString(R.string.permission_request_btn_positive), (dialog, which) -> androidx.core.app.ActivityCompat.requestPermissions(
+                            com.a65apps.library.ui.activities.MainActivity.this,
+                            new String[]{
+                                    android.Manifest.permission.READ_CONTACTS,
+                                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            com.a65apps.library.Constants.CODE_PERMISSION_REQUEST_CODE))
+                    .setNegativeButton(getString(R.string.permission_request_btn_negative), (dialog, which) -> {
+                        dialog.dismiss();
+                        createPermissionRequestFragment();
                     }).create().show();
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, Constants.CODE_PERMISSION_READ_CONTACTS);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, Constants.CODE_PERMISSION_REQUEST_CODE);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch(requestCode) {
-            case Constants.CODE_PERMISSION_READ_CONTACTS:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT);
-                    String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
-                    if (id != null && !id.isEmpty()) {
-                        сreateDetailsFragment(id);
-                    } else {
-                        createPersonListFragment();
-                    }
-                    return;
+        if (requestCode == Constants.CODE_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(),
+                        getString(R.string.permission_granted),
+                        Toast.LENGTH_SHORT).show();
+                String id = getIntent().getStringExtra(Constants.KEY_PERSON_ID);
+                if (id != null && !id.isEmpty()) {
+                    createDetailsFragment(id);
                 } else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
-                    сreatePermissionRequestFragment();
+                    createPersonListFragment();
                 }
-                break;
-            default: {
-                Toast.makeText(getApplicationContext(), getString(R.string.permission_not_received), Toast.LENGTH_SHORT);
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        getString(R.string.permission_not_received),
+                        Toast.LENGTH_SHORT).show();
+                createPermissionRequestFragment();
             }
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.permission_not_received),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void onPersonSetLocation(String personId) {
-        createPersonMapFragment(personId);
+    public void onPersonSetLocation(String personId, String name) {
+        createPersonMapFragment(personId, name);
     }
 }

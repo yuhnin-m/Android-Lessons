@@ -4,7 +4,6 @@ import com.a65apps.core.entities.Contact
 import com.a65apps.library.models.ContactModel
 
 class ContactModelDataMapper {
-
     /**
      * Трансформация [Contact] into an [ContactModel].
      * @param contact Object to be transformed.

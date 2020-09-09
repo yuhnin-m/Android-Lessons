@@ -70,8 +70,11 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         super.onDetach()
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_contact_list, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         personListAdapter = PersonListAdapter {
             onPersonClickedListener?.onItemClick(it)
         }
@@ -85,6 +88,7 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         }
         personListPresenter.requestContactList(searchQuery ?: "")
         setHasOptionsMenu(true)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -121,8 +125,8 @@ class PersonListFragment : MvpAppCompatFragment(), PersonListView {
         Log.d(LOG_TAG, "Создаем список контактов " + personList.size)
     }
 
-    override fun fetchError(errorMessage: String) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+    override fun fetchError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     override fun hideProgressBar() {

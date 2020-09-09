@@ -9,7 +9,6 @@ import com.a65apps.library.di.containers.AppContainer;
 import com.a65apps.library.di.containers.HasAppContainer;
 
 public class AppDelegate extends Application implements HasAppContainer {
-
     @Nullable
     private AppComponent appComponent;
 
