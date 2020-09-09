@@ -8,5 +8,6 @@ interface LocationOrganizationRepository {
     fun getOrganizationsByPerson(personId: String): Flow<List<Organization>?>
     fun getOrganizationsByAddress(address: String): Flow<List<Organization>?>
     fun getAllOrganizations(searchString: String): Flow<List<Organization>?>
+    fun getAddressByCoords(lat: Double, lng: Double): Flow<String>
     fun saveOrganization(organization: Organization)
 }
