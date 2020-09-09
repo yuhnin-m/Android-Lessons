@@ -19,10 +19,10 @@ public class PersonLocationModule {
     @PersonLocationScope
     @NonNull
     public PersonMapPresenter providePersonMapPresenter(
-            @NonNull PersonLocationInteractor personLocationInteractor,
+            @NonNull PersonLocationInteractor locationInteractor,
             @NonNull LocationOrganizationInteractor organizationInteractor,
             @NonNull LocationModelMapper mapper) {
-        return new PersonMapPresenter(personLocationInteractor, mapper);
+        return new PersonMapPresenter(locationInteractor, organizationInteractor, mapper);
     }
 
     @Provides

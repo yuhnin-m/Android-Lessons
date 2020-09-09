@@ -25,8 +25,8 @@ private const val LOG_TAG = "person_map_presenter"
 
 @InjectViewState
 class PersonMapPresenter(
-        private val personLocationInteractor: PersonLocationInteractor,
-        private val locationOrganizationInteractor: LocationOrganizationInteractor
+        private val locationInteractor: PersonLocationInteractor,
+        private val organizationInteractor: LocationOrganizationInteractor,
         private val mapper: LocationModelMapper) : MvpPresenter<PersonMapView>() {
     private val handler = CoroutineExceptionHandler { _, exception ->
         exception.message?.let {
@@ -38,7 +38,7 @@ class PersonMapPresenter(
 
     fun requestPersonLocation(personId: String) {
         scope.launch {
-            personLocationInteractor.loadLocationByPerson(personId)
+            locationInteractor.loadLocationByPerson(personId)
                     .flowOn(Dispatchers.IO)
                     .collect() { location ->
                         val locationModel = if (location != null) {
@@ -62,7 +62,7 @@ class PersonMapPresenter(
                         longitude = coords.longitude,
                         latitude = coords.latitude)
                 withContext(Dispatchers.IO) {
-                    personLocationInteractor.createPersonLocation(locationForSave)
+                    locationInteractor.createPersonLocation(locationForSave)
                 }
                 viewState.onPersonLocationSaved(mapper.transformEntityToModel(locationForSave))
             } catch (e: Exception) {
