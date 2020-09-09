@@ -38,11 +38,11 @@ class PersonDetailsPresenter(
         scope.launch(handler) {
             viewState.showProgressBar()
             personDetailsInteractor.loadPersonDetails(personId)
-                    .flowOn(Dispatchers.IO)
                     .flatMapMerge { personDetails ->
                         personDetailsInteractor.loadContactsByPerson(personId)
                                 .map { contactList -> personDetails to contactList }
-                    }.collect { (personDetails, contactList) ->
+                    }.flowOn(Dispatchers.IO)
+                    .collect { (personDetails, contactList) ->
                         with(viewState) {
                             fetchContactDetails(personModelDataMapper.transform(personDetails))
                             fetchContactsInfo(contactModelDataMapper.transform(contactList))
